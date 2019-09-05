@@ -1,5 +1,5 @@
 import math
-import ctre
+import rev
 import seamonsters as sea
 import time
 
@@ -14,6 +14,8 @@ MAX_POSITION_OCCURENCE = 10
 CHECK_SWERVE_ENCODER_CYCLE = 50 # cycles
 MAX_SWERVE_ERROR = 2 * math.pi / 3 # radians
 
+# for spark max
+DISABLED = 7
 
 def _iteratePairs(list):
     for i in range(0, len(list) - 1):
@@ -188,13 +190,13 @@ class TestWheel(CasterWheel):
 class AngledWheel(Wheel):
     """
     An AngledWheel is a wheel oriented in a fixed direction, which it can't
-    change on its own. It uses a TalonSRX to drive.
+    change on its own. It uses a SparkMax to drive.
     """
 
-    def __init__(self, motor: ctre.WPI_TalonSRX, x, y, angle,
+    def __init__(self, motor: rev.CANSparkMax, x, y, angle,
                  encoderCountsPerFoot, maxVoltageVelocity, reverse=False):
         """
-        :param motor: a TalonSRX
+        :param motor: a SparkMax
         :param x: X position in feet
         :param y: Y position in feet
         :param angle: radians, direction of force. 0 is right, positive
@@ -211,7 +213,7 @@ class AngledWheel(Wheel):
         self.maxVoltageVelocity = maxVoltageVelocity
         self.reverse = reverse
 
-        self.driveMode = ctre.ControlMode.PercentOutput
+        self.driveMode = rev.ControlType.kVoltage
         self.realTime = False
 
         self._motorState = None
@@ -230,14 +232,16 @@ class AngledWheel(Wheel):
         return 1.0
 
     def _encoderCheck(self):
-        newPosition = self.motor.getSelectedSensorPosition(0)
-        err = self.motor.getLastError()
-        if err == ctre.ErrorCode.RxTimeout:
+        newPosition = self.motor.getEncoder().getPosition()
+        err = self.motor.setEncPosition(self.motor.getEncoder().getPosition())
+        # setEncPosition() returns a CANError so we set it to the current
+        # position to get the error but affect nothing
+        if err == rev.CANError.kTimeout:
             print("Stale CAN frame so we won't check for errors :(",
-                self.motor.getDeviceID())
+                self.motor._deviceID)
             return
-        elif err != ctre.ErrorCode.OK:
-            print("Talon error", self.motor.getDeviceID(), err)
+        elif err != rev.CANError.kOK:
+            print("Spark max error", self.motor.getDeviceId())
 
         if abs(newPosition - self._oldPosition) <= 1:
             self._positionOccurence += 1
@@ -249,7 +253,7 @@ class AngledWheel(Wheel):
             self.faults.append("Encoder not moving")
             self._positionOccurence = 0
 
-        if self.driveMode == ctre.ControlMode.Position:
+        if self.driveMode == rev.ControlType.kPosition:
             # TODO: this is arbitrary
             maxError = self.encoderCountsPerFoot * MAX_DRIVE_ERROR
             if abs(newPosition - self._positionTarget) > maxError:
@@ -258,12 +262,12 @@ class AngledWheel(Wheel):
 
     def _drive(self, magnitude, direction):
         magnitude *= math.cos(direction - self.angle)
-        if self.reverse:
+        if self.reverse: 
             magnitude = -magnitude
 
-        if self.driveMode == ctre.ControlMode.Position \
+        if self.driveMode == rev.ControlType.kPosition \
                 and self._motorState != self.driveMode:
-            self._positionTarget = self.motor.getSelectedSensorPosition(0)
+            self._positionTarget = self.motor.getEncoder().getPosition()
             self._encoderCheckCount = 0
 
         curTime = time.time()
@@ -278,22 +282,20 @@ class AngledWheel(Wheel):
         # used by getTargetPosition
         self._positionTarget += encoderCountsPerSecond * tDiff
 
-        if self.driveMode == ctre.ControlMode.Disabled:
+        if self.driveMode == DISABLED:
             if self._motorState != self.driveMode:
                 self.motor.disable()
-        elif self.driveMode == ctre.ControlMode.PercentOutput:
-            self.motor.set(self.driveMode, magnitude / self.maxVoltageVelocity)
-        elif self.driveMode == ctre.ControlMode.Velocity:
-            self.motor.set(self.driveMode, encoderCountsPerSecond / 10.0)
-        elif self.driveMode == ctre.ControlMode.Position:
-            self.motor.set(self.driveMode, self._positionTarget)
+        elif self.driveMode == rev.ControlType.kVelocity:
+            self.motor.set(encoderCountsPerSecond / 10.0)
+        elif self.driveMode == rev.ControlType.kPosition:
+            self.motor.setEncPosition(self._positionTarget)
 
         self._motorState = self.driveMode
 
         self._encoderCheckCount += 1
         # TODO: document constant
         if abs(encoderCountsPerSecond) > 400 \
-                and not self.driveMode == ctre.ControlMode.Disabled:
+                and not self.driveMode == DISABLED:
             if self._encoderCheckCount % CHECK_DRIVE_ENCODER_CYCLE == 0:
                 # getSelectedSensorPosition is slow so only check a few times
                 # per second
@@ -305,9 +307,9 @@ class AngledWheel(Wheel):
         self.drive(0, 0)
 
     def disable(self):
-        if self._motorState != ctre.ControlMode.Disabled:
+        if self._motorState != DISABLED:
             self.motor.disable()
-            self._motorState = ctre.ControlMode.Disabled
+            self._motorState = DISABLED
 
     def resetPosition(self):
         self._motorState = None
@@ -365,10 +367,10 @@ class MecanumWheel(AngledWheel):
 class SwerveWheel(Wheel):
     """
     A wheel which can rotate. A SwerveWheel drives using an AngledWheel, and
-    rotates using a TalonSRX.
+    rotates using a SparkMax.
     """
 
-    def __init__(self, angledWheel: AngledWheel, steerMotor: ctre.WPI_TalonSRX,
+    def __init__(self, angledWheel: AngledWheel, steerMotor: rev.CANSparkMax,
                  encoderCountsPerRev, rotationVelocity, offsetX = 0, offsetY = 0,
                  reverseSteerMotor=False):
         """
@@ -377,7 +379,7 @@ class SwerveWheel(Wheel):
         :param angledWheel: an AngledWheel for driving. Its angle will be
             updated as the swerve wheel rotates. The SwerveWheel will borrow its
             X/Y position when it's initialized.
-        :param steerMotor: a TalonSRX for rotating the swerve wheel. It should
+        :param steerMotor: a SparkMax for rotating the swerve wheel. It should
             have a feedback sensor set for position mode.
         :param encoderCountsPerRev: number of encoder counts in a full rotation
             of the steer motor
@@ -425,9 +427,9 @@ class SwerveWheel(Wheel):
         if self.reverseSteerMotor:
             pos = -pos
         if self._motorDisabled:
-            self.steerMotor.setNeutralMode(ctre.NeutralMode.Brake)
+            self.steerMotor.setIdleMode(rev.IdleMode.kBrake)
             self._motorDisabled = False
-        self.steerMotor.set(ctre.ControlMode.Position, pos + self._steerOrigin)
+        self.steerMotor.setEncPosition(pos + self._steerOrigin)
 
     def _updateMotorPosition(self):
         if self._motorDisabled:
@@ -467,7 +469,7 @@ class SwerveWheel(Wheel):
         self.angledWheel.disable()
         if not self._motorDisabled:
             self.steerMotor.disable()
-            self.steerMotor.setNeutralMode(ctre.NeutralMode.Coast)
+            self.steerMotor.setIdleMode(rev.IdleMode.kCoast)
             self._motorDisabled = True
 
     def resetPosition(self):
