@@ -1,6 +1,5 @@
 __author__ = "seamonsters"
 
-import ctre
 import math
 import seamonsters as sea
 
