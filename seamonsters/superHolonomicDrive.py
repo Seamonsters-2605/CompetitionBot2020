@@ -208,6 +208,7 @@ class AngledWheel(Wheel):
         """
         super().__init__(x, y)
         self.motor = motor
+        self.motorController = rev._impl.CANPIDController(motor)
         self.angle = angle
         self.encoderCountsPerFoot = encoderCountsPerFoot
         self.maxVoltageVelocity = maxVoltageVelocity
@@ -286,9 +287,11 @@ class AngledWheel(Wheel):
             if self._motorState != self.driveMode:
                 self.motor.disable()
         elif self.driveMode == rev.ControlType.kVelocity:
-            self.motor.set(encoderCountsPerSecond / 10.0)
+            self.motorController.setReference(encoderCountsPerSecond / 10.0, self.driveMode)
         elif self.driveMode == rev.ControlType.kPosition:
-            self.motor.setEncPosition(self._positionTarget)
+            self.motorController.setReference(self._positionTarget, self.driveMode)
+        elif self.driveMode == rev.ControlType.kVoltage:
+            self.motorController.setReference(magnitude / self.maxVoltageVelocity, self.driveMode)
 
         self._motorState = self.driveMode
 
