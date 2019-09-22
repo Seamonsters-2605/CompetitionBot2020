@@ -21,11 +21,11 @@ class DriveGear:
         print("Set gear to", self)
         superDrive.gear = self # not a normal property of the superDrive
         for wheel in superDrive.wheels:
-            wheel.angledWheel.driveMode = self.driveMode
-            wheel.angledWheel.realTime = self.realTime
-            wheelMotorController = wheel.angledWheel.motorController
-            wheelMotorController.setP(0, self.p, 0)
-            wheelMotorController.setI(0, self.i, 0)
-            wheelMotorController.setD(0, self.d, 0)
-            wheelMotorController.setFF(0, self.f, 0)
+            wheel.driveMode = self.driveMode
+            wheel.realTime = self.realTime
+            wheelMotorController = wheel.motorController
+            wheelMotorController.setP(self.p)
+            wheelMotorController.setI(self.i)
+            wheelMotorController.setD(self.d)
+            wheelMotorController.setFF(self.f)
         return True

@@ -15,7 +15,7 @@ def _makeWheel(superDrive, sparkMaxNum, motorType, xPos, yPos):
     sparkMax.restoreFactoryDefaults()
     sparkMax.setIdleMode(rev.IdleMode.kBrake)
 
-    angledWheel = sea.AngledWheel(sparkMax, xPos, yPos, 0, 1, 16)
+    angledWheel = sea.AngledWheel(sparkMax, xPos, yPos, math.radians(90), 1, 16)
 
     superDrive.addWheel(angledWheel)
 

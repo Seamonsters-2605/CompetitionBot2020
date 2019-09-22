@@ -11,10 +11,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.superDrive = drivetrain.initDrivetrain()
         self.superDrive.gear = None
-        self.driveGear = None
+        self.driveGear = drivetrain.slowPositionGear
 
     def teleop(self):
-        yield from sea.parallel(self.drive, self.buttonControl)
+        yield from sea.parallel(self.drive(), self.buttonControl())
 
     def drive(self):
         while True:
@@ -42,7 +42,7 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.driveGear = drivetrain.slowPositionGear
             elif self.buttonBoard.getRawButtonPressed(4):
                 self.driveGear = drivetrain.mediumPositionGear
-            elif self.buttonBoard.getRawButtonPressed(4):
+            elif self.buttonBoard.getRawButtonPressed(5):
                 self.driveGear = drivetrain.fastPositionGear
 
             yield
