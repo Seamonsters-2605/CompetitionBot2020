@@ -6,12 +6,32 @@ import math
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
+
+        # joysticks
         self.joystick = wpilib.Joystick(0)
         self.buttonBoard = wpilib.Joystick(1)
 
         self.superDrive = drivetrain.initDrivetrain()
+
+        # drive gears
         self.superDrive.gear = None
-        self.driveGear = drivetrain.slowPositionGear
+        self.driveGear = drivetrain.slowVoltageGear
+        self.driveMode = "voltage"
+        self.driveSpeed = "slow"
+        self.driveGears = \
+            {"voltage" : \
+                {"slow" : drivetrain.slowVoltageGear, 
+                "medium" : drivetrain.mediumVoltageGear, 
+                "fast" : drivetrain.fastVoltageGear}, 
+            "velocity" : \
+                {"slow" : drivetrain.slowVelocityGear, 
+                "medium" : drivetrain.mediumVelocityGear, 
+                "fast" : drivetrain.fastVelocityGear},      
+            "position" : \
+                {"slow" : drivetrain.slowPositionGear, 
+                "medium" : drivetrain.mediumPositionGear, 
+                "fast" : drivetrain.fastPositionGear} 
+            }
 
     def teleop(self):
         yield from sea.parallel(self.drive(), self.buttonControl())
@@ -39,13 +59,26 @@ class CompetitionBot2020(sea.GeneratorBot):
         while True:
 
             if self.buttonBoard.getRawButtonPressed(3):
-                self.driveGear = drivetrain.slowPositionGear
+                self.driveSpeed = "slow"
             elif self.buttonBoard.getRawButtonPressed(4):
-                self.driveGear = drivetrain.mediumPositionGear
+                self.driveSpeed = "medium"
             elif self.buttonBoard.getRawButtonPressed(5):
-                self.driveGear = drivetrain.fastPositionGear
+                self.driveSpeed = "fast"
+
+            if self.buttonBoard.getRawButtonPressed(2):
+                self.toggleDriveMode()
+
+            self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
             yield
+
+    def toggleDriveMode(self):
+        if self.driveMode == "voltage":
+            self.driveMode = "velocity"
+        elif self.driveMode == "velocity":
+            self.driveMode = "position"
+        else:
+            self.driveMode = "voltage"
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2020)
