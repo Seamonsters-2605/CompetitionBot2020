@@ -13,6 +13,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.superDrive = drivetrain.initDrivetrain()
 
+        # for shifting gear box
+        self.compressor = wpilib.Compressor(0)
+        self.piston = wpilib.Solenoid(0)
+
         # drive gears
         self.superDrive.gear = None
         self.driveGear = drivetrain.slowVoltageGear
@@ -41,6 +45,12 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             if self.superDrive.gear != self.driveGear:
                 self.driveGear.applyGear(self.superDrive)
+
+            # must be changed when I get more details from James
+            if self.piston.get() and self.driveSpeed != "slow":
+                self.piston.set(False)
+            elif not self.piston.get() and self.driveSpeed == "slow":
+                self.piston.set(True)
 
             mag = sea.deadZone(self.joystick.getY()) 
             mag *= self.driveGear.moveScale # maximum feet per second
@@ -79,6 +89,9 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.driveMode = "position"
         else:
             self.driveMode = "voltage"
+
+# slow mode is geared with piston, fast/medium are the other gear with the piston
+# 3 motors per side, each side has all 3 motors drive the same speed
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2020)
