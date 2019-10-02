@@ -5,30 +5,30 @@ import inspect, os
 import configparser
 from pyfrc.physics import drivetrains
 from pyfrc.physics.visionsim import VisionSim
-import ctre
+import rev
 import navx
 from networktables import NetworkTables
 
 # HAL keys
 
-HALK_TALON_PERCENT = 'value'
-HALK_TALON_POSITION = 'quad_position'
-HALK_TALON_VELOCITY = 'quad_velocity'
-HALK_TALON_PID_TARGET = 'pid0_target'
+HALK_SPARK_PERCENT = 'value'
+HALK_SPARK_POSITION = 'position'
+HALK_SPARK_VELOCITY = 'velocity'
+HALK_SPARK_PID_TARGET = 'encoderSampleDelta' # this is the wrong value, must find correct one
 
 simulatedDrivetrain = None
 
 
-class SimulatedTalon:
+class SimulatedSpark:
 
     def __init__(self, port, maxVel):
-        self.port = port
+        self.port = "sparkmax-" + str(port)
         self.maxVel = maxVel
         self.lastPosition = 0
 
     def update(self, data):
         """
-        Update the talon. ``data`` is the HAL dictionary, which has many nested
+        Update the spark. ``data`` is the HAL dictionary, which has many nested
         dictionaries of data about the simulated robot. Some documentation can
         be found in the ``_reset_hal_data`` in this file:
         https://github.com/robotpy/robotpy-wpilib/blob/master/hal-sim/hal_impl/data.py
@@ -37,10 +37,10 @@ class SimulatedTalon:
             return
         if not self.port in data['CAN']:
             return
-        talonData = data['CAN'][self.port]
-        controlMode = talonData['control_mode']
-        if controlMode == ctre.ControlMode.PercentOutput:
-            value = talonData[HALK_TALON_PERCENT]
+        sparkData = data['CAN'][self.port]
+        controlMode = sparkData['ctrlType']
+        if controlMode == rev.ControlType.kVoltage:
+            value = sparkData[HALK_SPARK_PERCENT]
             if value < -1:
                 value = -1.0
             elif value > 1:
@@ -50,20 +50,20 @@ class SimulatedTalon:
             # velocity is measured in encoder counts per 1/10 second
             # position is updated 50 times a second
             # so position should be incremented by 1/5 of the velocity value
-            talonData[HALK_TALON_POSITION] += velocity // 5
-            talonData[HALK_TALON_VELOCITY] = velocity
-        elif controlMode == ctre.ControlMode.Position:
-            targetPos = talonData[HALK_TALON_PID_TARGET]
+            sparkData[HALK_SPARK_POSITION] += velocity // 5
+            sparkData[HALK_SPARK_VELOCITY] = velocity
+        elif controlMode == rev.ControlType.kPosition:
+            targetPos = sparkData[HALK_SPARK_PID_TARGET]
             diff = targetPos - self.lastPosition
             self.lastPosition = targetPos
             # update encoder
-            talonData[HALK_TALON_POSITION] = targetPos
-            talonData[HALK_TALON_VELOCITY] = int(diff * 5)
-        elif controlMode == ctre.ControlMode.Velocity:
-            targetVel = talonData[HALK_TALON_PID_TARGET]
+            sparkData[HALK_SPARK_POSITION] = targetPos
+            sparkData[HALK_SPARK_VELOCITY] = int(diff * 5)
+        elif controlMode == rev.ControlType.kVelocity:
+            targetVel = sparkData[HALK_SPARK_PID_TARGET]
             # update encoder
-            talonData[HALK_TALON_POSITION] += int(targetVel / 5)
-            talonData[HALK_TALON_VELOCITY] = int(targetVel)
+            sparkData[HALK_SPARK_POSITION] += int(targetVel / 5)
+            sparkData[HALK_SPARK_VELOCITY] = int(targetVel)
 
 class AHRSSim:
 
@@ -84,10 +84,6 @@ class PhysicsEngine:
     def __init__(self, physicsController):
         self.physicsController = physicsController
 
-        def configFactoryDefault(self, timeoutMs=0):
-            pass
-        ctre.WPI_TalonSRX.configFactoryDefault = configFactoryDefault
-
         # NavX simulation
         self.ahrs = None
         def createAHRSSim():
@@ -104,12 +100,12 @@ class PhysicsEngine:
         print("Reading robot data from", filename)
         config.read(filename)
 
-        self.simulatedTalons = [ ]
-        if 'talons' in config:
-            for key, value in config['talons'].items():
-                num = int(key.replace('talon', ''))
+        self.simulatedSparks = [ ]
+        if 'sparks' in config:
+            for key, value in config['sparks'].items():
+                num = int(key.replace('spark', ''))
                 maxVel = float(value)
-                self.simulatedTalons.append(SimulatedTalon(num, maxVel))
+                self.simulatedSparks.append(SimulatedSpark(num, maxVel))
 
         if 'ds' in config:
             ds = config['ds']
@@ -145,13 +141,11 @@ class PhysicsEngine:
 
         self._drivePositionState = None
 
-        ctre.TalonSRX._use_notifier = False # speed up position mode in simulator by a lot
-
     # special function called by pyfrc to update the robot state
     def update_sim(self, hal_data, time, elapsed):
         global simulatedDrivetrain
-        for simTalon in self.simulatedTalons:
-            simTalon.update(hal_data)
+        for simSpark in self.simulatedSparks:
+            simSpark.update(hal_data)
 
         if simulatedDrivetrain is not None:
             #robotMag, robotDir, robotTurn = simulatedDrivetrain.getRobotMovement()
