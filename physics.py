@@ -14,7 +14,7 @@ from networktables import NetworkTables
 HALK_SPARK_PERCENT = 'value'
 HALK_SPARK_POSITION = 'position'
 HALK_SPARK_VELOCITY = 'velocity'
-HALK_SPARK_PID_TARGET = 'value' # this is the wrong value, must find correct one
+HALK_SPARK_PID_TARGET = 'value'
 
 simulatedDrivetrain = None
 

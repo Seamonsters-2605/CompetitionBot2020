@@ -2,16 +2,25 @@ import wpilib
 import drivetrain
 import seamonsters as sea 
 import math
+import navx
 
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
 
-        # joysticks
+        # devices
         self.joystick = wpilib.Joystick(0)
         self.buttonBoard = wpilib.Joystick(1)
 
+        ahrs = navx.AHRS.create_spi()
+
+        self.pdp = wpilib.PowerDistributionPanel(50)
+
         self.superDrive = drivetrain.initDrivetrain()
+        self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
+
+        self.controlModeMachine = sea.StateMachine()
+        self.manualState = sea.State(self.driving)
 
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
@@ -38,15 +47,24 @@ class CompetitionBot2020(sea.GeneratorBot):
             }
 
     def teleop(self):
-        yield from sea.parallel(self.drive(), self.buttonControl())
+        self.manualMode()
 
-    def drive(self):
+        yield from sea.parallel(
+            self.controlModeMachine.updateGenerator(), 
+            self.buttonControl())
+
+    def manualMode(self):
+        self.controlModeMachine.replace(self.manualState)
+
+    def driving(self):
         while True:
 
+            self.pathFollower.updateRobotPosition()
+            
             if self.superDrive.gear != self.driveGear:
                 self.driveGear.applyGear(self.superDrive)
 
-            # must be changed when I get more details from James
+            # must be changed when I get more details
             if self.piston.get() and self.driveSpeed != "slow":
                 self.piston.set(False)
             elif not self.piston.get() and self.driveSpeed == "slow":
@@ -89,9 +107,6 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.driveMode = "position"
         else:
             self.driveMode = "voltage"
-
-# slow mode is geared with piston, fast/medium are the other gear with the piston
-# 3 motors per side, each side has all 3 motors drive the same speed
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2020)
