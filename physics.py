@@ -39,7 +39,7 @@ class SimulatedSpark:
             return
         sparkData = data['CAN'][self.port]
         controlMode = sparkData['ctrlType']
-        if controlMode == rev.ControlType.kVoltage:
+        if controlMode == rev.ControlType.kVoltage or controlMode == rev.ControlType.kDutyCycle:
             value = sparkData[HALK_SPARK_PERCENT]
             if value < -1:
                 value = -1.0
@@ -50,7 +50,7 @@ class SimulatedSpark:
             # velocity is measured in encoder counts per 1/10 second
             # position is updated 50 times a second
             # so position should be incremented by 1/5 of the velocity value
-            sparkData[HALK_SPARK_POSITION] += velocity // 50
+            sparkData[HALK_SPARK_POSITION] += velocity / 50
             sparkData[HALK_SPARK_VELOCITY] = velocity
         elif controlMode == rev.ControlType.kPosition:
             targetPos = sparkData[HALK_SPARK_PID_TARGET]
