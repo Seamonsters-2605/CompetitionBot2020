@@ -14,7 +14,7 @@ from networktables import NetworkTables
 HALK_SPARK_PERCENT = 'value'
 HALK_SPARK_POSITION = 'position'
 HALK_SPARK_VELOCITY = 'velocity'
-HALK_SPARK_PID_TARGET = 'encoderSampleDelta' # this is the wrong value, must find correct one
+HALK_SPARK_PID_TARGET = 'value' # this is the wrong value, must find correct one
 
 simulatedDrivetrain = None
 
@@ -45,12 +45,12 @@ class SimulatedSpark:
                 value = -1.0
             elif value > 1:
                 value = 1.0
-            velocity = int(value * self.maxVel)
+            velocity = int(value * self.maxVel / 60)
             # update encoder
             # velocity is measured in encoder counts per 1/10 second
             # position is updated 50 times a second
             # so position should be incremented by 1/5 of the velocity value
-            sparkData[HALK_SPARK_POSITION] += velocity // 5
+            sparkData[HALK_SPARK_POSITION] += velocity // 50
             sparkData[HALK_SPARK_VELOCITY] = velocity
         elif controlMode == rev.ControlType.kPosition:
             targetPos = sparkData[HALK_SPARK_PID_TARGET]
@@ -58,12 +58,12 @@ class SimulatedSpark:
             self.lastPosition = targetPos
             # update encoder
             sparkData[HALK_SPARK_POSITION] = targetPos
-            sparkData[HALK_SPARK_VELOCITY] = int(diff * 5)
+            sparkData[HALK_SPARK_VELOCITY] = int(diff * 50)
         elif controlMode == rev.ControlType.kVelocity:
             targetVel = sparkData[HALK_SPARK_PID_TARGET]
             # update encoder
-            sparkData[HALK_SPARK_POSITION] += int(targetVel / 5)
-            sparkData[HALK_SPARK_VELOCITY] = int(targetVel)
+            sparkData[HALK_SPARK_POSITION] += int(targetVel / 50) / 60
+            sparkData[HALK_SPARK_VELOCITY] = int(targetVel) / 60
 
 class AHRSSim:
 
