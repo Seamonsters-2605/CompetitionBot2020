@@ -196,7 +196,7 @@ class AngledWheel(Wheel):
     def __init__(self, motor: rev.CANSparkMax, x, y, angle,
                  encoderCountsPerFoot, maxVoltageVelocity, reverse=False):
         """
-        :param motor: a SparkMax
+        :param motors: a SparkMax
         :param x: X position in feet
         :param y: Y position in feet
         :param angle: radians, direction of force. 0 is right, positive
@@ -207,8 +207,8 @@ class AngledWheel(Wheel):
         :param reverse: boolean, optional
         """
         super().__init__(x, y)
-        self.motor = motor
-        self.motorController = rev._impl.CANPIDController(motor)
+        self.motors = [motor]
+        self.motorControllers = [rev._impl.CANPIDController(motor)]
         self.angle = angle
         self.encoderCountsPerFoot = encoderCountsPerFoot
         self.maxVoltageVelocity = maxVoltageVelocity
@@ -223,6 +223,11 @@ class AngledWheel(Wheel):
         self._oldPosition = 0
         self._positionOccurence = 0
         self._prevTime = time.time()
+    
+    # 
+    def addMotor(self, motor: rev.CANSparkMax):
+        self.motors.append(motor)
+        self.motorControllers.append(rev._impl.CANPIDController(motor))
 
     def limitMagnitude(self, magnitude, direction):
         # TODO: check position error in this function instead, and factor it
@@ -233,85 +238,88 @@ class AngledWheel(Wheel):
         return 1.0
 
     def _encoderCheck(self):
-        newPosition = self.motor.getEncoder().getPosition()
-        err = self.motor.setEncPosition(self.motor.getEncoder().getPosition())
-        # setEncPosition() returns a CANError so we set it to the current
-        # position to get the error but affect nothing
-        if err == rev.CANError.kTimeout:
-            print("Stale CAN frame so we won't check for errors :(",
-                self.motor.getDeviceId())
-            return
-        elif err != rev.CANError.kOK:
-            print("Spark max error", self.motor.getDeviceId())
+        for motor in self.motors:
+            newPosition = motor.getEncoder().getPosition()
+            err = motor.setEncPosition(motor.getEncoder().getPosition())
+            # setEncPosition() returns a CANError so we set it to the current
+            # position to get the error but affect nothing
+            if err == rev.CANError.kTimeout:
+                print("Stale CAN frame so we won't check for errors :(",
+                    motor.getDeviceId())
+                return
+            elif err != rev.CANError.kOK:
+                print("Spark max error", motor.getDeviceId())
 
-        if abs(newPosition - self._oldPosition) <= 1:
-            self._positionOccurence += 1
-        else:
-            self._positionOccurence = 0
-            self._oldPosition = newPosition
+            if abs(newPosition - self._oldPosition) <= 1:
+                self._positionOccurence += 1
+            else:
+                self._positionOccurence = 0
+                self._oldPosition = newPosition
 
-        if self._positionOccurence >= MAX_POSITION_OCCURENCE:
-            self.faults.append("Encoder not moving")
-            self._positionOccurence = 0
+            if self._positionOccurence >= MAX_POSITION_OCCURENCE:
+                self.faults.append("Encoder not moving")
+                self._positionOccurence = 0
 
-        if self.driveMode == rev.ControlType.kPosition:
-            # TODO: this is arbitrary
-            maxError = self.encoderCountsPerFoot * MAX_DRIVE_ERROR
-            if abs(newPosition - self._positionTarget) > maxError:
-                self.faults.append("Can't reach target")
-                self._positionTarget = newPosition
+            if self.driveMode == rev.ControlType.kPosition:
+                # TODO: this is arbitrary
+                maxError = self.encoderCountsPerFoot * MAX_DRIVE_ERROR
+                if abs(newPosition - self._positionTarget) > maxError:
+                    self.faults.append("Can't reach target")
+                    self._positionTarget = newPosition
 
     def _drive(self, magnitude, direction):
-        magnitude *= math.cos(direction - self.angle)
-        if self.reverse: 
-            magnitude = -magnitude
+        for motor in range(0, len(self.motors)):
+            magnitude *= math.cos(direction - self.angle)
+            if self.reverse: 
+                magnitude = -magnitude
 
-        if self.driveMode == rev.ControlType.kPosition \
-                and self._motorState != self.driveMode:
-            self._positionTarget = self.motor.getEncoder().getPosition()
-            self._encoderCheckCount = 0
+            if self.driveMode == rev.ControlType.kPosition \
+                    and self._motorState != self.driveMode:
+                self._positionTarget = self.motors[motor].getEncoder().getPosition()
+                self._encoderCheckCount = 0
 
-        curTime = time.time()
-        if self.realTime and self._motorState == self.driveMode:
-            tDiff = curTime - self._prevTime
-        else:
-            tDiff = 1 / sea.ITERATIONS_PER_SECOND
-        self._prevTime = curTime
+            curTime = time.time()
+            if self.realTime and self._motorState == self.driveMode:
+                tDiff = curTime - self._prevTime
+            else:
+                tDiff = 1 / sea.ITERATIONS_PER_SECOND
+            self._prevTime = curTime
 
-        encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot
-        # always incremented, even if not in position mode
-        # used by getTargetPosition
-        self._positionTarget += encoderCountsPerSecond * tDiff
+            encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot
+            # always incremented, even if not in position mode
+            # used by getTargetPosition
+            self._positionTarget += encoderCountsPerSecond * tDiff
 
-        if self.driveMode == DISABLED:
-            if self._motorState != self.driveMode:
-                self.motor.disable()
-        elif self.driveMode == rev.ControlType.kVelocity:
-            self.motorController.setReference(encoderCountsPerSecond / 10.0, self.driveMode)
-        elif self.driveMode == rev.ControlType.kPosition:
-            self.motorController.setReference(self._positionTarget, self.driveMode)
-        elif self.driveMode == rev.ControlType.kVoltage:
-            self.motorController.setReference(magnitude / self.maxVoltageVelocity, self.driveMode)
+            if self.driveMode == DISABLED:
+                if self._motorState != self.driveMode:
+                    self.motors[motor].disable()
+            elif self.driveMode == rev.ControlType.kVelocity:
+                self.motorControllers[motor].setReference(encoderCountsPerSecond / 10.0, self.driveMode)
+            elif self.driveMode == rev.ControlType.kPosition:
+                self.motorControllers[motor].setReference(self._positionTarget, self.driveMode)
+            elif self.driveMode == rev.ControlType.kVoltage:
+                self.motorControllers[motor].setReference(magnitude / self.maxVoltageVelocity, self.driveMode)
 
-        self._motorState = self.driveMode
+            self._motorState = self.driveMode
 
-        self._encoderCheckCount += 1
-        # TODO: document constant
-        if abs(encoderCountsPerSecond) > 400 \
-                and not self.driveMode == DISABLED:
-            if self._encoderCheckCount % CHECK_DRIVE_ENCODER_CYCLE == 0:
-                # getEncoder().getPosition is slow so only check a few times
-                # per second
-                self._encoderCheck()
-        else:
-            self._positionOccurence = 0
+            self._encoderCheckCount += 1
+            # TODO: document constant
+            if abs(encoderCountsPerSecond) > 400 \
+                    and not self.driveMode == DISABLED:
+                if self._encoderCheckCount % CHECK_DRIVE_ENCODER_CYCLE == 0:
+                    # getEncoder().getPosition is slow so only check a few times
+                    # per second
+                    self._encoderCheck()
+            else:
+                self._positionOccurence = 0
 
     def _stop(self):
         self.drive(0, 0)
 
     def disable(self):
         if self._motorState != DISABLED:
-            self.motor.disable()
+            for motor in self.motors:
+                motor.disable()
             self._motorState = DISABLED
 
     def resetPosition(self):
@@ -323,8 +331,11 @@ class AngledWheel(Wheel):
         return pos / self.encoderCountsPerFoot
 
     def getRealPosition(self):
-        return self._sensorPositionToDistance(
-            self.motor.getEncoder().getPosition())
+        encPos = 0
+        for motor in self.motors:
+            encPos += motor.getEncoder().getPosition()
+        encPos /= len(self.motors)
+        return self._sensorPositionToDistance(encPos)
 
     def getTargetPosition(self):
         return self._sensorPositionToDistance(self._positionTarget)
@@ -336,7 +347,10 @@ class AngledWheel(Wheel):
         return self.angle
 
     def getRealVelocity(self):
-        sensorVel = self.motor.getEncoder().getVelocity()
+        sensorVel = 0
+        for motor in self.motors:
+            sensorVel += motor.getEncoder().getVelocity()
+        sensorVel /= len(self.motors)
         if self.reverse:
             sensorVel = -sensorVel
         return sensorVel * 10.0 / self.encoderCountsPerFoot
