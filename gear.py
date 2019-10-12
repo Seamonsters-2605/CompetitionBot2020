@@ -23,9 +23,9 @@ class DriveGear:
         for wheel in superDrive.wheels:
             wheel.driveMode = self.driveMode
             wheel.realTime = self.realTime
-            wheelMotorController = wheel.motorController
-            wheelMotorController.setP(self.p)
-            wheelMotorController.setI(self.i)
-            wheelMotorController.setD(self.d)
-            wheelMotorController.setFF(self.f)
+            for motorController in wheel.motorControllers:
+                motorController.setP(self.p)
+                motorController.setI(self.i)
+                motorController.setD(self.d)
+                motorController.setFF(self.f)
         return True

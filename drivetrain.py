@@ -8,19 +8,18 @@ def initDrivetrain():
 
     # 3 motors per wheel but wheels cannot have the same position so 
     # add a small amount to it to make it work
-    _makeWheel(superDrive, 1, rev.MotorType.kBrushless, 1, 0)
-    _makeWheel(superDrive, 2, rev.MotorType.kBrushless, 1.00001, 0)
-    _makeWheel(superDrive, 3, rev.MotorType.kBrushless, 1.00002, 0)
-    _makeWheel(superDrive, 4, rev.MotorType.kBrushless, -1, 0)
-    _makeWheel(superDrive, 5, rev.MotorType.kBrushless, -1.00001, 0)
-    _makeWheel(superDrive, 6, rev.MotorType.kBrushless, -1.00002, 0)
+    _makeWheel(superDrive, 1, 2, 3, rev.MotorType.kBrushless, 1, 0)
+    _makeWheel(superDrive, 4, 5, 6, rev.MotorType.kBrushless, -1, 0)
     sea.setSimulatedDrivetrain(superDrive)
     return superDrive
 
-def _makeWheel(superDrive, sparkMaxNum, motorType, xPos, yPos):
-    sparkMax = rev.CANSparkMax(sparkMaxNum, motorType)
-    sparkMax.restoreFactoryDefaults()
-    sparkMax.setIdleMode(rev.IdleMode.kBrake)
+def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, xPos, yPos):
+    sparkMax1 = rev.CANSparkMax(sparkMaxNum1, motorType)
+    sparkMax2 = rev.CANSparkMax(sparkMaxNum2, motorType)
+    sparkMax3 = rev.CANSparkMax(sparkMaxNum3, motorType)
+    for sparkMax in [sparkMax1, sparkMax2, sparkMax3]:
+        sparkMax.restoreFactoryDefaults()
+        sparkMax.setIdleMode(rev.IdleMode.kBrake)
 
     # encoderCountsPerFoot:
     # 1 count per encoder revolution
@@ -31,9 +30,12 @@ def _makeWheel(superDrive, sparkMaxNum, motorType, xPos, yPos):
     # 1 / 1.04720 = 0.95493 counts per foot
 
     # maxVoltageVelocity = 5 ft per second * 60 seconds = 300
-    angledWheel = sea.AngledWheel(sparkMax, xPos, yPos, math.radians(90), 0.95493, 300)
+    angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), 0.95493, 300)
+    angledWheel.addMotor(sparkMax2)
+    angledWheel.addMotor(sparkMax3)
 
     superDrive.addWheel(angledWheel)
+    print("good")
 
 # drive gears 
 # TODO: update the pids based on speed and adjust move/turn scales
