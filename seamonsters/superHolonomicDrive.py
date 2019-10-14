@@ -224,7 +224,7 @@ class AngledWheel(Wheel):
         self._positionOccurence = 0
         self._prevTime = time.time()
     
-    # 
+    # for wheels with gearboxes, so all motors can be driven at the same speed
     def addMotor(self, motor: rev.CANSparkMax):
         self.motors.append(motor)
         self.motorControllers.append(rev._impl.CANPIDController(motor))
@@ -526,7 +526,7 @@ class SuperHolonomicDrive:
     def undisable(self):
         self._disableCounter = 0
 
-    def drive(self, magnitude, direction, turn):
+    def drive(self, magnitude, direction, turn, wheelNum = None):
         """
         Drive the robot. This should be called 50 times per second.
 
@@ -536,6 +536,7 @@ class SuperHolonomicDrive:
         :param magnitude: feet per second
         :param direction: radians. 0 is right, positive counter-clockwise
         :param turn: radians per second. positive counter-clockwise
+        :param wheelNum: optional int argument to drive a single wheel
         :return: the scale of the actual output speed, as a fraction of the
             input magnitude and turn components
         """
@@ -554,14 +555,26 @@ class SuperHolonomicDrive:
         wheelDirections = []
         wheelLimitScales = []
 
-        for wheel in self.wheels:
-            wheelVectorX, wheelVectorY = self._calcWheelVector(
-                wheel, moveX, moveY, turn)
-            wheelMag = math.sqrt(wheelVectorX ** 2.0 + wheelVectorY ** 2.0)
-            wheelDir = math.atan2(wheelVectorY, wheelVectorX)
-            wheelMagnitudes.append(wheelMag)
-            wheelDirections.append(wheelDir)
-            wheelLimitScales.append(wheel.limitMagnitude(wheelMag, wheelDir))
+        if wheelNum is None:
+            for wheel in self.wheels:
+                wheelVectorX, wheelVectorY = self._calcWheelVector(
+                    wheel, moveX, moveY, turn)
+                wheelMag = math.sqrt(wheelVectorX ** 2.0 + wheelVectorY ** 2.0)
+                wheelDir = math.atan2(wheelVectorY, wheelVectorX)
+                wheelMagnitudes.append(wheelMag)
+                wheelDirections.append(wheelDir)
+                wheelLimitScales.append(wheel.limitMagnitude(wheelMag, wheelDir))
+        else:
+            try:
+                wheelVectorX, wheelVectorY = self._calcWheelVector(
+                    self.wheels[wheelNum], moveX, moveY, turn)
+                wheelMag = math.sqrt(wheelVectorX ** 2.0 + wheelVectorY ** 2.0)
+                wheelDir = math.atan2(wheelVectorY, wheelVectorX)
+                wheelMagnitudes.append(wheelMag)
+                wheelDirections.append(wheelDir)
+                wheelLimitScales.append(self.wheels[wheelNum].limitMagnitude(wheelMag, wheelDir))
+            except:
+                print("Wheel " + str(wheelNum) + " not in list of wheels")
 
         minWheelScale = min(wheelLimitScales)
         for i in range(len(self.wheels)):
