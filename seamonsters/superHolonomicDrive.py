@@ -564,6 +564,15 @@ class SuperHolonomicDrive:
                 wheelMagnitudes.append(wheelMag)
                 wheelDirections.append(wheelDir)
                 wheelLimitScales.append(wheel.limitMagnitude(wheelMag, wheelDir))
+
+                minWheelScale = min(wheelLimitScales)
+                for i in range(len(self.wheels)):
+                    if wheelMagnitudes[i] == 0:
+                        self.wheels[i].stop()
+                    else:
+                        self.wheels[i].drive(wheelMagnitudes[i] * minWheelScale,
+                                            wheelDirections[i])
+                return minWheelScale
         else:
             try:
                 wheelVectorX, wheelVectorY = self._calcWheelVector(
@@ -573,17 +582,17 @@ class SuperHolonomicDrive:
                 wheelMagnitudes.append(wheelMag)
                 wheelDirections.append(wheelDir)
                 wheelLimitScales.append(self.wheels[wheelNum].limitMagnitude(wheelMag, wheelDir))
+
+                minWheelScale = min(wheelLimitScales)
+                for i in range(len(self.wheels)):
+                    if wheelMagnitudes[i] == 0:
+                        self.wheels[i].stop()
+                    else:
+                        self.wheels[i].drive(wheelMagnitudes[i] * minWheelScale,
+                                            wheelDirections[i])
+                return minWheelScale
             except:
                 print("Wheel " + str(wheelNum) + " not in list of wheels")
-
-        minWheelScale = min(wheelLimitScales)
-        for i in range(len(self.wheels)):
-            if wheelMagnitudes[i] == 0:
-                self.wheels[i].stop()
-            else:
-                self.wheels[i].drive(wheelMagnitudes[i] * minWheelScale,
-                                    wheelDirections[i])
-        return minWheelScale
     
     def orientWheels(self, magnitude, direction, turn):
         """
