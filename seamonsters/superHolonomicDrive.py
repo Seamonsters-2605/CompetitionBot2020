@@ -579,17 +579,13 @@ class SuperHolonomicDrive:
                     self.wheels[wheelNum], moveX, moveY, turn)
                 wheelMag = math.sqrt(wheelVectorX ** 2.0 + wheelVectorY ** 2.0)
                 wheelDir = math.atan2(wheelVectorY, wheelVectorX)
-                wheelMagnitudes.append(wheelMag)
-                wheelDirections.append(wheelDir)
-                wheelLimitScales.append(self.wheels[wheelNum].limitMagnitude(wheelMag, wheelDir))
 
-                minWheelScale = min(wheelLimitScales)
-                if wheelMagnitudes[i] == 0:
+                wheelScale = self.wheels[wheelNum].limitMagnitude(wheelMag, wheelDir)
+                if wheelMag == 0:
                     self.wheels[wheelNum].stop()
                 else:
-                    self.wheels[wheelNum].drive(wheelMagnitudes[i] * minWheelScale,
-                                        wheelDirections[i])
-                return minWheelScale
+                    self.wheels[wheelNum].drive(wheelMag * wheelScale, wheelDir)
+                return wheelScale
             except:
                 print("Wheel " + str(wheelNum) + " not in list of wheels")
     
