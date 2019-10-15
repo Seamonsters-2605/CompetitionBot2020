@@ -3,6 +3,7 @@ import drivetrain
 import seamonsters as sea 
 import math
 import navx
+import dashboard
 
 class CompetitionBot2020(sea.GeneratorBot):
 
@@ -46,12 +47,16 @@ class CompetitionBot2020(sea.GeneratorBot):
                 "fast" : drivetrain.fastPositionGear} 
             }
 
+        self.app = None 
+        sea.startDashboard(self,dashboard.App)
+
     def teleop(self):
         self.manualMode()
 
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
-            self.buttonControl())
+            self.buttonControl(),
+            self.updateDashboardGenerator())
 
     def manualMode(self):
         self.controlModeMachine.replace(self.manualState)
@@ -109,5 +114,35 @@ class CompetitionBot2020(sea.GeneratorBot):
         else:
             self.driveMode = "voltage"
 
+    def updateDashboardGenerator(self):
+        if self.app is not None:
+            self.app.clearEvents()
+        while True:
+            v = None
+            if self.app is not None:
+                v = self.app.doEvents()
+            yield v
+    
+    @sea.queuedDashboardEvent
+    def c_changeGear(self,button):
+        self.driveMode = button.get_text()
+        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
+
+    @sea.queuedDashboardEvent
+    def c_changeSpeed(self,button):
+        self.driveSpeed = button.get_text()
+        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
+
+    @sea.queuedDashboardEvent
+    def c_stop(self,button):
+        self.superDrive.disable()
+
+    @sea.queuedDashboardEvent
+    def c_compressor(self,button):
+        if button.get_text() == "start":
+            self.compressor.start()
+        else:
+            self.compressor.stop()
+        
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2020)
