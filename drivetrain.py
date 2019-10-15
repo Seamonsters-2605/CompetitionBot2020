@@ -35,35 +35,25 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
     angledWheel.addMotor(sparkMax3)
 
     superDrive.addWheel(angledWheel)
-    print("good")
 
 # drive gears 
 # TODO: update the pids based on speed and adjust move/turn scales
 # slow gear is set to max because the shifting gearbox slows it down
 
-slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage,
-    moveScale=100, turnScale=math.radians(300))
-mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage,
-    moveScale=30, turnScale=math.radians(180))
-fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage,
-    moveScale=100, turnScale=math.radians(300))
+slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, moveScale=250)
+mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, moveScale=150)
+fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage,moveScale=250)
 
 slowVelocityGear = DriveGear("Slow Velocity", rev.ControlType.kVelocity,
-    moveScale=14, turnScale=math.radians(270),
-    p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    moveScale=14, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 mediumVelocityGear = DriveGear("Medium Velocity", rev.ControlType.kVelocity,
-    moveScale=8, turnScale=math.radians(180),
-    p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    moveScale=8, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 fastVelocityGear = DriveGear("Fast Velocity", rev.ControlType.kVelocity,
-    moveScale=14, turnScale=math.radians(270),
-    p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    moveScale=14, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 
 slowPositionGear = DriveGear("Slow Position", rev.ControlType.kPosition,
-    moveScale=14, turnScale=math.radians(270),
-    p=0.5, i=0.0, d=3.0, f=0.0)
+    moveScale=14, p=0.5, i=0.0, d=3.0, f=0.0)
 mediumPositionGear = DriveGear("Medium Position", rev.ControlType.kPosition,
-    moveScale=8, turnScale=math.radians(180),
-    p=0.5, i=0.0, d=3.0, f=0.0)
+    moveScale=8, p=0.5, i=0.0, d=3.0, f=0.0)
 fastPositionGear = DriveGear("Fast Position", rev.ControlType.kPosition,
-    moveScale=14, turnScale=math.radians(270),
-    p=0.5, i=0.0, d=3.0, f=0.0)
+    moveScale=14, p=0.5, i=0.0, d=3.0, f=0.0)

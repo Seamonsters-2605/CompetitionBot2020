@@ -30,7 +30,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.superDrive.gear = None
         self.driveGear = drivetrain.slowVoltageGear
         self.driveMode = "voltage"
-        self.driveSpeed = "slow"
+        self.driveSpeed = "medium"
         self.driveGears = \
             {"voltage" : \
                 {"slow" : drivetrain.slowVoltageGear, 
