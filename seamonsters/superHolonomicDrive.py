@@ -267,9 +267,9 @@ class AngledWheel(Wheel):
                     self.faults.append("Can't reach target")
                     self._positionTarget = newPosition
 
-    def _drive(self, magnitude, direction):
+    def _drive(self, inputMagnitude, direction):
         for motor in range(0, len(self.motors)):
-            magnitude *= math.cos(direction - self.angle)
+            magnitude = inputMagnitude * math.cos(direction - self.angle)
             if self.reverse: 
                 magnitude = -magnitude
 
