@@ -14,10 +14,9 @@ from networktables import NetworkTables
 HALK_SPARK_PERCENT = 'value'
 HALK_SPARK_POSITION = 'position'
 HALK_SPARK_VELOCITY = 'velocity'
-HALK_SPARK_PID_TARGET = 'value' # this is the wrong value, must find correct one
+HALK_SPARK_PID_TARGET = 'value'
 
 simulatedDrivetrain = None
-
 
 class SimulatedSpark:
 
@@ -25,6 +24,7 @@ class SimulatedSpark:
         self.port = "sparkmax-" + str(port)
         self.maxVel = maxVel
         self.lastPosition = 0
+        self.gearRatio = 1
 
     def update(self, data):
         """
@@ -45,25 +45,25 @@ class SimulatedSpark:
                 value = -1.0
             elif value > 1:
                 value = 1.0
-            velocity = int(value * self.maxVel / 60)
+            velocity = value * self.maxVel / 60 * self.gearRatio
             # update encoder
             # velocity is measured in encoder counts per 1/10 second
             # position is updated 50 times a second
             # so position should be incremented by 1/5 of the velocity value
-            sparkData[HALK_SPARK_POSITION] += velocity // 50
-            sparkData[HALK_SPARK_VELOCITY] = velocity
+            sparkData[HALK_SPARK_POSITION] += velocity / 50
+            sparkData[HALK_SPARK_VELOCITY] = velocity * self.gearRatio
         elif controlMode == rev.ControlType.kPosition:
             targetPos = sparkData[HALK_SPARK_PID_TARGET]
             diff = targetPos - self.lastPosition
             self.lastPosition = targetPos
             # update encoder
             sparkData[HALK_SPARK_POSITION] = targetPos
-            sparkData[HALK_SPARK_VELOCITY] = int(diff * 50)
+            sparkData[HALK_SPARK_VELOCITY] = diff * 50 * self.gearRatio
         elif controlMode == rev.ControlType.kVelocity:
             targetVel = sparkData[HALK_SPARK_PID_TARGET]
             # update encoder
-            sparkData[HALK_SPARK_POSITION] += int(targetVel / 50) / 60
-            sparkData[HALK_SPARK_VELOCITY] = int(targetVel) / 60
+            sparkData[HALK_SPARK_POSITION] += targetVel / 50 / 60
+            sparkData[HALK_SPARK_VELOCITY] = targetVel * self.gearRatio
 
 class AHRSSim:
 
@@ -144,6 +144,10 @@ class PhysicsEngine:
     # special function called by pyfrc to update the robot state
     def update_sim(self, hal_data, time, elapsed):
         global simulatedDrivetrain
+        if (simulatedDrivetrain.gear != None):
+            gearRatio = simulatedDrivetrain.gear.gearRatio
+        else:
+            gearRatio = 1
         for simSpark in self.simulatedSparks:
             simSpark.update(hal_data)
 
@@ -151,6 +155,8 @@ class PhysicsEngine:
             #robotMag, robotDir, robotTurn = simulatedDrivetrain.getRobotMovement()
             robotMag, robotDir, robotTurn, self._drivePositionState = \
                 simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState)
+            robotMag *= gearRatio
+            robotTurn *= gearRatio
             xVel = robotMag * math.cos(robotDir)
             yVel = robotMag * math.sin(robotDir)
             #self.physicsController.vector_drive(xVel, yVel, -robotTurn, elapsed)
