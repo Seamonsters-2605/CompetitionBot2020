@@ -29,7 +29,7 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
     # Wheel circumference: 4 * pi / 12 = 1.04720 ft
     # 1 / 1.04720 = 0.95493 counts per foot
 
-    # maxVoltageVelocity = 5 ft per second * 60 seconds = 300
+    # maxVoltageVelocity = 5 ft per second * 60 seconds = 300 rpm
     angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), 0.95493, 300)
     angledWheel.addMotor(sparkMax2)
     angledWheel.addMotor(sparkMax3)
@@ -40,20 +40,20 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
 # TODO: update the pids based on speed and adjust move/turn scales
 # slow gear is set to max because the shifting gearbox slows it down
 
-slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, moveScale=250)
-mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, moveScale=150)
-fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage,moveScale=250)
+slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, gearRatio=4, moveScale=250)
+mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRatio=1, moveScale=150)
+fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1, moveScale=250)
 
 slowVelocityGear = DriveGear("Slow Velocity", rev.ControlType.kVelocity,
-    moveScale=14, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    gearRatio=4, moveScale=14, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 mediumVelocityGear = DriveGear("Medium Velocity", rev.ControlType.kVelocity,
-    moveScale=8, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    gearRatio=1, moveScale=8, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 fastVelocityGear = DriveGear("Fast Velocity", rev.ControlType.kVelocity,
-    moveScale=14, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    gearRatio=1, moveScale=14, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 
 slowPositionGear = DriveGear("Slow Position", rev.ControlType.kPosition,
-    moveScale=14, p=0.5, i=0.0, d=3.0, f=0.0)
+    gearRatio=4, moveScale=14, p=0.5, i=0.0, d=3.0, f=0.0)
 mediumPositionGear = DriveGear("Medium Position", rev.ControlType.kPosition,
-    moveScale=8, p=0.5, i=0.0, d=3.0, f=0.0)
+    gearRatio=1, moveScale=8, p=0.5, i=0.0, d=3.0, f=0.0)
 fastPositionGear = DriveGear("Fast Position", rev.ControlType.kPosition,
-    moveScale=14, p=0.5, i=0.0, d=3.0, f=0.0)
+    gearRatio=1, moveScale=14, p=0.5, i=0.0, d=3.0, f=0.0)

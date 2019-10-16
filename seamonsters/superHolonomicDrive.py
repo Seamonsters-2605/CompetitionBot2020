@@ -285,7 +285,7 @@ class AngledWheel(Wheel):
                 tDiff = 1 / sea.ITERATIONS_PER_SECOND
             self._prevTime = curTime
 
-            encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot
+            encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot * 60
             # always incremented, even if not in position mode
             # used by getTargetPosition
             self._positionTarget += encoderCountsPerSecond * tDiff
@@ -294,7 +294,7 @@ class AngledWheel(Wheel):
                 if self._motorState != self.driveMode:
                     self.motors[motor].disable()
             elif self.driveMode == rev.ControlType.kVelocity:
-                self.motorControllers[motor].setReference(encoderCountsPerSecond / 10.0, self.driveMode)
+                self.motorControllers[motor].setReference(encoderCountsPerSecond, self.driveMode)
             elif self.driveMode == rev.ControlType.kPosition:
                 self.motorControllers[motor].setReference(self._positionTarget, self.driveMode)
             elif self.driveMode == rev.ControlType.kVoltage:
