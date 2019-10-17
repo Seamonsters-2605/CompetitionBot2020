@@ -24,7 +24,7 @@ class SimulatedSpark:
         self.maxVel = maxVel
         self.lastPosition = 0
 
-    def update(self, data, gearRatio):
+    def update(self, data):
         """
         Update the spark. ``data`` is the HAL dictionary, which has many nested
         dictionaries of data about the simulated robot. Some documentation can
@@ -43,25 +43,25 @@ class SimulatedSpark:
                 value = -1.0
             elif value > 1:
                 value = 1.0
-            velocity = value * self.maxVel / 60 * gearRatio
+            velocity = value * self.maxVel / 60
             # update encoder
             # velocity is measured in encoder counts per 1/10 second
             # position is updated 50 times a second
             # so position should be incremented by 1/5 of the velocity value
             sparkData[HALK_SPARK_POSITION] += velocity / 50
-            sparkData[HALK_SPARK_VELOCITY] = velocity * gearRatio
+            sparkData[HALK_SPARK_VELOCITY] = velocity
         elif controlMode == rev.ControlType.kPosition:
             targetPos = sparkData[HALK_SPARK_VALUE]
             diff = targetPos - self.lastPosition
             self.lastPosition = targetPos
             # update encoder
             sparkData[HALK_SPARK_POSITION] = targetPos
-            sparkData[HALK_SPARK_VELOCITY] = diff * 50 * gearRatio
+            sparkData[HALK_SPARK_VELOCITY] = diff * 50
         elif controlMode == rev.ControlType.kVelocity:
             targetVel = sparkData[HALK_SPARK_VALUE]
             # update encoder
             sparkData[HALK_SPARK_POSITION] += targetVel / 50 / 60
-            sparkData[HALK_SPARK_VELOCITY] = targetVel * gearRatio
+            sparkData[HALK_SPARK_VELOCITY] = targetVel
 
 class AHRSSim:
 
@@ -147,12 +147,15 @@ class PhysicsEngine:
         else:
             gearRatio = 1
         for simSpark in self.simulatedSparks:
-            simSpark.update(hal_data, gearRatio)
+            simSpark.update(hal_data)
 
         if simulatedDrivetrain is not None:
             #robotMag, robotDir, robotTurn = simulatedDrivetrain.getRobotMovement()
             robotMag, robotDir, robotTurn, self._drivePositionState = \
                 simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState)
+            robotMag *= gearRatio
+            robotTurn *= gearRatio
+
             xVel = robotMag * math.cos(robotDir)
             yVel = robotMag * math.sin(robotDir)
             #self.physicsController.vector_drive(xVel, yVel, -robotTurn, elapsed)
