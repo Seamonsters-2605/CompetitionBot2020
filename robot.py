@@ -75,9 +75,9 @@ class CompetitionBot2020(sea.GeneratorBot):
             elif not self.piston.get() and self.driveSpeed == "slow":
                 self.piston.set(True)
 
-            lMag = -sea.deadZone(self.controller.getY()) 
+            lMag = -sea.deadZone(self.controller.getThrottle()) 
             lMag *= self.driveGear.moveScale # maximum feet per second
-            rMag = -sea.deadZone(self.controller.getThrottle())
+            rMag = -sea.deadZone(self.controller.getY())
             rMag *= self.driveGear.moveScale
 
             self.superDrive.drive(rMag, math.pi/2, 0, 1)
@@ -109,8 +109,8 @@ class CompetitionBot2020(sea.GeneratorBot):
     def toggleDriveMode(self):
         if self.driveMode == "voltage":
             self.driveMode = "velocity"
-        elif self.driveMode == "velocity":
-            self.driveMode = "position"
+        # elif self.driveMode == "velocity":
+        #     self.driveMode = "position"
         else:
             self.driveMode = "voltage"
 
