@@ -109,8 +109,11 @@ class CompetitionBot2020(sea.GeneratorBot):
     def toggleDriveMode(self):
         if self.driveMode == "voltage":
             self.driveMode = "velocity"
-        elif self.driveMode == "velocity":
-            self.driveMode = "position"
+            
+        # position mode is too funky to use 
+
+        #elif self.driveMode == "velocity":
+        #    self.driveMode = "position"
         else:
             self.driveMode = "voltage"
 
