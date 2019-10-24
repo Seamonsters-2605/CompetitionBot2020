@@ -10,7 +10,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     def robotInit(self):
 
         # devices
-        self.controller = wpilib.Joystick(0)
+        self.controller = wpilib.XboxController(0)
         self.buttonBoard = wpilib.Joystick(1)
 
         ahrs = navx.AHRS.create_spi()
@@ -88,10 +88,11 @@ class CompetitionBot2020(sea.GeneratorBot):
             elif not self.piston.get() and self.driveSpeed == "slow":
                 self.piston.set(True)
 
-            lMag = -sea.deadZone(self.controller.getThrottle()) 
+            lMag = -sea.deadZone(self.controller.getY(0)) 
             lMag *= self.driveGear.moveScale # maximum feet per second
-            rMag = -sea.deadZone(self.controller.getY())
+            rMag = sea.deadZone(self.controller.getY(1))
             rMag *= self.driveGear.moveScale
+            
 
             self.superDrive.drive(rMag, math.pi/2, 0, 1)
             self.superDrive.drive(lMag, math.pi/2, 0, 0)
