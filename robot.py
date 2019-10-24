@@ -22,6 +22,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.controlModeMachine = sea.StateMachine()
         self.manualState = sea.State(self.driving)
+        self.autoState = sea.State(self.auto)
 
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
@@ -53,6 +54,15 @@ class CompetitionBot2020(sea.GeneratorBot):
     def teleop(self):
         self.manualMode()
 
+        yield from self.mainGenerator()
+
+    def autonomous(self):
+        self.autoMode()
+
+        yield from self.mainGenerator()
+
+    def mainGenerator(self):
+
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
             self.buttonControl(),
@@ -60,6 +70,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     def manualMode(self):
         self.controlModeMachine.replace(self.manualState)
+
+    def autoMode(self):
+        self.controlModeMachine.replace(self.autoState)
 
     def driving(self):
         while True:
@@ -83,6 +96,13 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.superDrive.drive(rMag, math.pi/2, 0, 1)
             self.superDrive.drive(lMag, math.pi/2, 0, 0)
 
+            yield
+
+    def auto(self):
+        while True:
+
+            #put the stuff here
+            
             yield
 
     def buttonControl(self):
