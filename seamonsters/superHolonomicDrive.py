@@ -298,7 +298,7 @@ class AngledWheel(Wheel):
             elif self.driveMode == rev.ControlType.kPosition:
                 self.motorControllers[motor].setReference(self._positionTarget, self.driveMode)
             elif self.driveMode == rev.ControlType.kVoltage:
-                self.motorControllers[motor].setReference(magnitude / self.maxVoltageVelocity, self.driveMode)
+                self.motorControllers[motor].setReference(magnitude / self.maxVoltageVelocity * 12, self.driveMode)
 
             self._motorState = self.driveMode
 
