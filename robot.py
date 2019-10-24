@@ -26,7 +26,8 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
-        self.piston = wpilib.Solenoid(0)
+        self.piston1 = wpilib.Solenoid(0)# pcm 0 and 2
+        self.piston2 = wpilib.Solenoid(1)# pcm 1 and 3
 
         # drive gears
         self.superDrive.gear = None
@@ -49,7 +50,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             }
 
         self.app = None 
-        sea.startDashboard(self,dashboard.App)
+        sea.startDashboard(self, dashboard.CompetitionDashboard)
 
     def teleop(self):
         self.manualMode()
@@ -75,6 +76,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.controlModeMachine.replace(self.autoState)
 
     def driving(self):
+        self.piston2.set(self.piston1.get())
         while True:
 
             self.pathFollower.updateRobotPosition()
@@ -83,10 +85,12 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.driveGear.applyGear(self.superDrive)
 
             # must be changed when I get more details
-            if self.piston.get() and self.driveSpeed != "slow":
-                self.piston.set(False)
-            elif not self.piston.get() and self.driveSpeed == "slow":
-                self.piston.set(True)
+            if self.piston1.get() and self.driveSpeed != "slow":
+                self.piston1.set(False)
+                self.piston2.set(False)
+            elif not self.piston1.get() and self.driveSpeed == "slow":
+                self.piston1.set(True)
+                self.piston2.set(True)
 
             lMag = -sea.deadZone(self.controller.getY(0)) 
             lMag *= self.driveGear.moveScale # maximum feet per second

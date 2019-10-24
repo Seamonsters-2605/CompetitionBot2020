@@ -1,13 +1,13 @@
 import remi.gui as gui
 import seamonsters as sea
 
-class App(sea.Dashboard):
+class CompetitionDashboard(sea.Dashboard):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, css=True, **kwargs)
 
     def main(self, robot, appCallback):
-        
+
         root = gui.VBox(gui.Label("Drive controls"), width = 600, margin = "0px auto")
 
         manualBox = gui.VBox()
@@ -26,7 +26,7 @@ class App(sea.Dashboard):
             print("onclick: " + button.EVENT_ONCLICK)
             speedButtons.append(button)
 
-        for mode in ["Start","Stop"]:
+        for mode in ["start","stop"]:
             button = gui.Button(mode)
             button.set_on_click_listener(robot.c_compressor)
             compressorButtons.append(button)
