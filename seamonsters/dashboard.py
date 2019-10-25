@@ -139,15 +139,15 @@ class ToggleButtonGroup:
     def __init__(self):
         self.buttons = []
 
-    def addButton(self, button, key=None):
+    def addButton(self, button = gui.Button, key=None):
         if key is None:
-            key = button
+            key = button.get_text()
         button.key = key
         self.buttons.append(button)
 
     def highlight(self, key):
         for button in self.buttons:
             if button.key == key:
-                button.style["background"] = "blue"
+                button.style["background"] = "rgb(21, 130, 21)"
             else:
                 button.style["background"] = "rgb(21, 182, 21)"
