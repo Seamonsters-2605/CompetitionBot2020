@@ -14,22 +14,28 @@ class CompetitionDashboard(sea.Dashboard):
         gearButtons = []
         speedButtons = []
         compressorButtons = []
-         
+        
+        self.gearGroup = sea.ToggleButtonGroup()
         for mode in robot.driveGears.keys():
             button = gui.Button(mode)
             button.set_on_click_listener(robot.c_changeGear)
             gearButtons.append(button)
+            self.gearGroup.addButton(button)
         
+        self.speedGroup = sea.ToggleButtonGroup()
         for speed in robot.driveGears[robot.driveMode].keys():
             button = gui.Button(speed)
             button.set_on_click_listener(robot.c_changeSpeed)
             print("onclick: " + button.EVENT_ONCLICK)
             speedButtons.append(button)
+            self.speedGroup.addButton(button)
 
+        self.compressorGroup = sea.ToggleButtonGroup()
         for mode in ["start","stop"]:
             button = gui.Button(mode)
             button.set_on_click_listener(robot.c_compressor)
             compressorButtons.append(button)
+            self.compressorGroup.addButton(button)
         
         gearBox = sea.hBoxWith(gui.Label("Gears:"),gearButtons)
         speedBox = sea.hBoxWith(gui.Label("Speed:"),speedButtons)
