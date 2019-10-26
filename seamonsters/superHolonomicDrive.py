@@ -208,7 +208,7 @@ class AngledWheel(Wheel):
         """
         super().__init__(x, y)
         self.motors = [motor]
-        self.motorControllers = [rev._impl.CANPIDController(motor)]
+        self.motorControllers = [motor.getPIDController()]
         self.angle = angle
         self.encoderCountsPerFoot = encoderCountsPerFoot
         self.maxVoltageVelocity = maxVoltageVelocity
