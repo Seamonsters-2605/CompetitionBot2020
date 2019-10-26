@@ -23,6 +23,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.controlModeMachine = sea.StateMachine()
         self.manualState = sea.State(self.driving)
         self.autoState = sea.State(self.auto)
+        self.testState = sea.State(self.testing)
 
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
@@ -31,7 +32,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # drive gears
         self.superDrive.gear = None
-        self.driveGear = drivetrain.slowVoltageGear
+        self.driveGear = drivetrain.mediumVoltageGear
         self.driveMode = "voltage"
         self.driveSpeed = "medium"
         self.driveGears = \
@@ -49,17 +50,26 @@ class CompetitionBot2020(sea.GeneratorBot):
                 "fast" : drivetrain.fastPositionGear} 
             }
 
+        # testing
+        self.testSettings = { \
+            "wheelNum" : 0,
+            "motorNum" : 0,
+            "speed" : 0
+            }
+
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
 
     def teleop(self):
         self.manualMode()
-
         yield from self.mainGenerator()
 
     def autonomous(self):
         self.autoMode()
+        yield from self.mainGenerator()
 
+    def test(self):
+        self.testMode()
         yield from self.mainGenerator()
 
     def mainGenerator(self):
@@ -74,6 +84,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     def autoMode(self):
         self.controlModeMachine.replace(self.autoState)
+
+    def testMode(self):
+        self.superDrive.disable()
+        self.controlModeMachine.replace(self.testState)
 
     def driving(self):
         self.piston2.set(self.piston1.get())
@@ -110,6 +124,15 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             #put the stuff here
             
+            yield
+
+    def testing(self):
+        while True:
+
+            self.superDrive.wheels[self.testSettings["wheelNum"]]._drive( \
+                self.testSettings["speed"] * self.driveGear.moveScale, \
+                math.pi/2, self.testSettings["motorNum"])
+
             yield
 
     def buttonControl(self):
@@ -152,29 +175,29 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.app is not None:
                 v = self.app.doEvents()
             yield v
+
+    # Dashboard Callbacks
     
     @sea.queuedDashboardEvent
-    def c_changeGear(self,button):
+    def c_changeGear(self, button):
         self.driveMode = button.get_text()
-        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
     @sea.queuedDashboardEvent
-    def c_changeSpeed(self,button):
+    def c_changeSpeed(self, button):
         self.driveSpeed = button.get_text()
-        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
     @sea.queuedDashboardEvent
-    def c_stop(self,button):
+    def c_stop(self, button):
         self.superDrive.disable()
 
     @sea.queuedDashboardEvent
-    def c_compressor(self,button):
+    def c_compressor(self, button):
         if button.get_text() == "start":
             self.compressor.start()
             self.app.compressorGroup.highlight("start")
         else:
             self.compressor.stop()
             self.app.compressorGroup.highlight("stop")
-        
+
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2020)
