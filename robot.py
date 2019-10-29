@@ -112,10 +112,12 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            lMag = -sea.deadZone(self.controller.getY(0)) 
-            lMag *= self.driveGear.moveScale # maximum feet per second
-            rMag = sea.deadZone(self.controller.getY(1))
-            rMag *= self.driveGear.moveScale
+            lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05) 
+            # squares it for ease of control and then puts it back to negative 
+            # if it was originally negative
+            lMag = lMag**2 * math.copysign(1, lMag) * self.driveGear.moveScale
+            rMag = sea.deadZone(self.controller.getY(1), deadZone=0.05)
+            rMag = rMag**2 * math.copysign(1, rMag) * self.driveGear.moveScale
             
 
             self.superDrive.drive(rMag, math.pi/2, 0, 1)
