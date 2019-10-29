@@ -5,6 +5,9 @@ import math
 import navx
 import dashboard
 
+SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
+SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
+
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
@@ -27,8 +30,8 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
-        self.piston1 = wpilib.Solenoid(0)# pcm 0 and 2
-        self.piston2 = wpilib.Solenoid(1)# pcm 1 and 3
+        self.piston1 = wpilib.DoubleSolenoid(0, 1)
+        self.piston2 = wpilib.DoubleSolenoid(2, 3)
 
         # drive gears
         self.superDrive.gear = None
@@ -90,7 +93,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.controlModeMachine.replace(self.testState)
 
     def driving(self):
-        self.piston2.set(self.piston1.get())
+        self.piston1.set(SOLENOID_FORWARD)
+        self.piston2.set(SOLENOID_FORWARD)
         while True:
 
             self.pathFollower.updateRobotPosition()
@@ -101,13 +105,12 @@ class CompetitionBot2020(sea.GeneratorBot):
                     self.app.gearGroup.highlight(self.driveMode)
                     self.app.speedGroup.highlight(self.driveSpeed)
 
-            # must be changed when I get more details
-            if self.piston1.get() and self.driveSpeed != "slow":
-                self.piston1.set(False)
-                self.piston2.set(False)
-            elif not self.piston1.get() and self.driveSpeed == "slow":
-                self.piston1.set(True)
-                self.piston2.set(True)
+            if self.piston1.get() == SOLENOID_REVERSE and self.driveSpeed != "slow":
+                self.piston1.set(SOLENOID_FORWARD)
+                self.piston2.set(SOLENOID_FORWARD)
+            elif self.piston1.get() == SOLENOID_FORWARD and self.driveSpeed == "slow":
+                self.piston1.set(SOLENOID_REVERSE)
+                self.piston2.set(SOLENOID_REVERSE)
 
             lMag = -sea.deadZone(self.controller.getY(0)) 
             lMag *= self.driveGear.moveScale # maximum feet per second
