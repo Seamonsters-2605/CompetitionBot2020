@@ -53,7 +53,7 @@ class Wheel:
         """
         return 1.0
 
-    def drive(self, magnitude, direction):
+    def drive(self, magnitude, direction, motorNum=None):
         """
         Spin the wheel. This should be called 50 times per second.
 
@@ -64,9 +64,9 @@ class Wheel:
         if self.disabled:
             self.disable()
         else:
-            self._drive(magnitude, direction)
+            self._drive(magnitude, direction, motorNum)
 
-    def _drive(self, magnitude, direction):
+    def _drive(self, magnitude, direction, motorNum=None):
         pass
 
     def stop(self):
@@ -530,7 +530,7 @@ class SuperHolonomicDrive:
     def undisable(self):
         self._disableCounter = 0
 
-    def drive(self, magnitude, direction, turn, wheelNum = None):
+    def drive(self, magnitude, direction, turn, wheelNum=None, motorNum=None):
         """
         Drive the robot. This should be called 50 times per second.
 
@@ -541,6 +541,7 @@ class SuperHolonomicDrive:
         :param direction: radians. 0 is right, positive counter-clockwise
         :param turn: radians per second. positive counter-clockwise
         :param wheelNum: optional int argument to drive a single wheel
+        :param motorNum: optional int argument to drive a single motor
         :return: the scale of the actual output speed, as a fraction of the
             input magnitude and turn components
         """
@@ -574,8 +575,8 @@ class SuperHolonomicDrive:
                     if wheelMagnitudes[i] == 0:
                         self.wheels[i].stop()
                     else:
-                        self.wheels[i].drive(wheelMagnitudes[i] * minWheelScale,
-                                            wheelDirections[i])
+                            self.wheels[i].drive(wheelMagnitudes[i] * minWheelScale,
+                                wheelDirections[i], motorNum)
                 return minWheelScale
         else:
             try:
@@ -588,7 +589,7 @@ class SuperHolonomicDrive:
                 if wheelMag == 0:
                     self.wheels[wheelNum].stop()
                 else:
-                    self.wheels[wheelNum].drive(wheelMag * wheelScale, wheelDir)
+                    self.wheels[wheelNum].drive(wheelMag * wheelScale, wheelDir, motorNum)
                 return wheelScale
             except:
                 print("Wheel " + str(wheelNum) + " not in list of wheels")
