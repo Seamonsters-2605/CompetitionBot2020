@@ -1,4 +1,5 @@
 import wpilib
+import rev
 import drivetrain
 import seamonsters as sea 
 import math
@@ -63,18 +64,24 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
 
+    # different driving modes
+
+    # robot is controlled by the driver
     def teleop(self):
         self.manualMode()
         yield from self.mainGenerator()
 
+    # robot is controlled by the code
     def autonomous(self):
         self.autoMode()
         yield from self.mainGenerator()
 
+    # robot is being tested off the field
     def test(self):
         self.testMode()
         yield from self.mainGenerator()
 
+    # runs every 50th of a second
     def mainGenerator(self):
 
         yield from sea.parallel(
@@ -82,19 +89,33 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.buttonControl(),
             self.updateDashboardGenerator())
 
+    # switches the robot into teleop
     def manualMode(self):
+        for wheel in self.superDrive.wheels:
+            wheel.setIdleMode(rev.IdleMode.kBrake)
+         
+        self.piston1.set(SOLENOID_FORWARD)
+        self.piston2.set(SOLENOID_FORWARD)
+
         self.controlModeMachine.replace(self.manualState)
 
+    # switches the robot into auto
     def autoMode(self):
+        for wheel in self.superDrive.wheels:
+            wheel.setIdleMode(rev.IdleMode.kBrake)
+         
         self.controlModeMachine.replace(self.autoState)
 
+    # switches the robot into test mode
     def testMode(self):
+        for wheel in self.superDrive.wheels:
+            wheel.setIdleMode(rev.IdleMode.kCoast)
+            
         self.superDrive.disable()
         self.controlModeMachine.replace(self.testState)
 
+    # is run in teleop to get input and make the robot go
     def driving(self):
-        self.piston1.set(SOLENOID_FORWARD)
-        self.piston2.set(SOLENOID_FORWARD)
         while True:
 
             self.pathFollower.updateRobotPosition()
@@ -113,8 +134,8 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston2.set(SOLENOID_REVERSE)
 
             lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05) 
-            # squares it for ease of control and then puts it back to negative 
-            # if it was originally negative
+            # squares it for ease of control and then does copysign 
+            # to put it back to negative if it was originally negative
             lMag = lMag**2 * math.copysign(1, lMag) * self.driveGear.moveScale
             rMag = sea.deadZone(self.controller.getY(1), deadZone=0.05)
             rMag = rMag**2 * math.copysign(1, rMag) * self.driveGear.moveScale
@@ -125,6 +146,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             yield
 
+    # makes the robot do autonomous sequences
     def auto(self):
         while True:
 
@@ -132,6 +154,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             
             yield
 
+    # switches to use the dashboard for testing purposes
     def testing(self):
         while True:
 
@@ -141,6 +164,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             yield
 
+    # takes in input from the physical driver station
     def buttonControl(self):
         # clears events on buttons
         for button in range(1, 11):
@@ -162,6 +186,8 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             yield
 
+    # changes the drive mode when the button
+    # on the driver station is pressed
     def toggleDriveMode(self):
         if self.driveMode == "voltage":
             self.driveMode = "velocity"
@@ -170,9 +196,11 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         #elif self.driveMode == "velocity":
         #    self.driveMode = "position"
+
         else:
             self.driveMode = "voltage"
 
+    # updates the dashboard
     def updateDashboardGenerator(self):
         if self.app is not None:
             self.app.clearEvents()
