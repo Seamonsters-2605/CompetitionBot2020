@@ -229,6 +229,11 @@ class AngledWheel(Wheel):
         self.motors.append(motor)
         self.motorControllers.append(rev._impl.CANPIDController(motor))
 
+    # for switching between break and coast mode for the motors
+    def setIdleMode(self, mode):
+        for motor in self.motors:
+            motor.setIdleMode(mode)
+
     def limitMagnitude(self, magnitude, direction):
         # TODO: check position error in this function instead, and factor it
         # into the scale
