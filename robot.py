@@ -9,6 +9,10 @@ import dashboard
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
+# determines how many iterations back to average 
+# to get the value to set the motor to
+SPEED_CONTROL_AMOUNT = 5
+
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
@@ -60,6 +64,14 @@ class CompetitionBot2020(sea.GeneratorBot):
             "motorNum" : 0,
             "speed" : 0
             }
+
+        # every loop, these gets the current input
+        # value from the joysticks and puts it in 
+        # the list, the oldest value is removed and
+        # they are all averaged to set the speed of 
+        # the motors
+        self.speedControlLeft = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
+        self.speedControlRight = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
 
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
@@ -134,12 +146,17 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston2.set(SOLENOID_REVERSE)
 
             lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05) 
+            rMag = sea.deadZone(self.controller.getY(1), deadZone=0.05)
+
             # squares it for ease of control and then does copysign 
             # to put it back to negative if it was originally negative
             lMag = lMag**2 * math.copysign(1, lMag) * self.driveGear.moveScale
-            rMag = sea.deadZone(self.controller.getY(1), deadZone=0.05)
             rMag = rMag**2 * math.copysign(1, rMag) * self.driveGear.moveScale
             
+            # sets to the average of the past SPEED_CONTROL_AMOUNT
+            # number of inputs including the current one
+            lMag = self.speedControl(lMag, self.speedControlLeft)
+            rMag = self.speedControl(rMag, self.speedControlRight)
 
             self.superDrive.drive(rMag, math.pi/2, 0, 1)
             self.superDrive.drive(lMag, math.pi/2, 0, 0)
@@ -199,6 +216,20 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         else:
             self.driveMode = "voltage"
+
+    # used for shifting and averaging the speedControl lists
+    def speedControl(self, value, speedControlList):
+        speedControlList.append(value)
+        speedControlList.pop(0)
+
+        average = 0
+        for num in speedControlList:
+            average += num
+        
+        average /= len(speedControlList)
+
+        return average
+
 
     # updates the dashboard
     def updateDashboardGenerator(self):
