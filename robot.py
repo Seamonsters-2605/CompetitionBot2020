@@ -97,8 +97,9 @@ class CompetitionBot2020(sea.GeneratorBot):
             
             if self.superDrive.gear != self.driveGear:
                 self.driveGear.applyGear(self.superDrive)
-                self.app.gearGroup.highlight(self.driveMode)
-                self.app.speedGroup.highlight(self.driveSpeed)
+                if self.app is not None:
+                    self.app.gearGroup.highlight(self.driveMode)
+                    self.app.speedGroup.highlight(self.driveSpeed)
 
             # must be changed when I get more details
             if self.piston1.get() and self.driveSpeed != "slow":
@@ -192,12 +193,13 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_compressor(self, button):
-        if button.get_text() == "start":
-            self.compressor.start()
-            self.app.compressorGroup.highlight("start")
-        else:
-            self.compressor.stop()
-            self.app.compressorGroup.highlight("stop")
+        if self.app is not None:
+            if button.get_text() == "start":
+                self.compressor.start()
+                self.app.compressorGroup.highlight("start")
+            else:
+                self.compressor.stop()
+                self.app.compressorGroup.highlight("stop")
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2020)
