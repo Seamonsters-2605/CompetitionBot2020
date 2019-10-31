@@ -30,7 +30,7 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
     # 1 / 1.04720 = 0.95493 counts per foot
 
     # maxVoltageVelocity = 5 ft per second * 60 seconds = 300 rpm
-    angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), 0.95493, 300)
+    angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), 0.95493, 16)
     angledWheel.addMotor(sparkMax2)
     angledWheel.addMotor(sparkMax3)
 
@@ -40,9 +40,9 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
 # TODO: update the pids based on speed and adjust move/turn scales
 # slow gear is set to max because the shifting gearbox slows it down
 
-slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, gearRatio=0.25, moveScale=250)
-mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRatio=1, moveScale=150)
-fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1, moveScale=250)
+slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, gearRatio=0.25, moveScale=4)
+mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRatio=1, moveScale=8)
+fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1, moveScale=16)
 
 slowVelocityGear = DriveGear("Slow Velocity", rev.ControlType.kVelocity,
     gearRatio=0.25, moveScale=4, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
