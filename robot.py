@@ -68,6 +68,12 @@ class CompetitionBot2020(sea.GeneratorBot):
         # for dashboard motor data
         self.motorData = [dict() for _ in range(len(self.superDrive.motors))]
 
+        # sets initial values so the dashboard doesn't break when it tries to get 
+        # them before the values are updated in self.updateMotorData
+        for motor in range(len(self.superDrive.motors)):
+            self.motorData[motor]["amps"] = self.superDrive.motors[motor].getOutputCurrent()
+            self.motorData[motor]["temp"] = self.superDrive.motors[motor].getMotorTemperature()
+
         # every loop, these gets the current input
         # value from the joysticks and puts it in 
         # the list, the oldest value is removed and

@@ -47,9 +47,18 @@ class CompetitionDashboard(sea.Dashboard):
 
     # runs every time the dashboard is updated
     def idle(self):
+
+        # updates the values in self.motorDataTable
         for motorNum in range(6):
-            self.motorDataTable.children[self.motorDataDict["ampRow"]].children[self.motorDataDict["amp"][motorNum]].set_text(str(self.robot.motorData[motorNum]["amps"]))
-            self.motorDataTable.children[self.motorDataDict["tempRow"]].children[self.motorDataDict["temp"][motorNum]].set_text(str(self.robot.motorData[motorNum]["temp"]))
+
+            ampRow = self.motorDataTable.children[self.motorDataDict["ampRow"]]
+            ampItem = ampRow.children[self.motorDataDict["amp"][motorNum]]
+            ampItem.set_text(str(self.robot.motorData[motorNum]["amps"]))
+
+            tempRow = self.motorDataTable.children[self.motorDataDict["tempRow"]]
+            tempItem = tempRow.children[self.motorDataDict["temp"][motorNum]]
+            tempItem.set_text(str(self.robot.motorData[motorNum]["temp"]))
+
 
     def initManual(self, robot):
         manualBox = self.sectionBox()
