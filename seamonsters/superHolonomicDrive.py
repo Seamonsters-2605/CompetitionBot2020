@@ -307,7 +307,7 @@ class AngledWheel(Wheel):
             elif self.driveMode == rev.ControlType.kPosition:
                 self.motorControllers[motor].setReference(self._positionTarget, self.driveMode)
             elif self.driveMode == rev.ControlType.kVoltage:
-                self.motorControllers[motor].setReference(magnitude / self.maxVoltageVelocity * 12, self.driveMode)
+                self.motorControllers[motor].setReference(magnitude , self.driveMode)
 
             self._motorState = self.driveMode
 
@@ -362,7 +362,7 @@ class AngledWheel(Wheel):
         sensorVel /= len(self.motors)
         if self.reverse:
             sensorVel = -sensorVel
-        return sensorVel * 10.0 / self.encoderCountsPerFoot
+        return sensorVel / self.encoderCountsPerFoot
 
 
 class MecanumWheel(AngledWheel):
