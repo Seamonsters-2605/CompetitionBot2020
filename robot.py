@@ -65,6 +65,9 @@ class CompetitionBot2020(sea.GeneratorBot):
             "speed" : 0
             }
 
+        # for dashboard motor data
+        self.motorData = [dict() for _ in range(len(self.superDrive.motors))]
+
         # every loop, these gets the current input
         # value from the joysticks and puts it in 
         # the list, the oldest value is removed and
@@ -99,7 +102,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
             self.buttonControl(),
-            self.updateDashboardGenerator())
+            self.updateDashboardGenerator(),
+            self.updateMotorData())
 
     # switches the robot into teleop
     def manualMode(self):
@@ -240,6 +244,15 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.app is not None:
                 v = self.app.doEvents()
             yield v
+
+    # updates the motor data for the dashboard
+    def updateMotorData(self):
+        while True:
+            for motor in range(len(self.superDrive.motors)):
+                self.motorData[motor]["amps"] = self.superDrive.motors[motor].getOutputCurrent()
+                self.motorData[motor]["temp"] = self.superDrive.motors[motor].getMotorTemperature()
+
+            yield
 
     # Dashboard Callbacks
     

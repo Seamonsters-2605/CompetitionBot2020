@@ -6,6 +6,8 @@ import math
 def initDrivetrain():
     superDrive = sea.SuperHolonomicDrive()
 
+    superDrive.motors = [] # not a normal property of SuperHolonomicDrive
+
     # 3 motors per wheel but wheels cannot have the same position so 
     # add a small amount to it to make it work
     _makeWheel(superDrive, 1, 2, 3, rev.MotorType.kBrushless, 1, 0)
@@ -20,6 +22,7 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
     for sparkMax in [sparkMax1, sparkMax2, sparkMax3]:
         sparkMax.restoreFactoryDefaults()
         sparkMax.setIdleMode(rev.IdleMode.kBrake)
+        superDrive.motors.append(sparkMax)
 
     # encoderCountsPerFoot:
     # 1 count per encoder revolution

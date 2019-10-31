@@ -16,15 +16,40 @@ class CompetitionDashboard(sea.Dashboard):
         return vbox
 
     def main(self, robot, appCallback):
+        self.robot = robot
 
-        root = gui.VBox(width = 600, margin = "0px auto")
+        root = gui.HBox(width = 1000, margin = "0px auto")
         root.style['align-items'] = 'stretch'
 
-        root.append(self.initManual(robot))
-        root.append(self.initTest(robot))
+        leftSide = gui.VBox()
+        leftSide.style['align-items'] = 'stretch'
+
+        rightSide = gui.VBox()
+        rightSide.style['align-items'] = 'flex-start'
+
+        self.motorDataDict = { \
+            "ampRow" : None,
+            "tempRow" : None,
+            "amp" : [],
+            "temp" : []
+            }
+
+        leftSide.append(self.initStats(robot))
+
+        rightSide.append(self.initManual(robot))
+        rightSide.append(self.initTest(robot))
+
+        root.append(leftSide)
+        root.append(rightSide)
 
         appCallback(self)
         return root
+
+    # runs every time the dashboard is updated
+    def idle(self):
+        for motorNum in range(6):
+            self.motorDataTable.children[self.motorDataDict["ampRow"]].children[self.motorDataDict["amp"][motorNum]].set_text(str(self.robot.motorData[motorNum]["amps"]))
+            self.motorDataTable.children[self.motorDataDict["tempRow"]].children[self.motorDataDict["temp"][motorNum]].set_text(str(self.robot.motorData[motorNum]["temp"]))
 
     def initManual(self, robot):
         manualBox = self.sectionBox()
@@ -99,6 +124,30 @@ class CompetitionDashboard(sea.Dashboard):
             
         testButton.set_on_click_listener(testMotor)
 
+        testBox.append(gui.Label("Test"))
         testBox.append(motorSelectionBox)
         testBox.append(motorSpeedBox)
         return testBox
+
+    def initStats(self, robot):
+        statsBox = self.sectionBox()
+
+        motorDataBox = sea.vBoxWith(gui.Label("Motor Data"))
+        self.motorDataTable = gui.Table()
+        motorNumRow = gui.TableRow(gui.TableItem("Motor Number:"))
+        self.motorAmpRow = gui.TableRow(gui.TableItem("Amp Draw:"))
+        self.motorTempRow = gui.TableRow(gui.TableItem("Temp:"))
+
+        self.motorDataTable.append(motorNumRow)
+        self.motorDataDict["ampRow"] = self.motorDataTable.append(self.motorAmpRow)
+        self.motorDataDict["tempRow"] = self.motorDataTable.append(self.motorTempRow)
+
+        for motorNum in range(6):
+            motorNumRow.append(gui.TableItem(str(motorNum + 1)))
+            self.motorDataDict["amp"].append(self.motorAmpRow.append(gui.TableItem("")))
+            self.motorDataDict["temp"].append(self.motorTempRow.append(gui.TableItem("")))
+        
+        motorDataBox.append(self.motorDataTable)
+
+        statsBox.append(motorDataBox)
+        return statsBox
