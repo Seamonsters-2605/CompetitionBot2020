@@ -40,9 +40,9 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
 # TODO: update the pids based on speed and adjust move/turn scales
 # slow gear is set to max because the shifting gearbox slows it down
 
-slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, gearRatio=0.25, moveScale=4)
-mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRatio=1, moveScale=8)
-fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1, moveScale=16)
+slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, gearRatio=1/16.09, moveScale=0.8)
+mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRatio=1/5.47, moveScale=0.5)
+fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1/5.47, moveScale=0.8)
 
 slowVelocityGear = DriveGear("Slow Velocity", rev.ControlType.kVelocity,
     gearRatio=0.25, moveScale=4, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
