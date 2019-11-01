@@ -5,6 +5,7 @@ import seamonsters as sea
 import math
 import navx
 import dashboard
+import autoScheduler
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
@@ -28,9 +29,15 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.superDrive = drivetrain.initDrivetrain()
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
 
+        # for autonomous mode
+        self.autoScheduler = autoScheduler.AutoScheduler()
+        self.autoScheduler.idleFunction = self.autoIdle
+        self.autoScheduler.updateCallback = self.updateScheduler
+
+        # controls the state of the robot
         self.controlModeMachine = sea.StateMachine()
         self.manualState = sea.State(self.driving)
-        self.autoState = sea.State(self.auto)
+        self.autoState = sea.State(self.autoScheduler.runSchedule)
         self.testState = sea.State(self.testing)
 
         # for shifting gear box
@@ -173,14 +180,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             yield
 
-    # makes the robot do autonomous sequences
-    def auto(self):
-        while True:
-
-            #put the stuff here
-            
-            yield
-
     # switches to use the dashboard for testing purposes
     def testing(self):
         while True:
@@ -190,6 +189,11 @@ class CompetitionBot2020(sea.GeneratorBot):
                 math.pi/2, self.testSettings["motorNum"])
 
             yield
+
+    # runs in autonomous when nothing else is going
+    def autoIdle(self):
+        self.pathFollower.updateRobotPosition()
+        self.superDrive.drive(0, 0, 0)
 
     # takes in input from the physical driver station
     def buttonControl(self):
@@ -259,6 +263,12 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.motorData[motor]["temp"] = self.superDrive.motors[motor].getMotorTemperature()
 
             yield
+
+    # updates self.autoScheduler to run functions in autonomous
+    def updateScheduler(self):
+        # needs work
+
+        pass
 
     # Dashboard Callbacks
     
