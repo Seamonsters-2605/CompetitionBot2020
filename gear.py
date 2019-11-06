@@ -23,6 +23,8 @@ class DriveGear:
         for wheel in superDrive.wheels:
             wheel.driveMode = self.driveMode
             wheel.realTime = self.realTime
+            wheel.gearRatio = self.gearRatio
+            wheel.encoderCountsPerFoot = 1 / (self.gearRatio * wheel.circumference) 
             for motorController in wheel.motorControllers:
                 motorController.setP(self.p)
                 motorController.setI(self.i)

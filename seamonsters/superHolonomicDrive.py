@@ -193,15 +193,15 @@ class AngledWheel(Wheel):
     change on its own. It uses a SparkMax to drive.
     """
 
-    def __init__(self, motor: rev.CANSparkMax, x, y, angle,
-                 encoderCountsPerFoot, maxVoltageVelocity, reverse=False):
+    def __init__(self, motor: rev.CANSparkMax, x, y, angle, circumference,
+                maxVoltageVelocity, reverse=False):
         """
         :param motors: a SparkMax
         :param x: X position in feet
         :param y: Y position in feet
         :param angle: radians, direction of force. 0 is right, positive
             counter-clockwise
-        :param encoderCountsPerFoot: number of encoder counts to travel 1 foot
+        :param circumference: wheel circumference in feet
         :param maxVoltageVelocity: velocity at 100% in voltage mode, in feet
             per second
         :param reverse: boolean, optional
@@ -210,7 +210,9 @@ class AngledWheel(Wheel):
         self.motors = [motor]
         self.motorControllers = [motor.getPIDController()]
         self.angle = angle
-        self.encoderCountsPerFoot = encoderCountsPerFoot
+        self.circumference = circumference
+        self.gearRatio = None
+        self.encoderCountsPerFoot = None
         self.maxVoltageVelocity = maxVoltageVelocity
         self.reverse = reverse
 
