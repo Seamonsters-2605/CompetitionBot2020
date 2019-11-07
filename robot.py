@@ -162,13 +162,11 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05) 
+            lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
             rMag = sea.deadZone(self.controller.getY(1), deadZone=0.05)
 
-            # squares it for ease of control and then does copysign 
-            # to put it back to negative if it was originally negative
-            lMag = lMag**2 * math.copysign(1, lMag) * self.driveGear.moveScale
-            rMag = rMag**2 * math.copysign(1, rMag) * self.driveGear.moveScale
+            lMag *= self.driveGear.moveScale
+            rMag *= self.driveGear.moveScale
             
             # sets to the average of the past SPEED_CONTROL_AMOUNT
             # number of inputs including the current one
