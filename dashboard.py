@@ -30,8 +30,12 @@ class CompetitionDashboard(sea.Dashboard):
         self.motorDataDict = { \
             "ampRow" : None,
             "tempRow" : None,
+            "maxAmpRow" : None,
+            "maxTempRow" : None,
             "amp" : [],
-            "temp" : []
+            "temp" : [],
+            "maxAmp" : [],
+            "maxTemp" : []
             }
 
         leftSide.append(self.initStats(robot))
@@ -59,6 +63,13 @@ class CompetitionDashboard(sea.Dashboard):
             tempItem = tempRow.children[self.motorDataDict["temp"][motorNum]]
             tempItem.set_text(str(self.robot.motorData[motorNum]["temp"]))
 
+            maxAmpRow = self.motorDataTable.children[self.motorDataDict["maxAmpRow"]]
+            maxAmpItem = maxAmpRow.children[self.motorDataDict["maxAmp"][motorNum]]
+            maxAmpItem.set_text(str(self.robot.motorData[motorNum]["maxAmp"]))
+
+            maxTempRow = self.motorDataTable.children[self.motorDataDict["maxTempRow"]]
+            maxTempItem = maxTempRow.children[self.motorDataDict["maxTemp"][motorNum]]
+            maxTempItem.set_text(str(self.robot.motorData[motorNum]["maxTemp"]))
 
     def initManual(self, robot):
         manualBox = self.sectionBox()
@@ -144,17 +155,23 @@ class CompetitionDashboard(sea.Dashboard):
         motorDataBox = sea.vBoxWith(gui.Label("Motor Data"))
         self.motorDataTable = gui.Table()
         motorNumRow = gui.TableRow(gui.TableItem("Motor Number:"))
-        self.motorAmpRow = gui.TableRow(gui.TableItem("Amp Draw:"))
-        self.motorTempRow = gui.TableRow(gui.TableItem("Temp:"))
+        motorAmpRow = gui.TableRow(gui.TableItem("Amp Draw:"))
+        motorTempRow = gui.TableRow(gui.TableItem("Temp:"))
+        motorMaxAmpRow = gui.TableRow(gui.TableItem("Max Amp Draw:"))
+        motorMaxTempRow = gui.TableRow(gui.TableItem("Max Temp:"))
 
         self.motorDataTable.append(motorNumRow)
-        self.motorDataDict["ampRow"] = self.motorDataTable.append(self.motorAmpRow)
-        self.motorDataDict["tempRow"] = self.motorDataTable.append(self.motorTempRow)
+        self.motorDataDict["ampRow"] = self.motorDataTable.append(motorAmpRow)
+        self.motorDataDict["tempRow"] = self.motorDataTable.append(motorTempRow)
+        self.motorDataDict["maxAmpRow"] = self.motorDataTable.append(motorMaxAmpRow)
+        self.motorDataDict["maxTempRow"] = self.motorDataTable.append(motorMaxTempRow)
 
         for motorNum in range(6):
             motorNumRow.append(gui.TableItem(str(motorNum + 1)))
-            self.motorDataDict["amp"].append(self.motorAmpRow.append(gui.TableItem("")))
-            self.motorDataDict["temp"].append(self.motorTempRow.append(gui.TableItem("")))
+            self.motorDataDict["amp"].append(motorAmpRow.append(gui.TableItem("")))
+            self.motorDataDict["temp"].append(motorTempRow.append(gui.TableItem("")))
+            self.motorDataDict["maxAmp"].append(motorMaxAmpRow.append(gui.TableItem("")))
+            self.motorDataDict["maxTemp"].append(motorMaxTempRow.append(gui.TableItem("")))
         
         motorDataBox.append(self.motorDataTable)
 
