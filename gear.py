@@ -1,3 +1,5 @@
+import math
+
 class DriveGear:
 
     def __init__(self, name, driveMode, gearRatio, moveScale,
@@ -24,7 +26,7 @@ class DriveGear:
             wheel.driveMode = self.driveMode
             wheel.realTime = self.realTime
             wheel.gearRatio = self.gearRatio
-            wheel.encoderCountsPerFoot = 1 / (self.gearRatio * wheel.circumference) 
+            wheel.encoderCountsPerFoot = math.pi / (self.gearRatio * wheel.circumference) 
             for motorController in wheel.motorControllers:
                 motorController.setP(self.p)
                 motorController.setI(self.i)

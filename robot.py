@@ -121,7 +121,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     # switches the robot into teleop
     def manualMode(self):
         for wheel in self.superDrive.wheels:
-            wheel.setIdleMode(rev.IdleMode.kBrake)
+            wheel.setIdleMode(rev.IdleMode.kCoast)
          
         self.piston1.set(SOLENOID_FORWARD)
         self.piston2.set(SOLENOID_FORWARD)
@@ -258,6 +258,9 @@ class CompetitionBot2020(sea.GeneratorBot):
     # updates the motor data for the dashboard
     def updateMotorData(self):
         while True:
+
+            print(self.superDrive.wheels[0].getRealPosition())
+
             for motor in range(len(self.superDrive.motors)):
                 self.motorData[motor]["amps"] = self.superDrive.motors[motor].getOutputCurrent()
                 self.motorData[motor]["temp"] = self.superDrive.motors[motor].getMotorTemperature()
