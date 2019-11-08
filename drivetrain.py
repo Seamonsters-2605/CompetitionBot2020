@@ -40,9 +40,9 @@ mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRa
 fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1/5.47, moveScale=0.8)
 
 slowVelocityGear = DriveGear("Slow Velocity", rev.ControlType.kVelocity,
-    gearRatio=1/16.09, moveScale=4, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    gearRatio=1/16.09, moveScale=2, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 mediumVelocityGear = DriveGear("Medium Velocity", rev.ControlType.kVelocity,
-    gearRatio=1/5.47, moveScale=2, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    gearRatio=1/5.47, moveScale=4, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 fastVelocityGear = DriveGear("Fast Velocity", rev.ControlType.kVelocity,
     gearRatio=1/5.47, moveScale=6, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
 

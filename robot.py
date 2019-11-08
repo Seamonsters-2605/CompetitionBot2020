@@ -259,8 +259,6 @@ class CompetitionBot2020(sea.GeneratorBot):
     def updateMotorData(self):
         while True:
 
-            print(self.superDrive.wheels[0].getRealPosition())
-
             for motor in range(len(self.superDrive.motors)):
                 self.motorData[motor]["amps"] = self.superDrive.motors[motor].getOutputCurrent()
                 self.motorData[motor]["temp"] = self.superDrive.motors[motor].getMotorTemperature()
