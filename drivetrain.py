@@ -24,13 +24,6 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
         sparkMax.setIdleMode(rev.IdleMode.kBrake)
         superDrive.motors.append(sparkMax)
 
-    # encoderCountsPerFoot:
-    # 1 count per encoder revolution
-    # 1 : 1 gear ratio
-    # 1 * 1 = 1 counts per wheel rotation
-    # Wheel diameter: 4 in.
-    # Wheel circumference: 4 * pi / 12 = 1.04720 ft
-
     # maxVoltageVelocity = 5 ft per second * 60 seconds = 300 rpm
     angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), 1.0472, 16)
     angledWheel.addMotor(sparkMax2)

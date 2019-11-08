@@ -296,7 +296,7 @@ class AngledWheel(Wheel):
                 tDiff = 1 / sea.ITERATIONS_PER_SECOND
             self._prevTime = curTime
 
-            encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot * 60
+            encoderCountsPerSecond = magnitude / self.encoderCountsPerFoot * 60
             # always incremented, even if not in position mode
             # used by getTargetPosition
             self._positionTarget += encoderCountsPerSecond * tDiff
