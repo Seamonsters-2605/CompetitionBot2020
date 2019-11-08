@@ -211,8 +211,8 @@ class AngledWheel(Wheel):
         self.motorControllers = [motor.getPIDController()]
         self.angle = angle
         self.circumference = circumference
-        self.gearRatio = None
-        self.encoderCountsPerFoot = None
+        self.gearRatio = 1
+        self.encoderCountsPerFoot = 1
         self.maxVoltageVelocity = maxVoltageVelocity
         self.reverse = reverse
 
