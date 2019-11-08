@@ -78,8 +78,14 @@ class CompetitionBot2020(sea.GeneratorBot):
         # sets initial values so the dashboard doesn't break when it tries to get 
         # them before the values are updated in self.updateMotorData
         for motor in range(len(self.superDrive.motors)):
-            self.motorData[motor]["amps"] = self.superDrive.motors[motor].getOutputCurrent()
-            self.motorData[motor]["temp"] = self.superDrive.motors[motor].getMotorTemperature()
+            initAmps = round(self.superDrive.motors[motor].getOutputCurrent(), 2) 
+            initTemp = round(self.superDrive.motors[motor].getMotorTemperature(), 2)
+
+            self.motorData[motor]["amps"] = initAmps
+            self.motorData[motor]["temp"] = initTemp
+
+            self.motorData[motor]["maxAmp"] = initAmps
+            self.motorData[motor]["maxTemp"] = initTemp
 
         # every loop, these gets the current input
         # value from the joysticks and puts it in 
@@ -162,13 +168,11 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05) 
+            lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
             rMag = sea.deadZone(self.controller.getY(1), deadZone=0.05)
 
-            # squares it for ease of control and then does copysign 
-            # to put it back to negative if it was originally negative
-            lMag = lMag**2 * math.copysign(1, lMag) * self.driveGear.moveScale
-            rMag = rMag**2 * math.copysign(1, rMag) * self.driveGear.moveScale
+            lMag *= self.driveGear.moveScale
+            rMag *= self.driveGear.moveScale
             
             # sets to the average of the past SPEED_CONTROL_AMOUNT
             # number of inputs including the current one
@@ -260,8 +264,17 @@ class CompetitionBot2020(sea.GeneratorBot):
         while True:
 
             for motor in range(len(self.superDrive.motors)):
-                self.motorData[motor]["amps"] = self.superDrive.motors[motor].getOutputCurrent()
-                self.motorData[motor]["temp"] = self.superDrive.motors[motor].getMotorTemperature()
+                amps = round(self.superDrive.motors[motor].getOutputCurrent(), 2)
+                temp = round(self.superDrive.motors[motor].getMotorTemperature(), 2)
+
+                self.motorData[motor]["amps"] = amps
+                self.motorData[motor]["temp"] = temp
+
+                if amps > self.motorData[motor]["maxAmp"]:
+                    self.motorData[motor]["maxAmp"] = amps
+
+                if temp > self.motorData[motor]["maxTemp"]:
+                    self.motorData[motor]["maxTemp"] = temp
 
             yield
 
