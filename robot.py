@@ -19,8 +19,9 @@ class CompetitionBot2020(sea.GeneratorBot):
     def robotInit(self):
 
         # devices
-        self.controller = wpilib.XboxController(0)
-        self.buttonBoard = wpilib.Joystick(1)
+        self.joystickL = wpilib.Joystick(0)
+        self.joystickR = wpilib.Joystick(1)
+        self.buttonBoard = wpilib.Joystick(2)
 
         ahrs = navx.AHRS.create_spi()
 
@@ -168,8 +169,8 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
-            rMag = sea.deadZone(self.controller.getY(1), deadZone=0.05)
+            lMag = -sea.deadZone(self.joystickL.getY(), deadZone=0.05)
+            rMag = sea.deadZone(self.joystickR.getY(), deadZone=0.05)
 
             lMag *= self.driveGear.moveScale
             rMag *= self.driveGear.moveScale
