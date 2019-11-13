@@ -167,10 +167,10 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            mag = sea.deadZone(self.joystick.getY()) 
-            mag *= self.driveGear.moveScale # maximum feet per second
-            turn = sea.deadZone(self.joystick.getX())
-            turn *= self.driveGear.moveScale # maximum radians per second
+            mag = sea.deadZone(self.joystick.getX()) 
+            mag *= self.driveGear.moveScale
+            turn = -sea.deadZone(self.joystick.getY())
+            turn *= self.driveGear.moveScale
            
             # sets to the average of the past SPEED_CONTROL_AMOUNT
             # number of inputs including the current one
