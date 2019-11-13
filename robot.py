@@ -12,7 +12,7 @@ SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
 # determines how many iterations back to average 
 # to get the value to set the motor to
-SPEED_CONTROL_AMOUNT = 5
+SPEED_CONTROL_AMOUNT = 10
 
 class CompetitionBot2020(sea.GeneratorBot):
 
