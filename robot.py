@@ -19,7 +19,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     def robotInit(self):
 
         # devices
-        self.joystick = wpilib.Joystick(0)
+        self.controller = wpilib.XboxController(0)
         self.buttonBoard = wpilib.Joystick(1)
 
         ahrs = navx.AHRS.create_spi()
@@ -88,7 +88,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.motorData[motor]["maxTemp"] = initTemp
 
         # every loop, this gets the current input
-        # value from the joystick and puts it in 
+        # value from the controller and puts it in 
         # the list, the oldest value is removed and
         # they are all averaged to set the speed of 
         # the motors
@@ -167,9 +167,9 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            mag = sea.deadZone(self.joystick.getX()) 
+            mag = sea.deadZone(self.controller.getX(0), deadZone=0.05)
             mag *= self.driveGear.moveScale
-            turn = -sea.deadZone(self.joystick.getY())
+            turn = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
             turn *= self.driveGear.moveScale
            
             # sets to the average of the past SPEED_CONTROL_AMOUNT
