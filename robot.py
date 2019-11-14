@@ -149,9 +149,12 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.superDrive.disable()
         self.controlModeMachine.replace(self.testState)
 
-    # is run in teleop to get input and make the robot go
+    # is run in teleop to get input and make the robot go 
+    # Removed joystick control and prints statement for testing the getRealPosition method
     def driving(self):
         while True:
+
+            print(self.superDrive.wheels[1].getRealPosition())
 
             self.pathFollower.updateRobotPosition()
             
@@ -176,8 +179,8 @@ class CompetitionBot2020(sea.GeneratorBot):
             
             # sets to the average of the past SPEED_CONTROL_AMOUNT
             # number of inputs including the current one
-            lMag = self.speedControl(lMag, self.speedControlLeft)
-            rMag = self.speedControl(rMag, self.speedControlRight)
+            # lMag = self.speedControl(lMag, self.speedControlLeft)
+            # rMag = self.speedControl(rMag, self.speedControlRight)
 
             self.superDrive.drive(rMag, math.pi/2, 0, 1)
             self.superDrive.drive(lMag, math.pi/2, 0, 0)

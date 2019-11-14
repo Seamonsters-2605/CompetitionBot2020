@@ -215,6 +215,7 @@ class AngledWheel(Wheel):
         self.encoderCountsPerFoot = 1
         self.maxVoltageVelocity = maxVoltageVelocity
         self.reverse = reverse
+        self.wheelPosition = 0
 
         self.driveMode = rev.ControlType.kVoltage
         self.realTime = False
@@ -346,7 +347,18 @@ class AngledWheel(Wheel):
         for motor in self.motors:
             encPos += motor.getEncoder().getPosition()
         encPos /= len(self.motors)
-        return self._sensorPositionToDistance(encPos)
+        return self._sensorPositionToDistance(encPos) + self.wheelPosition
+
+    # Hasn't been tested yet
+
+    def changeGear(self, gearRatio):
+        self.wheelPosition += self.getRealPosition()
+
+        for i in range(len(self.motors)):
+            self.motors[i].getEncoder().setPosition(0.0)
+
+        self.gearRatio = gearRatio
+        self.encoderCountsPerFoot = 1 / (self.gearRatio * self.circumference)
 
     def getTargetPosition(self):
         return self._sensorPositionToDistance(self._positionTarget)
