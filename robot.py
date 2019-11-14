@@ -12,7 +12,7 @@ SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
 # determines how many iterations back to average 
 # to get the value to set the motor to
-SPEED_CONTROL_AMOUNT = 5
+SPEED_CONTROL_AMOUNT = 10
 
 class CompetitionBot2020(sea.GeneratorBot):
 
@@ -92,7 +92,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         # the list, the oldest value is removed and
         # they are all averaged to set the speed of 
         # the motors
-        self.speedControlList = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
+        self.speedControlMag = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
+        self.speedControlTurn = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
 
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
@@ -174,7 +175,8 @@ class CompetitionBot2020(sea.GeneratorBot):
            
             # sets to the average of the past SPEED_CONTROL_AMOUNT
             # number of inputs including the current one
-            mag = self.speedControl(mag, self.speedControlList)
+            mag = self.speedControl(mag, self.speedControlMag)
+            turn = self.speedControl(turn, self.speedControlTurn)
 
             self.superDrive.drive(mag, math.pi/2, turn)
 
