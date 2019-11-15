@@ -118,6 +118,8 @@ class CompetitionBot2020(sea.GeneratorBot):
     # runs every 50th of a second
     def mainGenerator(self):
 
+        self.superDrive.resetWheelPositions()
+
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
             self.buttonControl(),
@@ -154,7 +156,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     def driving(self):
         while True:
 
-            print(self.superDrive.wheels[1].getRealPosition())
+            print(self.superDrive.wheels[0].getRealPosition())
 
             self.pathFollower.updateRobotPosition()
             
