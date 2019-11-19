@@ -174,7 +174,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             mag = sea.deadZone(self.controller.getX(0), deadZone=0.05)
             mag *= self.driveGear.moveScale
             turn = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
-            turn *= self.driveGear.turnScale
+            turn *= self.driveGear.turnScale    
            
             # sets to the average of the past SPEED_CONTROL_AMOUNT
             # number of inputs including the current one

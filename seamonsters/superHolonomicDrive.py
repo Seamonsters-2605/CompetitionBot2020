@@ -348,7 +348,10 @@ class AngledWheel(Wheel):
     def _getRealPosition(self):
         encPos = 0
         for motor in self.motors:
-            encPos += motor.getEncoder().getPosition()
+            try:
+                encPos += motor.getEncoder().getPosition()
+            except AssertionError:
+                pass
         encPos /= len(self.motors)
         return self._sensorPositionToDistance(encPos)
 
