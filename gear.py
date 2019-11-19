@@ -2,11 +2,12 @@ import math
 
 class DriveGear:
 
-    def __init__(self, name, driveMode, gearRatio, moveScale,
+    def __init__(self, name, driveMode, gearRatio, moveScale, turnScale,
                  p=0.0, i=0.0, d=0.0, f=0.0, realTime=True):
         self.name = name
         self.driveMode = driveMode
         self.moveScale = moveScale
+        self.turnScale = turnScale
         self.gearRatio = gearRatio
         self.p = p
         self.i = i
