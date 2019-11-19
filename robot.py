@@ -12,7 +12,7 @@ SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
 # determines how many iterations back to average 
 # to get the value to set the motor to
-SPEED_CONTROL_AMOUNT = 5
+SPEED_CONTROL_AMOUNT = 10
 
 class CompetitionBot2020(sea.GeneratorBot):
 
@@ -87,13 +87,13 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.motorData[motor]["maxAmp"] = initAmps
             self.motorData[motor]["maxTemp"] = initTemp
 
-        # every loop, these gets the current input
-        # value from the joysticks and puts it in 
+        # every loop, this gets the current input
+        # value from the controller and puts it in 
         # the list, the oldest value is removed and
         # they are all averaged to set the speed of 
         # the motors
-        self.speedControlLeft = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
-        self.speedControlRight = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
+        self.speedControlMag = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
+        self.speedControlTurn = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
 
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
@@ -171,19 +171,17 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            lMag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
-            rMag = sea.deadZone(self.controller.getY(1), deadZone=0.05)
-
-            lMag *= self.driveGear.moveScale
-            rMag *= self.driveGear.moveScale
-            
+            mag = sea.deadZone(self.controller.getX(0), deadZone=0.05)
+            mag *= self.driveGear.moveScale
+            turn = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
+            turn *= self.driveGear.turnScale
+           
             # sets to the average of the past SPEED_CONTROL_AMOUNT
             # number of inputs including the current one
-            lMag = self.speedControl(lMag, self.speedControlLeft)
-            rMag = self.speedControl(rMag, self.speedControlRight)
+            mag = self.speedControl(mag, self.speedControlMag)
+            turn = self.speedControl(turn, self.speedControlTurn)
 
-            self.superDrive.drive(rMag, math.pi/2, 0, 1)
-            self.superDrive.drive(lMag, math.pi/2, 0, 0)
+            self.superDrive.drive(mag, math.pi/2, turn)
 
             yield
 
