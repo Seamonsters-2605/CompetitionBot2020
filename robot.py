@@ -156,8 +156,6 @@ class CompetitionBot2020(sea.GeneratorBot):
     def driving(self):
         while True:
 
-            print(self.superDrive.wheels[0].getRealPosition())
-
             self.pathFollower.updateRobotPosition()
             
             if self.superDrive.gear != self.driveGear:
@@ -181,8 +179,8 @@ class CompetitionBot2020(sea.GeneratorBot):
             
             # sets to the average of the past SPEED_CONTROL_AMOUNT
             # number of inputs including the current one
-            # lMag = self.speedControl(lMag, self.speedControlLeft)
-            # rMag = self.speedControl(rMag, self.speedControlRight)
+            lMag = self.speedControl(lMag, self.speedControlLeft)
+            rMag = self.speedControl(rMag, self.speedControlRight)
 
             self.superDrive.drive(rMag, math.pi/2, 0, 1)
             self.superDrive.drive(lMag, math.pi/2, 0, 0)
