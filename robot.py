@@ -26,6 +26,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.pdp = wpilib.PowerDistributionPanel(50)
 
+        self.ledStrip = wpilib.PWM(0)
+        self.ledInput = -0.99
+
         self.superDrive = drivetrain.initDrivetrain()
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
 
@@ -179,6 +182,8 @@ class CompetitionBot2020(sea.GeneratorBot):
             turn = self.speedControl(turn, self.speedControlTurn)
 
             self.superDrive.drive(mag, math.pi/2, turn)
+
+            self.ledStrip.setSpeed(self.ledInput)
 
             yield
 

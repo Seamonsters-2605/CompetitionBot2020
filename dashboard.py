@@ -39,6 +39,7 @@ class CompetitionDashboard(sea.Dashboard):
             }
 
         leftSide.append(self.initStats(robot))
+        leftSide.append(self.initLedControl(robot))
 
         rightSide.append(self.initManual(robot))
         rightSide.append(self.initTest(robot))
@@ -148,6 +149,25 @@ class CompetitionDashboard(sea.Dashboard):
         testBox.append(motorSelectionBox)
         testBox.append(motorSpeedBox)
         return testBox
+
+    def initLedControl(self, robot):
+        ledBox = self.sectionBox()
+
+        ledInputBox = sea.hBoxWith(gui.Label("LED Control"))
+        ledSet = gui.Button("Set")
+        ledIn = gui.Input()
+
+        def ledSetValue(button):
+            robot.ledInput = float(ledIn.get_value())
+
+        ledSet.set_on_click_listener(ledSetValue)
+
+        ledInputBox.append(ledSet)
+        ledInputBox.append(ledIn)
+
+        ledBox.append(ledInputBox)
+
+        return ledBox
 
     def initStats(self, robot):
         statsBox = self.sectionBox()
