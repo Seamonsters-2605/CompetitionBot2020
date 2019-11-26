@@ -10,10 +10,6 @@ import autoScheduler
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
-# determines how many iterations back to average 
-# to get the value to set the motor to
-SPEED_CONTROL_AMOUNT = 10
-
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
@@ -86,14 +82,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.motorData[motor]["maxAmp"] = initAmps
             self.motorData[motor]["maxTemp"] = initTemp
-
-        # every loop, this gets the current input
-        # value from the controller and puts it in 
-        # the list, the oldest value is removed and
-        # they are all averaged to set the speed of 
-        # the motors
-        self.speedControlMag = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
-        self.speedControlTurn = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
 
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
@@ -172,11 +160,6 @@ class CompetitionBot2020(sea.GeneratorBot):
             turn *= self.driveGear.turnScale
             mag = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
             mag *= self.driveGear.moveScale
-           
-            # sets to the average of the past SPEED_CONTROL_AMOUNT
-            # number of inputs including the current one
-            mag = self.speedControl(mag, self.speedControlMag)
-            turn = self.speedControl(turn, self.speedControlTurn)
 
             self.superDrive.drive(turn, math.pi/2, mag)
 
@@ -232,20 +215,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         else:
             self.driveMode = "voltage"
-
-    # used for shifting and averaging the speedControl lists
-    def speedControl(self, value, speedControlList):
-        speedControlList.append(value)
-        speedControlList.pop(0)
-
-        average = 0
-        for num in speedControlList:
-            average += num
-        
-        average /= len(speedControlList)
-
-        return average
-
 
     # updates the dashboard
     def updateDashboardGenerator(self):
