@@ -38,6 +38,7 @@ class CompetitionDashboard(sea.Dashboard):
             "maxTemp" : []
             }
 
+        leftSide.append(self.initCamera(robot))
         leftSide.append(self.initStats(robot))
         leftSide.append(self.initLedControl(robot))
 
@@ -111,6 +112,16 @@ class CompetitionDashboard(sea.Dashboard):
 
         manualBox.append(driveControlBox)
         return manualBox
+
+    def initCamera(self, robot):
+        cameraBox = self.sectionBox()
+
+        videoFeedBox = gui.HBox()
+        videoFeed = gui.Image('http://10.26.5.6:5800/')
+        videoFeedBox.append(videoFeed)
+
+        cameraBox.append(videoFeedBox)
+        return cameraBox
 
     def initTest(self, robot):
         testBox = self.sectionBox()

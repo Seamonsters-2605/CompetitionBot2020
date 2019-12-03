@@ -6,6 +6,7 @@ import math
 import navx
 import dashboard
 import autoScheduler
+from networktables import NetworkTables
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
@@ -27,6 +28,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.superDrive = drivetrain.initDrivetrain()
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
+
+        self.vision = NetworkTables.getTable('limelight')
+        self.vision.putNumber('pipeline', 1)
 
         # for autonomous mode
         self.autoScheduler = autoScheduler.AutoScheduler()
@@ -220,6 +224,34 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         else:
             self.driveMode = "voltage"
+
+    # uses the limelight to align with a vision target
+    def driveIntoVisionTarget(self):
+        visionValues = ['tv', 'tx', 'ty', 'ts', 'ta']
+
+        self.vision.putNumber('pipeline', 0)
+        yield
+
+        while True:
+            """
+            hasTarget = self.vision.getNumber('tv', None) # 1 if target, 0 if none
+
+            if hasTarget == None:
+                print("No limelight connection!")
+                return False
+            elif hasTarget == 0:
+                print("No vision targets")
+                self.superDrive.drive(0, 0, 0)
+                yield False
+                continue
+            """
+            for value in visionValues:
+                print(value + "  " + str(self.vision.getNumber(value, None)))
+
+            yield
+
+        self.superDrive.drive(0,0,0)
+        self.vision.putNumber('pipeline', 1)
 
     # updates the dashboard
     def updateDashboardGenerator(self):
