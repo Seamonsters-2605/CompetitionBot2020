@@ -10,10 +10,6 @@ import autoScheduler
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
-# determines how many iterations back to average 
-# to get the value to set the motor to
-SPEED_CONTROL_AMOUNT = 10
-
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
@@ -51,7 +47,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         # drive gears
         self.superDrive.gear = None
         self.driveGear = drivetrain.mediumVoltageGear
-        self.driveMode = "voltage"
+        self.driveMode = "velocity"
         self.driveSpeed = "medium"
         self.driveGears = \
             {"voltage" : \
@@ -90,14 +86,6 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.motorData[motor]["maxAmp"] = initAmps
             self.motorData[motor]["maxTemp"] = initTemp
 
-        # every loop, this gets the current input
-        # value from the controller and puts it in 
-        # the list, the oldest value is removed and
-        # they are all averaged to set the speed of 
-        # the motors
-        self.speedControlMag = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
-        self.speedControlTurn = [0 for _ in range(SPEED_CONTROL_AMOUNT)]
-
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
 
@@ -130,7 +118,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     # switches the robot into teleop
     def manualMode(self):
         for wheel in self.superDrive.wheels:
-            wheel.setIdleMode(rev.IdleMode.kBrake)
+            wheel.setIdleMode(rev.IdleMode.kCoast)
          
         self.piston1.set(SOLENOID_FORWARD)
         self.piston2.set(SOLENOID_FORWARD)
@@ -171,17 +159,12 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            mag = sea.deadZone(self.controller.getX(0), deadZone=0.05)
-            mag *= self.driveGear.moveScale
-            turn = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
+            turn = sea.deadZone(self.controller.getX(0), deadZone=0.05)
             turn *= self.driveGear.turnScale
-           
-            # sets to the average of the past SPEED_CONTROL_AMOUNT
-            # number of inputs including the current one
-            mag = self.speedControl(mag, self.speedControlMag)
-            turn = self.speedControl(turn, self.speedControlTurn)
+            mag = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
+            mag *= self.driveGear.moveScale
 
-            self.superDrive.drive(mag, math.pi/2, turn)
+            self.superDrive.drive(turn, math.pi/2, mag)
 
             self.ledStrip.setSpeed(self.ledInput)
 
@@ -238,20 +221,6 @@ class CompetitionBot2020(sea.GeneratorBot):
         else:
             self.driveMode = "voltage"
 
-    # used for shifting and averaging the speedControl lists
-    def speedControl(self, value, speedControlList):
-        speedControlList.append(value)
-        speedControlList.pop(0)
-
-        average = 0
-        for num in speedControlList:
-            average += num
-        
-        average /= len(speedControlList)
-
-        return average
-
-
     # updates the dashboard
     def updateDashboardGenerator(self):
         if self.app is not None:
@@ -265,6 +234,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     # updates the motor data for the dashboard
     def updateMotorData(self):
         while True:
+
             for motor in range(len(self.superDrive.motors)):
                 amps = round(self.superDrive.motors[motor].getOutputCurrent(), 2)
                 temp = round(self.superDrive.motors[motor].getMotorTemperature(), 2)
