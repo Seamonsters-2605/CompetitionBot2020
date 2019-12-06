@@ -172,6 +172,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.ledStrip.setSpeed(self.ledInput)
 
+            if self.controller.getAButtonPressed():
+                yield from self.turnDegrees(90)
+
             yield
 
     # switches to use the dashboard for testing purposes
@@ -225,11 +228,38 @@ class CompetitionBot2020(sea.GeneratorBot):
         else:
             self.driveMode = "voltage"
 
+    # turns the robot a certain amount
+    def turnDegrees(self, degrees, accuracy=3):
+        accuracy = abs(accuracy)
+        accuracyCount = 0 # for how many iterations the robot has been witin the accuracy range
+
+        targetAngle = self.pathFollower.robotAngle + degrees
+
+        while True:
+            offset = targetAngle - self.pathFollower.robotAngle
+            speed = offset / 360 # as the robot gets closer to the target angle, it will slow down
+
+            self.superDrive.drive(speed, math.pi/2, 0, 0) # left wheel
+            self.superDrive.drive(speed, math.pi/2, 0, 1) # right wheel
+
+            if -accuracy < abs(offset) < accuracy:
+                accuracyCount += 1
+            else:
+                accuracyCount = 0
+
+            if accuracyCount > 5:
+                return True
+
+            yield
+
     # uses the limelight to align with a vision target
     def driveIntoVisionTarget(self):
-        visionValues = ['tv', 'tx', 'ty', 'ts', 'ta']
-
         self.vision.putNumber('pipeline', 0)
+
+        # rough estimates
+        LIMELIGHT_HEIGHT = 10 # inches
+        TARGET_HEIGHT = 30 # inches
+
         yield
 
         while True:
@@ -245,8 +275,13 @@ class CompetitionBot2020(sea.GeneratorBot):
                 yield False
                 continue
             """
-            for value in visionValues:
-                print(value + "  " + str(self.vision.getNumber(value, None)))
+
+            yAngle = self.vision.getNumber('ty', None)
+            leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
+
+            dist = leg / math.tan(yAngle)
+
+            print(dist)
 
             yield
 
