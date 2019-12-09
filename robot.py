@@ -241,10 +241,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         while True:
             offset = targetAngle - self.pathFollower.robotAngle
-            speed = offset / 360 # as the robot gets closer to the target angle, it will slow down
+            speed = (offset / 360) * self.driveGear.moveScale # as the robot gets closer to the target angle, it will slow down
 
-            self.superDrive.drive(speed, math.pi/2, 0, 0) # left wheel
-            self.superDrive.drive(speed, math.pi/2, 0, 1) # right wheel
+            self.superDrive.drive(speed, math.pi/2, 0) 
 
             if -accuracy < abs(offset) < accuracy:
                 accuracyCount += 1
