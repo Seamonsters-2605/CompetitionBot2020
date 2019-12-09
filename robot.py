@@ -11,10 +11,6 @@ from networktables import NetworkTables
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
-DUAL_PIPELINE = 0
-LEFT_PIPELINE = 1
-RIGHT_PIPELINE = 2
-
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
@@ -33,8 +29,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.superDrive = drivetrain.initDrivetrain()
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
 
-        self.vision = NetworkTables.getTable('limelight')
-        self.vision.putNumber('pipeline', 1)
+        self.limelight = NetworkTables.getTable('limelight')
+        self.limelight.putNumber('pipeline', 1)
 
         # for autonomous mode
         self.autoScheduler = autoScheduler.AutoScheduler()
@@ -254,44 +250,6 @@ class CompetitionBot2020(sea.GeneratorBot):
                 return True
 
             yield
-    
-    def _visionHasTarget(self):
-        hasTargets = self.vision.getNumber('tv', None)
-        if hasTargets == None:
-            print("No limelight connection")
-            return False
-        elif hasTargets == 0:
-            print("No vision targets")
-            return False
-
-
-    # uses the limelight to align with a vision target returns True if completes without error
-    def driveIntoVisionTarget(self):
-
-        # Step 1: point at target
-
-        self.vision.putNumber('pipeline', DUAL_PIPELINE)
-
-        # rough estimates
-        LIMELIGHT_HEIGHT = 10 # inches
-        TARGET_HEIGHT = 30 # inches
-
-        while True:
-
-            if not self._visionHasTarget():
-                return False
-            
-            yAngle = self.vision.getNumber('ty', None)
-            leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
-
-            dist = leg / math.tan(yAngle)
-
-            print(dist)
-
-            yield
-
-        self.superDrive.drive(0,0,0)
-        self.vision.putNumber('pipeline', 1)
 
     # updates the dashboard
     def updateDashboardGenerator(self):
