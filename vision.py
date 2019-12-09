@@ -1,6 +1,7 @@
 import seamonsters as sea
 import math
 from networktables import NetworkTables
+import robot
 
 ANGLE_THRESHHOLD = 2 # in degrees; if the target is off by this much or greater, shouldAlign() will return True
 LIMELIGHT_HEIGHT = 10 # inches
@@ -24,11 +25,16 @@ def visionHasTarget(limelight):
         return True
 
 # uses the limelight to align with a vision target returns True if completes without error
-def driveIntoVisionTarget(robot):
+def driveIntoVisionTarget(robot : robot.CompetitionBot2020):
 
     # Step 1: point at target
 
     robot.limelight.putNumber('pipeline', DUAL_PIPELINE)
+
+    if not visionHasTarget(robot.limelight):
+        return False
+    hOffset = robot.limelight.getNumber('th')
+    robot.turnDegrees(-1 * hOffset)
 
     # rough estimates
     while True:
