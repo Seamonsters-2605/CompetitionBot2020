@@ -355,8 +355,6 @@ class AngledWheel(Wheel):
         encPos /= len(self.motors)
         return self._sensorPositionToDistance(encPos)
 
-    # Currently Testing
-
     def changeGear(self, gearRatio):
         self.wheelPosition += self._getRealPosition()
 
