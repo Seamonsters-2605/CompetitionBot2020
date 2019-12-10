@@ -36,18 +36,18 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
 # slow gear is set to max because the shifting gearbox slows it down
 
 slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, gearRatio=1/16.09, 
-moveScale=0.8, turnScale=0.55)
+moveScale=0.55, turnScale=0.8)
 mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRatio=1/5.47,
-moveScale=0.5, turnScale=0.35)
+moveScale=0.35, turnScale=0.5)
 fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1/5.47, 
-moveScale=0.8, turnScale=0.55) 
+moveScale=0.55, turnScale=0.8) 
 
 slowVelocityGear = DriveGear("Slow Velocity", rev.ControlType.kVelocity,
-    gearRatio=1/16.09, moveScale=4, turnScale=3, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    gearRatio=1/16.09, moveScale=2, turnScale=1.5, p=0.0000688, i=0.0000007, d=0.00001, f=0.0)
 mediumVelocityGear = DriveGear("Medium Velocity", rev.ControlType.kVelocity,
-    gearRatio=1/5.47, moveScale=2, turnScale=1.5, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    gearRatio=1/5.47, moveScale=2, turnScale=1.5, p=0.00007, i=0.0000007, d=0.00001, f=0.0)
 fastVelocityGear = DriveGear("Fast Velocity", rev.ControlType.kVelocity,
-    gearRatio=1/5.47, moveScale=6, turnScale=5, p=0.000067, i=0.0000015, d=0.00035, f=0.0)
+    gearRatio=1/5.47, moveScale=6, turnScale=3.5, p=0.00007, i=0.0000007, d=0.0001, f=0.0)
 
 slowPositionGear = DriveGear("Slow Position", rev.ControlType.kPosition,
     gearRatio=1/16.09, moveScale=4, turnScale=3, p=0.5, i=0.0, d=3.0, f=0.0)
