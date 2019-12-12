@@ -6,6 +6,7 @@ import math
 import navx
 import dashboard
 import autoScheduler
+import vision
 from networktables import NetworkTables
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
@@ -172,8 +173,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.ledStrip.setSpeed(self.ledInput)
 
-            if self.controller.getAButtonPressed():
+            if self.controller.getAButton():
                 yield from self.turnDegrees(90)
+            if self.controller.getXButton():
+                yield from vision.driveIntoVisionTarget(self)
 
             yield
 
@@ -233,11 +236,15 @@ class CompetitionBot2020(sea.GeneratorBot):
         accuracy = abs(accuracy)
         accuracyCount = 0 # for how many iterations the robot has been witin the accuracy range
 
-        targetAngle = self.pathFollower.robotAngle + degrees
+        self.pathFollower.updateRobotPosition()
+        targetAngle = math.degrees(self.pathFollower.robotAngle) + degrees
 
         while True:
-            offset = targetAngle - self.pathFollower.robotAngle
-            speed = (offset / 360) * self.driveGear.moveScale # as the robot gets closer to the target angle, it will slow down
+
+            self.pathFollower.updateRobotPosition()
+
+            offset = targetAngle - math.degrees(self.pathFollower.robotAngle)
+            speed = (-1 * offset / 360) * self.driveGear.moveScale # as the robot gets closer to the target angle, it will slow down
 
             self.superDrive.drive(speed, math.pi/2, 0) 
 
