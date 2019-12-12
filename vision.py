@@ -57,12 +57,12 @@ def getDistance(yAngle):
 # uses the limelight to align with a vision target returns True if completes without error
 def driveIntoVisionTarget(robot : robot.CompetitionBot2020):
 
+    if not visionHasTarget(robot.limelight):
+        return False
+
     # Step 1: point at target
 
     robot.limelight.putNumber('pipeline', DUAL_PIPELINE)
-
-    if not visionHasTarget(robot.limelight):
-        return False
     hOffset = robot.limelight.getNumber('th')
     robot.turnDegrees(-1 * hOffset)
 
