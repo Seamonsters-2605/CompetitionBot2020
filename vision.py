@@ -56,7 +56,7 @@ def getDistance(yAngle):
 
     leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
 
-    return leg / math.tan(math.radians(yAngle))  
+    return leg / math.tan(math.radians(yAngle)) * (1 - .234)
 
 # uses the limelight to align with a vision target returns True if completes without error
 def driveIntoVisionTarget(robot : robot.CompetitionBot2020):
