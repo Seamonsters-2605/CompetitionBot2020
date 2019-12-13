@@ -172,8 +172,11 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.ledStrip.setSpeed(self.ledInput)
 
+            # for testing
             if self.controller.getAButtonPressed():
                 yield from self.turnDegrees(90)
+            elif self.controller.getBButtonPressed():
+                yield from self.driveDist(3)
 
             yield
 
@@ -229,17 +232,61 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.driveMode = "voltage"
 
     # turns the robot a certain amount
-    def turnDegrees(self, degrees, accuracy=3):
+    def turnDegrees(self, degrees, accuracy=3, multiplier=1):
         accuracy = abs(accuracy)
-        accuracyCount = 0 # for how many iterations the robot has been witin the accuracy range
+        accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
 
         targetAngle = self.pathFollower.robotAngle + degrees
 
         while True:
             offset = targetAngle - self.pathFollower.robotAngle
-            speed = (offset / 360) * self.driveGear.moveScale # as the robot gets closer to the target angle, it will slow down
+
+            # as the robot gets closer to the target angle, it will slow down
+            speed = (offset / 360) * multiplier 
+            if speed > 1:
+                speed = 1
+            speed *= self.driveGear.turn
 
             self.superDrive.drive(speed, math.pi/2, 0) 
+
+            if -accuracy < abs(offset) < accuracy:
+                accuracyCount += 1
+            else:
+                accuracyCount = 0
+
+            if accuracyCount > 5:
+                return True
+
+            yield
+
+    # drives the robot a specified distance in a straight line
+    # distance measured in feet
+    def driveDist(self, distance, accuracy=0.25, slowDist=3):
+        accuracy = abs(accuracy)
+        accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
+
+        targetDistL = self.superDrive.wheels[0].getRealPosition() + distance
+        targetDistR = self.superDrive.wheels[1].getRealPosition() + distance
+        targetDist = (targetDistL + targetDistR) / 2
+
+        def getLocation():
+            locationL = self.superDrive.wheels[0].getRealPosition()
+            locationR = self.superDrive.wheels[1].getRealPosition()
+            location = (locationL + locationR) / 2
+
+            return location
+
+        while True:
+            offset = targetDist - getLocation()
+            
+            # the robot will start to slow down once it is 
+            # slowDist feet away from the target
+            speed = offset / slowDist 
+            if speed > 1:
+                speed = 1
+            speed *= self.driveGear.moveScale
+            
+            self.superDrive.drive(0, math.pi/2, speed)
 
             if -accuracy < abs(offset) < accuracy:
                 accuracyCount += 1
