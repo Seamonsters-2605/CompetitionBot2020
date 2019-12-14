@@ -6,6 +6,7 @@ import math
 import navx
 import dashboard
 import autoScheduler
+import vision
 from networktables import NetworkTables
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
@@ -177,6 +178,8 @@ class CompetitionBot2020(sea.GeneratorBot):
                 yield from self.turnDegrees(90)
             elif self.controller.getBButtonPressed():
                 yield from self.driveDist(3)
+            elif self.controller.getXButton():
+                yield from vision.driveIntoVisionTarget(self)
 
             yield
 
@@ -236,13 +239,16 @@ class CompetitionBot2020(sea.GeneratorBot):
         accuracy = abs(accuracy)
         accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
 
-        targetAngle = self.pathFollower.robotAngle + degrees
+        self.pathFollower.updateRobotPosition()
+        targetAngle = math.degrees(self.pathFollower.robotAngle) + degrees
 
         while True:
-            offset = targetAngle - self.pathFollower.robotAngle
+            self.pathFollower.updateRobotPosition()
+            
+            offset = targetAngle - math.degrees(self.pathFollower.robotAngle)
 
             # as the robot gets closer to the target angle, it will slow down
-            speed = (offset / 360) * multiplier 
+            speed = (-1 * offset / 360) * multiplier 
             if speed > 1:
                 speed = 1
             speed *= self.driveGear.turn
@@ -277,6 +283,8 @@ class CompetitionBot2020(sea.GeneratorBot):
             return location
 
         while True:
+            self.pathFollower.updateRobotPosition()
+
             offset = targetDist - getLocation()
             
             # the robot will start to slow down once it is 

@@ -6,8 +6,8 @@ import robot
 ANGLE_THRESHHOLD = 2 # in degrees; if the target is off by this much or greater, shouldAlign() will return True
 
 # very rough values
-LIMELIGHT_HEIGHT = 10 # inches
-TARGET_HEIGHT = 30 # inches
+LIMELIGHT_HEIGHT = 16 # inches
+TARGET_HEIGHT = 29 # inches
 
 BASE_TARGET_RATIO = 1 / 2
 
@@ -17,7 +17,7 @@ LEFT_PIPELINE = 1
 RIGHT_PIPELINE = 2
 
 def visionHasTarget(limelight):
-        hasTargets = limelight('tv', None)
+        hasTargets = limelight.getNumber('tv', None)
 
         if hasTargets == None:
             print("No limelight connection")
@@ -56,20 +56,19 @@ def getDistance(yAngle):
 
     leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
 
-    return leg / math.tan(yAngle)  
+    return leg / math.tan(math.radians(yAngle)) * (1 - .234)
 
 # uses the limelight to align with a vision target returns True if completes without error
 def driveIntoVisionTarget(robot : robot.CompetitionBot2020):
 
-    # Step 1: point at target
-
-    robot.limelight.putNumber('pipeline', DUAL_PIPELINE)
-
     if not visionHasTarget(robot.limelight):
         return False
 
-    hOffset = robot.limelight.getNumber('th')
-    robot.turnDegrees(-1 * hOffset)
+    # Step 1: point at target
+
+    robot.limelight.putNumber('pipeline', DUAL_PIPELINE)
+    hOffset = robot.limelight.getNumber('th', None)
+    # robot.turnDegrees(-1 * hOffset)
 
     while True:
 
