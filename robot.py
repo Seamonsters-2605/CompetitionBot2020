@@ -20,7 +20,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # devices
         self.controller = wpilib.XboxController(0)
-        self.buttonBoard = wpilib.Joystick(1)
+        # self.buttonBoard = wpilib.Joystick(1)
 
         ahrs = navx.AHRS.create_spi()
 
@@ -118,7 +118,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
-            self.buttonControl(),
+            # self.buttonControl(),
             self.updateDashboardGenerator(),
             self.updateMotorData())
 
