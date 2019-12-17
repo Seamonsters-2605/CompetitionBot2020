@@ -12,6 +12,8 @@ from networktables import NetworkTables
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
+ENCODER_COUNTS_PER_FOOT = 0.26415
+
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
@@ -175,10 +177,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # for testing
             if self.controller.getAButtonPressed():
-                yield from self.turnDegrees(90)
+                yield from self.turnDegrees(90, 3, 2)
             elif self.controller.getBButtonPressed():
                 yield from self.driveDist(3)
-            elif self.controller.getXButton():
+            elif self.controller.getXButtonPressed():
                 yield from vision.driveIntoVisionTarget(self)
 
             yield
@@ -248,10 +250,10 @@ class CompetitionBot2020(sea.GeneratorBot):
             offset = targetAngle - math.degrees(self.pathFollower.robotAngle)
 
             # as the robot gets closer to the target angle, it will slow down
-            speed = (-1 * offset / 360) * multiplier 
+            speed = (-1 * offset / 360) * multiplier
             if speed > 1:
                 speed = 1
-            speed *= self.driveGear.turn
+            speed *= self.driveGear.turnScale
 
             self.superDrive.drive(speed, math.pi/2, 0) 
 
@@ -267,17 +269,22 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     # drives the robot a specified distance in a straight line
     # distance measured in feet
-    def driveDist(self, distance, accuracy=0.25, slowDist=3):
+    def driveDist(self, distance, accuracy=0.025, slowDist=1):
+        distance *= ENCODER_COUNTS_PER_FOOT
+        accuracy *= ENCODER_COUNTS_PER_FOOT
+        slowDist *= ENCODER_COUNTS_PER_FOOT
+
         accuracy = abs(accuracy)
         accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
 
+        # the right side is negative because the motor is turned around
         targetDistL = self.superDrive.wheels[0].getRealPosition() + distance
-        targetDistR = self.superDrive.wheels[1].getRealPosition() + distance
+        targetDistR = -self.superDrive.wheels[1].getRealPosition() + distance
         targetDist = (targetDistL + targetDistR) / 2
 
         def getLocation():
             locationL = self.superDrive.wheels[0].getRealPosition()
-            locationR = self.superDrive.wheels[1].getRealPosition()
+            locationR = -self.superDrive.wheels[1].getRealPosition()
             location = (locationL + locationR) / 2
 
             return location
