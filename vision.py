@@ -9,7 +9,7 @@ ANGLE_THRESHHOLD = 2 # in degrees; if the target is off by this much or greater,
 LIMELIGHT_HEIGHT = 16 # inches
 TARGET_HEIGHT = 29 # inches
 
-BASE_TARGET_RATIO = 1 / 2
+BASE_TARGET_RATIO = 1 / 3
 
 # pipelines
 DUAL_PIPELINE = 0
@@ -33,23 +33,21 @@ def getAngleOffset(limelight):
 
     limelight.putNumber('pipeline', DUAL_PIPELINE)
 
-    hor = limelight.getNumber('thor') # horizontal value of the box
-    vert = limelight.getNumber('tvert') # vertical value of the box
+    hor = limelight.getNumber('thor',None) # horizontal value of the box
+    vert = limelight.getNumber('tvert',None) # vertical value of the box
 
-    ratio = vert / hor
-
-    offset = math.acos(ratio / BASE_TARGET_RATIO)
+    offset = math.acos((hor / vert) * BASE_TARGET_RATIO)
 
     limelight.putNumber('pipeline', LEFT_PIPELINE)
-    leftDist = getDistance(limelight.getNumber('ty'))
+    leftDist = getDistance(limelight.getNumber('ty',None))
 
     limelight.putNumber('pipeline', RIGHT_PIPELINE)
-    rightDist = getDistance(limelight.getNumber('ty'))
+    rightDist = getDistance(limelight.getNumber('ty',None))
 
     if leftDist < rightDist:
         offset *= -1
 
-    return offset
+    return 90 - offset
 
 # this is inaccurate when the limelight is a similar height to the target
 def getDistance(yAngle):
@@ -83,7 +81,11 @@ def driveIntoVisionTarget(robot : robot.CompetitionBot2020):
         dist = getDistance(yAngle)
 
         # this is where the drive-a-distance function goes
-        print(dist)
+        # print(dist)
+
+        offset = getAngleOffset(robot.limelight)
+
+        print(offset)
 
         yield
 
