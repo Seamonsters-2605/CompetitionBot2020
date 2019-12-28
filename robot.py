@@ -181,7 +181,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             elif self.controller.getBButtonPressed():
                 yield from self.driveDist(3)
             elif self.controller.getXButtonPressed():
-                yield from vision.driveIntoVisionTarget(self)
+                vision.driveIntoVisionTarget(self)
 
             yield
 
