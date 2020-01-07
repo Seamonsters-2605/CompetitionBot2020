@@ -197,7 +197,15 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.superDrive.drive(0, 0, 0)
 
     # turns the robot a certain amount
-    def turnDegrees(self, degrees, accuracy=3, multiplier=1):
+    def turnDegrees(self, degrees, accuracy=3, multiplier=1, visionTarget=False):
+
+        # the function ends if the robot is looking for a vision target but there are none
+        if visionTarget:
+            self.limelight.putNumber('pipeline', 0)
+
+            if not vision.visionHasTarget(self.limelight):
+                return False
+
         accuracy = abs(accuracy)
         accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
 
@@ -206,8 +214,11 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         while True:
             self.pathFollower.updateRobotPosition()
-            
+           
             offset = targetAngle - math.degrees(self.pathFollower.robotAngle)
+            if visionTarget and vision.visionHasTarget(self.limelight):
+                offset = -self.limelight.getNumber('tx', None)
+
             print(offset)
 
             # as the robot gets closer to the target angle, it will slow down
@@ -235,7 +246,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         if not vision.visionHasTarget(self.limelight):
             return False
 
-        yield from self.turnDegrees(-hOffset, 3, 3)
+        yield from self.turnDegrees(-hOffset, 3, 3, True)
 
     # drives the robot a specified distance in a straight line
     # distance measured in feet
