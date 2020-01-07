@@ -53,43 +53,33 @@ def getAngleOffset(limelight):
     return math.degrees(offset)
 
 # this is inaccurate when the limelight is a similar height to the target
-def getDistance(yAngle):
+def getDistance(limelight):
+    yAngle = limelight.getNumber('ty', None)
 
     leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
 
     return leg / math.tan(math.radians(yAngle)) * (1 - .234)
 
-# uses the limelight to align with a vision target returns True if completes without error
+# uses the limelight to align with and drive into a vision target; returns True if completed without error
 def driveIntoVisionTarget(robot : robot.CompetitionBot2020):
 
     if not visionHasTarget(robot.limelight):
         return False
 
-    # Step 1: point at target
+    try:
+        # Step 1: point at target
 
-    robot.limelight.putNumber('pipeline', DUAL_PIPELINE)
-    hOffset = robot.limelight.getNumber('th', None)
-    # robot.turnDegrees(-1 * hOffset)
+        robot.limelight.putNumber('pipeline', DUAL_PIPELINE)
+        hOffset = robot.limelight.getNumber('th', None)
+        robot.turnDegrees(-hOffset)
 
-    while True:
+        # Step 2: drive to the target
 
-        # needs to be reformatted, if the robot
-        # looses the vision target for just 1/50
-        # of a second, the function will end
-        if not visionHasTarget(robot.limelight):
-            return False
-        
-        yAngle = robot.limelight.getNumber('ty', None)
+        dist = getDistance(robot.limelight)
+        robot.driveDist(dist)
 
-        dist = getDistance(yAngle)
+        robot.superDrive.drive(0,0,0)
 
-        # this is where the drive-a-distance function goes
-        # print(dist)
-
-        offset = getAngleOffset(robot.limelight)
-
-        print(offset)
-
-        yield
-
-    robot.superDrive.drive(0,0,0)
+        return True
+    except:
+        return False
