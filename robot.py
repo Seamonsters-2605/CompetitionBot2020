@@ -116,6 +116,8 @@ class CompetitionBot2020(sea.GeneratorBot):
     # runs every 50th of a second
     def mainGenerator(self):
 
+        self.superDrive.resetWheelPositions()
+
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
             # self.buttonControl(),
@@ -147,7 +149,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.superDrive.disable()
         self.controlModeMachine.replace(self.testState)
 
-    # is run in teleop to get input and make the robot go
+    # is run in teleop to get input and make the robot go 
+    # Removed joystick control and prints statement for testing the getRealPosition method
     def driving(self):
         while True:
 
