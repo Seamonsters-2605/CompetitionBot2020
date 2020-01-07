@@ -319,10 +319,12 @@ class CompetitionBot2020(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_changeGear(self, button):
         self.driveMode = button.get_text()
+        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
     @sea.queuedDashboardEvent
     def c_changeSpeed(self, button):
         self.driveSpeed = button.get_text()
+        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
     @sea.queuedDashboardEvent
     def c_stop(self, button):
