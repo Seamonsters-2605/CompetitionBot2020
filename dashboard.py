@@ -24,6 +24,8 @@ class CompetitionDashboard(sea.Dashboard):
         leftSide = gui.VBox()
         leftSide.style['align-items'] = 'stretch'
 
+        middle = gui.VBox()
+
         rightSide = gui.VBox()
         rightSide.style['align-items'] = 'flex-start'
 
@@ -38,14 +40,16 @@ class CompetitionDashboard(sea.Dashboard):
             "maxTemp" : []
             }
 
-        leftSide.append(self.initCamera(robot))
         leftSide.append(self.initStats(robot))
         leftSide.append(self.initLedControl(robot))
+
+        middle.append(self.initCamera(robot))
 
         rightSide.append(self.initManual(robot))
         rightSide.append(self.initTest(robot))
 
         root.append(leftSide)
+        root.append(middle)
         root.append(rightSide)
 
         appCallback(self)

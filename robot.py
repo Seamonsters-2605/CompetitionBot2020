@@ -176,12 +176,9 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.ledStrip.setSpeed(self.ledInput)
 
             # for testing
+
             if self.controller.getAButtonPressed():
-                yield from self.turnDegrees(90, 3, 2)
-            elif self.controller.getBButtonPressed():
-                yield from self.driveDist(3)
-            elif self.controller.getXButtonPressed():
-                vision.driveIntoVisionTarget(self)
+                yield from self.faceVisionTarget()
 
             yield
 
@@ -248,9 +245,10 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.pathFollower.updateRobotPosition()
             
             offset = targetAngle - math.degrees(self.pathFollower.robotAngle)
+            print(offset)
 
             # as the robot gets closer to the target angle, it will slow down
-            speed = (-1 * offset / 360) * multiplier
+            speed = (-offset / 360) * multiplier
             if speed > 1:
                 speed = 1
             speed *= self.driveGear.turnScale
@@ -266,6 +264,15 @@ class CompetitionBot2020(sea.GeneratorBot):
                 return True
 
             yield
+
+    def faceVisionTarget(self):
+        self.limelight.putNumber('pipeline', 0)
+        hOffset = self.limelight.getNumber('tx', None)
+
+        if not vision.visionHasTarget(self.limelight):
+            return False
+
+        yield from self.turnDegrees(-hOffset, 3, 3)
 
     # drives the robot a specified distance in a straight line
     # distance measured in feet

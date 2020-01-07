@@ -67,7 +67,7 @@ def driveIntoVisionTarget(robot : robot.CompetitionBot2020):
         # Step 1: point at target
 
         robot.limelight.putNumber('pipeline', DUAL_PIPELINE)
-        hOffset = robot.limelight.getNumber('th', None)
+        hOffset = robot.limelight.getNumber('tx', None)
         robot.turnDegrees(-hOffset)
 
         # Step 2: drive to the target
