@@ -12,15 +12,12 @@ from networktables import NetworkTables
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
-ENCODER_COUNTS_PER_FOOT = 0.26415
-
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
 
         # devices
         self.controller = wpilib.XboxController(0)
-        # self.buttonBoard = wpilib.Joystick(1)
 
         ahrs = navx.AHRS.create_spi()
 
@@ -53,7 +50,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # drive gears
         self.superDrive.gear = None
-        self.driveGear = drivetrain.mediumVoltageGear
+        self.driveGear = drivetrain.mediumVelocityGear
         self.driveMode = "velocity"
         self.driveSpeed = "medium"
         self.driveGears = \
@@ -150,7 +147,6 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.controlModeMachine.replace(self.testState)
 
     # is run in teleop to get input and make the robot go 
-    # Removed joystick control and prints statement for testing the getRealPosition method
     def driving(self):
         while True:
 
@@ -200,42 +196,6 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.pathFollower.updateRobotPosition()
         self.superDrive.drive(0, 0, 0)
 
-    # takes in input from the physical driver station
-    def buttonControl(self):
-        # clears events on buttons
-        for button in range(1, 11):
-            self.buttonBoard.getRawButtonPressed(button)
-
-        while True:
-
-            if self.buttonBoard.getRawButtonPressed(3):
-                self.driveSpeed = "slow"
-            elif self.buttonBoard.getRawButtonPressed(4):
-                self.driveSpeed = "medium"
-            elif self.buttonBoard.getRawButtonPressed(5):
-                self.driveSpeed = "fast"
-
-            if self.buttonBoard.getRawButtonPressed(2):
-                self.toggleDriveMode()
-
-            self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
-
-            yield
-
-    # changes the drive mode when the button
-    # on the driver station is pressed
-    def toggleDriveMode(self):
-        if self.driveMode == "voltage":
-            self.driveMode = "velocity"
-            
-        # position mode is too funky to use 
-
-        #elif self.driveMode == "velocity":
-        #    self.driveMode = "position"
-
-        else:
-            self.driveMode = "voltage"
-
     # turns the robot a certain amount
     def turnDegrees(self, degrees, accuracy=3, multiplier=1):
         accuracy = abs(accuracy)
@@ -280,10 +240,6 @@ class CompetitionBot2020(sea.GeneratorBot):
     # drives the robot a specified distance in a straight line
     # distance measured in feet
     def driveDist(self, distance, accuracy=0.025, slowDist=1):
-        distance *= ENCODER_COUNTS_PER_FOOT
-        accuracy *= ENCODER_COUNTS_PER_FOOT
-        slowDist *= ENCODER_COUNTS_PER_FOOT
-
         accuracy = abs(accuracy)
         accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
 
