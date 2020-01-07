@@ -9,7 +9,7 @@ ANGLE_THRESHHOLD = 2 # in degrees; if the target is off by this much or greater,
 LIMELIGHT_HEIGHT = 16 # inches
 TARGET_HEIGHT = 29 # inches
 
-BASE_TARGET_RATIO = 1 / 3
+BASE_TARGET_RATIO = .4
 
 # pipelines
 DUAL_PIPELINE = 0
@@ -36,7 +36,10 @@ def getAngleOffset(limelight):
     hor = limelight.getNumber('thor',None) # horizontal value of the box
     vert = limelight.getNumber('tvert',None) # vertical value of the box
 
-    offset = math.acos((hor / vert) * BASE_TARGET_RATIO)
+    if (hor / vert * BASE_TARGET_RATIO) > 1:
+        offset = 0
+    else:
+        offset = math.acos((hor / vert) * BASE_TARGET_RATIO)
 
     limelight.putNumber('pipeline', LEFT_PIPELINE)
     leftDist = getDistance(limelight.getNumber('ty',None))
@@ -47,7 +50,7 @@ def getAngleOffset(limelight):
     if leftDist < rightDist:
         offset *= -1
 
-    return 90 - offset
+    return math.degrees(offset)
 
 # this is inaccurate when the limelight is a similar height to the target
 def getDistance(limelight):

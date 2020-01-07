@@ -215,6 +215,7 @@ class AngledWheel(Wheel):
         self.encoderCountsPerFoot = 1
         self.maxVoltageVelocity = maxVoltageVelocity
         self.reverse = reverse
+        self.wheelPosition = 0
 
         self.driveMode = rev.ControlType.kVoltage
         self.realTime = False
@@ -342,11 +343,26 @@ class AngledWheel(Wheel):
         return pos / self.encoderCountsPerFoot
 
     def getRealPosition(self):
+        return self._getRealPosition() + self.wheelPosition
+
+    def _getRealPosition(self):
         encPos = 0
         for motor in self.motors:
-            encPos += motor.getEncoder().getPosition()
+            try:
+                encPos += motor.getEncoder().getPosition()
+            except AssertionError:
+                pass
         encPos /= len(self.motors)
         return self._sensorPositionToDistance(encPos)
+
+    def changeGear(self, gearRatio):
+        self.wheelPosition += self._getRealPosition()
+
+        for i in range(len(self.motors)):
+            self.motors[i].getEncoder().setPosition(0.0)
+
+        self.gearRatio = gearRatio
+        self.encoderCountsPerFoot = 1 / (self.gearRatio * self.circumference)
 
     def getTargetPosition(self):
         return self._sensorPositionToDistance(self._positionTarget)
@@ -627,6 +643,12 @@ class SuperHolonomicDrive:
 
     def _calcWheelVector(self, wheel, moveX, moveY, turn):
         return moveX - wheel.y * turn, moveY + wheel.x * turn
+
+    def resetWheelPositions(self):
+        for i in range(len(self.wheels)):
+            self.wheels[i].wheelPosition = 0
+            for k in range(len(self.wheels[i].motors)):
+                self.wheels[i].motors[k].getEncoder().setPosition(0)
 
     def getRobotMovement(self):
         """

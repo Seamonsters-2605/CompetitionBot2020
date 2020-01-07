@@ -25,7 +25,7 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
         superDrive.motors.append(sparkMax)
 
     # maxVoltageVelocity = 5 ft per second * 60 seconds = 300 rpm
-    angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), 1.0472, 16)
+    angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), 1.01042, 16)
     angledWheel.addMotor(sparkMax2)
     angledWheel.addMotor(sparkMax3)
 

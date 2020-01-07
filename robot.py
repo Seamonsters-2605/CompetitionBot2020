@@ -20,7 +20,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # devices
         self.controller = wpilib.XboxController(0)
-        self.buttonBoard = wpilib.Joystick(1)
+        # self.buttonBoard = wpilib.Joystick(1)
 
         ahrs = navx.AHRS.create_spi()
 
@@ -116,9 +116,11 @@ class CompetitionBot2020(sea.GeneratorBot):
     # runs every 50th of a second
     def mainGenerator(self):
 
+        self.superDrive.resetWheelPositions()
+
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
-            self.buttonControl(),
+            # self.buttonControl(),
             self.updateDashboardGenerator(),
             self.updateMotorData())
 
@@ -147,7 +149,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.superDrive.disable()
         self.controlModeMachine.replace(self.testState)
 
-    # is run in teleop to get input and make the robot go
+    # is run in teleop to get input and make the robot go 
+    # Removed joystick control and prints statement for testing the getRealPosition method
     def driving(self):
         while True:
 
