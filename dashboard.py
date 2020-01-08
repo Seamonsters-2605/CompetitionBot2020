@@ -1,6 +1,12 @@
 import remi.gui as gui
 import math
+import coordinates
 import seamonsters as sea
+import drivetrain
+
+FIELD_WIDTH = 520
+FIELD_HEIGHT = 260
+FIELD_PIXELS_PER_FOOT = 10
 
 class CompetitionDashboard(sea.Dashboard):
 
@@ -24,6 +30,8 @@ class CompetitionDashboard(sea.Dashboard):
         leftSide = gui.VBox()
         leftSide.style['align-items'] = 'stretch'
 
+        middle = gui.VBox()
+
         rightSide = gui.VBox()
         rightSide.style['align-items'] = 'flex-start'
 
@@ -41,10 +49,13 @@ class CompetitionDashboard(sea.Dashboard):
         leftSide.append(self.initStats(robot))
         leftSide.append(self.initLedControl(robot))
 
+        middle.append(self.initFieldMap(robot))
+
         rightSide.append(self.initManual(robot))
         rightSide.append(self.initTest(robot))
 
         root.append(leftSide)
+        root.append(middle)
         root.append(rightSide)
 
         appCallback(self)
@@ -52,6 +63,9 @@ class CompetitionDashboard(sea.Dashboard):
 
     # runs every time the dashboard is updated
     def idle(self):
+        pf = self.robot.pathFollower
+        self.updateRobotPosition(
+            pf.robotX, pf.robotY, pf.robotAngle)
 
         # updates the values in self.motorDataTable
         for motorNum in range(6):
@@ -150,6 +164,64 @@ class CompetitionDashboard(sea.Dashboard):
         testBox.append(motorSpeedBox)
         return testBox
 
+    def initFieldMap(self, robot):
+        fieldBox = self.sectionBox()
+
+        robotBox = gui.HBox()
+        fieldBox.append(robotBox)
+
+        setPositionBtn = gui.Button("Set Robot to Cursor")
+        setPositionBtn.set_on_click_listener(self.c_setRobotPosition)
+        robotBox.append(setPositionBtn)
+
+        def setCursorAngle(button, angle):
+            self.selectedCoord.angle = angle
+            self.updateCursorPosition()
+
+        leftBtn = gui.Button('<')
+        leftBtn.set_on_click_listener(setCursorAngle, math.radians(90))
+        robotBox.append(leftBtn)
+        rightBtn = gui.Button('>')
+        rightBtn.set_on_click_listener(setCursorAngle, math.radians(-90))
+        robotBox.append(rightBtn)
+        upBtn = gui.Button('^')
+        upBtn.set_on_click_listener(setCursorAngle, 0)
+        robotBox.append(upBtn)
+        downBtn = gui.Button('v')
+        downBtn.set_on_click_listener(setCursorAngle, math.radians(180))
+        robotBox.append(downBtn)
+
+        self.fieldSvg = gui.Svg(FIELD_WIDTH, FIELD_HEIGHT)
+        self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
+        fieldBox.append(self.fieldSvg)
+
+        self.image = gui.SvgShape(0, 0)
+        self.image.type = 'image'
+        self.image.attributes['width'] = FIELD_WIDTH
+        self.image.attributes['height'] = FIELD_HEIGHT
+        self.image.attributes['xlink:href'] = '/res:field.PNG'
+        self.fieldSvg.append(self.image)
+
+        self.targetPoints = coordinates.targetPoints
+        for point in self.targetPoints:
+            point = fieldToSvgCoordinates(point.x,point.y)
+            wp_dot = gui.SvgCircle(point[0], point[1], 5)
+            wp_dot.attributes['fill'] = 'green'
+            self.fieldSvg.append(wp_dot)
+
+        self.cursorArrow = Arrow('red')
+        self.fieldSvg.append(self.cursorArrow)
+
+        self.robotArrow = Arrow('green')
+        self.fieldSvg.append(self.robotArrow)
+
+        self.robotPathLines = []
+
+        self.selectedCoord = coordinates.FieldCoordinate("Center", 0, 0, math.radians(-90))
+        self.updateCursorPosition()
+
+        return fieldBox
+
     def initLedControl(self, robot):
         ledBox = self.sectionBox()
 
@@ -197,3 +269,61 @@ class CompetitionDashboard(sea.Dashboard):
 
         statsBox.append(motorDataBox)
         return statsBox
+
+    def updateRobotPosition(self, robotX, robotY, robotAngle):
+        self.robotArrow.setPosition(robotX, robotY, robotAngle)
+
+    def updateCursorPosition(self):
+        coord = self.selectedCoord
+        self.cursorArrow.setPosition(
+            coord.x, coord.y, coord.angle)
+
+    # Callbacks
+
+    def c_setRobotPosition(self, button):
+        coord = self.selectedCoord
+        self.robot.pathFollower.setPosition(
+            coord.x, coord.y, coord.angle)
+
+    def mouse_down_listener(self,widget,x,y):
+        x, y = svgToFieldCoordinates(x, y)
+        self.selectedCoord = coordinates.FieldCoordinate("Selected",
+            x, y, self.selectedCoord.angle)
+        for point in self.targetPoints:
+            if math.hypot(x - point.x, y - point.y) < 1:
+                self.selectedCoord = point
+        self.updateCursorPosition()
+
+def svgToFieldCoordinates(x, y):
+    return ( (float(x) - FIELD_WIDTH  / 2) / FIELD_PIXELS_PER_FOOT,
+            (-float(y) + FIELD_HEIGHT / 2) / FIELD_PIXELS_PER_FOOT)
+
+def fieldToSvgCoordinates(x, y):
+    return (FIELD_WIDTH  / 2 + x * FIELD_PIXELS_PER_FOOT,
+            FIELD_HEIGHT / 2 - y * FIELD_PIXELS_PER_FOOT)
+
+# is used to represent the robot and cursor
+class Arrow(gui.SvgPolyline):
+
+    def __init__(self, color):
+        super().__init__()
+        halfWidth = drivetrain.ROBOT_WIDTH * FIELD_PIXELS_PER_FOOT / 2
+        halfLength = drivetrain.ROBOT_LENGTH * FIELD_PIXELS_PER_FOOT / 2
+        self.add_coord(0, -halfLength)
+        self.add_coord(halfWidth, halfLength)
+        self.add_coord(-halfWidth, halfLength)
+        self.style['fill'] = color
+        self.setPosition(0, 0, 0)
+
+    def setPosition(self, x, y, angle=None):
+        self.x = x
+        self.y = y
+        if angle is not None:
+            self.angle = angle
+        else:
+            angle = self.angle
+
+        svgX, svgY = fieldToSvgCoordinates(x, y)
+        svgAngle = -math.degrees(angle)
+        self.attributes['transform'] = "translate(%s,%s) rotate(%s)" \
+            % (svgX, svgY, svgAngle)

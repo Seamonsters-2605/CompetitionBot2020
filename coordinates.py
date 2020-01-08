@@ -11,3 +11,5 @@ class FieldCoordinate:
     def __repr__(self):
         return "%s (%f, %f, %f deg)" \
             % (self.name, self.x, self.y, math.degrees(self.angle))
+
+targetPoints = []

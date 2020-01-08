@@ -27,6 +27,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.superDrive = drivetrain.initDrivetrain()
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
+        self.pathFollower.setPosition(-16, 10, math.radians(-90))
 
         # for autonomous mode
         self.autoScheduler = autoScheduler.AutoScheduler()
@@ -46,7 +47,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # drive gears
         self.superDrive.gear = None
-        self.driveGear = drivetrain.mediumVoltageGear
+        self.driveGear = drivetrain.mediumVelocityGear
         self.driveMode = "velocity"
         self.driveSpeed = "medium"
         self.driveGears = \
@@ -143,7 +144,6 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.controlModeMachine.replace(self.testState)
 
     # is run in teleop to get input and make the robot go 
-    # Removed joystick control and prints statement for testing the getRealPosition method
     def driving(self):
         while True:
 

@@ -3,6 +3,9 @@ import rev
 from gear import DriveGear
 import math
 
+ROBOT_LENGTH = 3
+ROBOT_WIDTH = 3
+
 def initDrivetrain():
     superDrive = sea.SuperHolonomicDrive()
 
