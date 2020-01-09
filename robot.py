@@ -211,17 +211,18 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.pathFollower.updateRobotPosition()
         targetAngle = math.degrees(self.pathFollower.robotAngle) + degrees
+        offset = degrees
 
         while True:
             self.pathFollower.updateRobotPosition()
-           
-            offset = targetAngle - math.degrees(self.pathFollower.robotAngle)
+
+            hOffset = targetAngle - math.degrees(self.pathFollower.robotAngle)
             if visionTarget and vision.targetDetected(self.limelight):
                 hOffset = -vision.getXOffset(self.limelight) 
 
-                # prevents robot from spinning uncontrollably
-                if abs(hOffset) < 180:
-                    offset = hOffset
+            # prevents robot from spinning uncontrollably
+            if abs(hOffset) < 180:
+                offset = hOffset
 
             print(offset)
 
@@ -247,10 +248,10 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.limelight.putNumber('pipeline', 0)
         hOffset = vision.getXOffset(self.limelight)
 
-        if not vision.targetDetected(self.limelight):
+        if not vision.targetDetected(self.limelight) or abs(hOffset) > 180:
             return False
 
-        yield from self.turnDegrees(-hOffset, 3, 3, True)
+        yield from self.turnDegrees(-hOffset, accuracy=2, multiplier=9, visionTarget=True)
 
     # drives the robot a specified distance in a straight line
     # distance measured in feet
