@@ -33,7 +33,7 @@ def targetDetected(limelight):
 def getXOffset(limelight):
     return limelight.getNumber('tx', None)
 
-# Nathan, please say what this does
+# returns the anglular offset of the normal of the vision target
 def getAngleOffset(limelight):
 
     limelight.putNumber('pipeline', DUAL_PIPELINE)
