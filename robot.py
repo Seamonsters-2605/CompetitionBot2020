@@ -217,7 +217,11 @@ class CompetitionBot2020(sea.GeneratorBot):
            
             offset = targetAngle - math.degrees(self.pathFollower.robotAngle)
             if visionTarget and vision.targetDetected(self.limelight):
-                offset = -vision.getXOffset(self.limelight) 
+                hOffset = -vision.getXOffset(self.limelight) 
+
+                # prevents robot from spinning uncontrollably
+                if abs(hOffset) < 180:
+                    offset = hOffset
 
             print(offset)
 
