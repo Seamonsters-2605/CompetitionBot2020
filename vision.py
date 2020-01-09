@@ -3,8 +3,6 @@ import math
 from networktables import NetworkTables
 import robot
 
-ANGLE_THRESHHOLD = 2 # in degrees; if the target is off by this much or greater, shouldAlign() will return True
-
 # very rough values
 LIMELIGHT_HEIGHT = 16 # inches
 TARGET_HEIGHT = 29 # inches
@@ -16,7 +14,8 @@ DUAL_PIPELINE = 0
 LEFT_PIPELINE = 1
 RIGHT_PIPELINE = 2
 
-def visionHasTarget(limelight):
+# does the limelight see a vision target?
+def targetDetected(limelight):
         hasTargets = limelight.getNumber('tv', None)
 
         if hasTargets == None:
@@ -29,12 +28,18 @@ def visionHasTarget(limelight):
 
         return True
 
+# returns the horizontal offset of a vision target in degrees
+# None if there are no vision targets
+def getXOffset(limelight):
+    return limelight.getNumber('tx', None)
+
+# Nathan, please say what this does
 def getAngleOffset(limelight):
 
     limelight.putNumber('pipeline', DUAL_PIPELINE)
 
-    hor = limelight.getNumber('thor',None) # horizontal value of the box
-    vert = limelight.getNumber('tvert',None) # vertical value of the box
+    hor = limelight.getNumber('thor', None) # horizontal value of the box
+    vert = limelight.getNumber('tvert', None) # vertical value of the box
 
     if (hor / vert * BASE_TARGET_RATIO) > 1:
         offset = 0
@@ -42,10 +47,10 @@ def getAngleOffset(limelight):
         offset = math.acos((hor / vert) * BASE_TARGET_RATIO)
 
     limelight.putNumber('pipeline', LEFT_PIPELINE)
-    leftDist = getDistance(limelight.getNumber('ty',None))
+    leftDist = getDistance(limelight.getNumber('ty', None))
 
     limelight.putNumber('pipeline', RIGHT_PIPELINE)
-    rightDist = getDistance(limelight.getNumber('ty',None))
+    rightDist = getDistance(limelight.getNumber('ty', None))
 
     if leftDist < rightDist:
         offset *= -1
@@ -59,27 +64,3 @@ def getDistance(limelight):
     leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
 
     return leg / math.tan(math.radians(yAngle)) * (1 - .234)
-
-# uses the limelight to align with and drive into a vision target; returns True if completed without error
-def driveIntoVisionTarget(robot : robot.CompetitionBot2020):
-
-    if not visionHasTarget(robot.limelight):
-        return False
-
-    try:
-        # Step 1: point at target
-
-        robot.limelight.putNumber('pipeline', DUAL_PIPELINE)
-        hOffset = robot.limelight.getNumber('tx', None)
-        robot.turnDegrees(-hOffset)
-
-        # Step 2: drive to the target
-
-        dist = getDistance(robot.limelight)
-        robot.driveDist(dist)
-
-        robot.superDrive.drive(0,0,0)
-
-        return True
-    except:
-        return False

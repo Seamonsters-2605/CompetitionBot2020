@@ -30,7 +30,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
 
         self.limelight = NetworkTables.getTable('limelight')
-        self.limelight.putNumber('pipeline', 1)
+        self.limelight.putNumber('pipeline', 0)
 
         # for autonomous mode
         self.autoScheduler = autoScheduler.AutoScheduler()
@@ -203,7 +203,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         if visionTarget:
             self.limelight.putNumber('pipeline', 0)
 
-            if not vision.visionHasTarget(self.limelight):
+            if not vision.targetDetected(self.limelight):
                 return False
 
         accuracy = abs(accuracy)
@@ -216,8 +216,8 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.pathFollower.updateRobotPosition()
            
             offset = targetAngle - math.degrees(self.pathFollower.robotAngle)
-            if visionTarget and vision.visionHasTarget(self.limelight):
-                offset = -self.limelight.getNumber('tx', None)
+            if visionTarget and vision.targetDetected(self.limelight):
+                offset = -vision.getXOffset(self.limelight) 
 
             print(offset)
 
@@ -241,9 +241,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     def faceVisionTarget(self):
         self.limelight.putNumber('pipeline', 0)
-        hOffset = self.limelight.getNumber('tx', None)
+        hOffset = vision.getXOffset(self.limelight)
 
-        if not vision.visionHasTarget(self.limelight):
+        if not vision.targetDetected(self.limelight):
             return False
 
         yield from self.turnDegrees(-hOffset, 3, 3, True)
