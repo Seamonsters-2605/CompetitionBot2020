@@ -16,7 +16,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # devices
         self.controller = wpilib.XboxController(0)
-        self.buttonBoard = wpilib.Joystick(1)
 
         ahrs = navx.AHRS.create_spi()
 
@@ -90,7 +89,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
 
-    # different driving modes
+    # Different Drive Modes
 
     # robot is controlled by the driver
     def teleop(self):
@@ -114,14 +113,13 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
-            self.buttonControl(),
             self.updateDashboardGenerator(),
             self.updateMotorData())
 
     # switches the robot into teleop
     def manualMode(self):
         for wheel in self.superDrive.wheels:
-            wheel.setIdleMode(rev.IdleMode.kCoast)
+            wheel.setIdleMode(rev.IdleMode.kBrake)
          
         self.piston1.set(SOLENOID_FORWARD)
         self.piston2.set(SOLENOID_FORWARD)
@@ -167,7 +165,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             mag = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
             mag *= self.driveGear.moveScale
 
-            self.superDrive.drive(turn, math.pi/2, mag)
+            self.superDrive.drive(mag, math.pi/2, turn)
 
             self.ledStrip.setSpeed(self.ledInput)
 
@@ -187,42 +185,6 @@ class CompetitionBot2020(sea.GeneratorBot):
     def autoIdle(self):
         self.pathFollower.updateRobotPosition()
         self.superDrive.drive(0, 0, 0)
-
-    # takes in input from the physical driver station
-    def buttonControl(self):
-        # clears events on buttons
-        for button in range(1, 11):
-            self.buttonBoard.getRawButtonPressed(button)
-
-        while True:
-
-            if self.buttonBoard.getRawButtonPressed(3):
-                self.driveSpeed = "slow"
-            elif self.buttonBoard.getRawButtonPressed(4):
-                self.driveSpeed = "medium"
-            elif self.buttonBoard.getRawButtonPressed(5):
-                self.driveSpeed = "fast"
-
-            if self.buttonBoard.getRawButtonPressed(2):
-                self.toggleDriveMode()
-
-            self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
-
-            yield
-
-    # changes the drive mode when the button
-    # on the driver station is pressed
-    def toggleDriveMode(self):
-        if self.driveMode == "voltage":
-            self.driveMode = "velocity"
-            
-        # position mode is too funky to use 
-
-        #elif self.driveMode == "velocity":
-        #    self.driveMode = "position"
-
-        else:
-            self.driveMode = "voltage"
 
     # updates the dashboard
     def updateDashboardGenerator(self):
@@ -264,10 +226,12 @@ class CompetitionBot2020(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_changeGear(self, button):
         self.driveMode = button.get_text()
+        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
     @sea.queuedDashboardEvent
     def c_changeSpeed(self, button):
         self.driveSpeed = button.get_text()
+        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
     @sea.queuedDashboardEvent
     def c_stop(self, button):
