@@ -11,11 +11,11 @@ def initDrivetrain():
     # 3 motors per wheel but wheels cannot have the same position so 
     # add a small amount to it to make it work
     _makeWheel(superDrive, 1, 2, 3, rev.MotorType.kBrushless, 1, 0)
-    _makeWheel(superDrive, 4, 5, 6, rev.MotorType.kBrushless, -1, 0)
+    _makeWheel(superDrive, 4, 5, 6, rev.MotorType.kBrushless, -1, 0, reverse=True)
     sea.setSimulatedDrivetrain(superDrive)
     return superDrive
 
-def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, xPos, yPos):
+def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, xPos, yPos, reverse=False):
     sparkMax1 = rev.CANSparkMax(sparkMaxNum1, motorType)
     sparkMax2 = rev.CANSparkMax(sparkMaxNum2, motorType)
     sparkMax3 = rev.CANSparkMax(sparkMaxNum3, motorType)
@@ -30,7 +30,7 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
     wheelDiameter = 6 / 12 # 6 inches converted to feet
     wheelCircumference = wheelDiameter * math.pi
 
-    angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), wheelCircumference, 16)
+    angledWheel = sea.AngledWheel(sparkMax1, xPos, yPos, math.radians(90), wheelCircumference, 16, reverse=reverse)
     angledWheel.addMotor(sparkMax2)
     angledWheel.addMotor(sparkMax3)
 

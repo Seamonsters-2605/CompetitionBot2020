@@ -165,7 +165,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             mag = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
             mag *= self.driveGear.moveScale
 
-            self.superDrive.drive(turn, math.pi/2, mag)
+            self.superDrive.drive(mag, math.pi/2, turn)
 
             self.ledStrip.setSpeed(self.ledInput)
 
