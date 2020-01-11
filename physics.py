@@ -142,10 +142,6 @@ class PhysicsEngine:
     # special function called by pyfrc to update the robot state
     def update_sim(self, hal_data, time, elapsed):
         global simulatedDrivetrain
-        if simulatedDrivetrain is not None and simulatedDrivetrain.gear != None:
-            gearRatio = simulatedDrivetrain.gear.gearRatio
-        else:
-            gearRatio = 1
         for simSpark in self.simulatedSparks:
             simSpark.update(hal_data)
 
@@ -153,8 +149,6 @@ class PhysicsEngine:
             #robotMag, robotDir, robotTurn = simulatedDrivetrain.getRobotMovement()
             robotMag, robotDir, robotTurn, self._drivePositionState = \
                 simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState)
-            robotMag *= gearRatio
-            robotTurn *= gearRatio
 
             xVel = robotMag * math.cos(robotDir)
             yVel = robotMag * math.sin(robotDir)
