@@ -27,6 +27,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.ledInput = -0.99
 
         self.superDrive = drivetrain.initDrivetrain()
+        # allows the robot to be driven multiple times in a loop and the values are averaged
+        self.multiDrive = sea.MultiDrive(self.superDrive) 
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
 
         self.limelight = NetworkTables.getTable('limelight')
@@ -117,7 +119,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
-            # self.buttonControl(),
             self.updateDashboardGenerator(),
             self.updateMotorData())
 
@@ -170,15 +171,17 @@ class CompetitionBot2020(sea.GeneratorBot):
             mag = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
             mag *= self.driveGear.moveScale
 
-            self.superDrive.drive(turn, math.pi/2, mag)
+            self.multiDrive.drive(turn, math.pi/2, mag)
+            self.multiDrive.update()
 
             self.ledStrip.setSpeed(self.ledInput)
 
-            # for testing
-
             if self.controller.getAButtonPressed():
                 yield from self.faceVisionTarget()
-
+            if self.controller.getBumper(0):
+                currentAngle = math.degrees(self.pathFollower.robotAngle)
+                self._turnDegree(-currentAngle, accuracy=0, multiplier=9, visionTarget=True)
+        
             yield
 
     # switches to use the dashboard for testing purposes
@@ -206,35 +209,18 @@ class CompetitionBot2020(sea.GeneratorBot):
             if not vision.targetDetected(self.limelight):
                 return False
 
+        # safeguard against crazy high numbers being inputted and causing 
+        # huge amount of robot rotations
+        if degrees > 180:
+            return False
+
         accuracy = abs(accuracy)
         accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
 
-        self.pathFollower.updateRobotPosition()
-        targetAngle = math.degrees(self.pathFollower.robotAngle) + degrees
-        offset = degrees
-
         while True:
-            self.pathFollower.updateRobotPosition()
-
-            hOffset = targetAngle - math.degrees(self.pathFollower.robotAngle)
-            if visionTarget and vision.targetDetected(self.limelight):
-                hOffset = -vision.getXOffset(self.limelight) 
-
-            # prevents robot from spinning uncontrollably
-            if abs(hOffset) < 180:
-                offset = hOffset
-
-            print(offset)
-
-            # as the robot gets closer to the target angle, it will slow down
-            speed = (-offset / 360) * multiplier
-            if speed > 1:
-                speed = 1
-            speed *= self.driveGear.turnScale
-
-            self.superDrive.drive(speed, math.pi/2, 0) 
-
-            if -accuracy < abs(offset) < accuracy:
+            accurate = self._turnDegree(degrees, accuracy, multiplier, visionTarget)
+            self.multiDrive.update()
+            if accurate:
                 accuracyCount += 1
             else:
                 accuracyCount = 0
@@ -243,6 +229,30 @@ class CompetitionBot2020(sea.GeneratorBot):
                 return True
 
             yield
+
+    # turns the robot a small fraction of the inputted value degree.
+    # if called in a loop, the result will be the robot turning the
+    # desired amount
+    def _turnDegree(self, degrees, accuracy=3, multiplier=1, visionTarget=False):
+        self.pathFollower.updateRobotPosition()
+
+        offset = math.degrees(self.pathFollower.robotAngle) + degrees
+        if visionTarget and vision.targetDetected(self.limelight):
+            hOffset = -vision.getXOffset(self.limelight) 
+
+            # prevents robot from spinning uncontrollably
+            if abs(hOffset) < 180:
+                offset = hOffset
+
+        # as the robot gets closer to the target angle, it will slow down
+        speed = (-offset / 360) * multiplier
+        if speed > 1:
+            speed = 1
+        speed *= self.driveGear.turnScale
+
+        self.multiDrive.drive(speed, math.pi/2, 0) 
+
+        return -accuracy < abs(offset) < accuracy
 
     def faceVisionTarget(self):
         self.limelight.putNumber('pipeline', 0)
@@ -283,7 +293,7 @@ class CompetitionBot2020(sea.GeneratorBot):
                 speed = 1
             speed *= self.driveGear.moveScale
             
-            self.superDrive.drive(0, math.pi/2, speed)
+            self.multiDrive.drive(0, math.pi/2, speed)
 
             if -accuracy < abs(offset) < accuracy:
                 accuracyCount += 1

@@ -23,7 +23,6 @@ def targetDetected(limelight):
             return False
 
         elif hasTargets == 0:
-            print("No vision targets")
             return False
 
         return True
