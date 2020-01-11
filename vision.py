@@ -32,6 +32,19 @@ def targetDetected(limelight):
 def getXOffset(limelight):
     return limelight.getNumber('tx', None)
 
+# returns the vertical offset of a vision target in degrees
+# None if there are no vision targets
+def getYOffset(limelight):
+    return limelight.getNumber('ty', None)
+
+# returns the distance a vision target is away from the limelight
+def getDistance(limelight):
+    yAngle = getYOffset(limelight)
+
+    leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
+
+    return leg / math.tan(math.radians(yAngle)) * (1 - .234)
+
 # returns the anglular offset of the normal of the vision target
 def getAngleOffset(limelight):
 
@@ -55,11 +68,3 @@ def getAngleOffset(limelight):
         offset *= -1
 
     return math.degrees(offset)
-
-# this is inaccurate when the limelight is a similar height to the target
-def getDistance(limelight):
-    yAngle = limelight.getNumber('ty', None)
-
-    leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
-
-    return leg / math.tan(math.radians(yAngle)) * (1 - .234)

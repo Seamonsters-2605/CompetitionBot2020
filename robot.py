@@ -27,12 +27,12 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.ledInput = -0.99
 
         self.superDrive = drivetrain.initDrivetrain()
-        # allows the robot to be driven multiple times in a loop and the values are averaged
+        # multiDrive allows the robot to be driven multiple times in a loop and the values are averaged
         self.multiDrive = sea.MultiDrive(self.superDrive) 
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
 
         self.limelight = NetworkTables.getTable('limelight')
-        self.limelight.putNumber('pipeline', 0)
+        self.limelight.putNumber('pipeline', vision.DUAL_PIPELINE)
 
         # for autonomous mode
         self.autoScheduler = autoScheduler.AutoScheduler()
@@ -95,7 +95,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
 
-    # different driving modes
+    # Different Driving Modes
 
     # robot is controlled by the driver
     def teleop(self):
@@ -179,6 +179,8 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.controller.getAButtonPressed():
                 yield from self.faceVisionTarget()
             if self.controller.getBumper(0):
+                # the robot works towards aligning with a vision 
+                # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=9, visionTarget=True)
         
             yield
@@ -198,47 +200,18 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.pathFollower.updateRobotPosition()
         self.superDrive.drive(0, 0, 0)
 
-    # turns the robot a certain amount
-    def turnDegrees(self, degrees, accuracy=3, multiplier=1, visionTarget=False):
-
-        # the function ends if the robot is looking for a vision target but there are none
-        if visionTarget:
-            self.limelight.putNumber('pipeline', 0)
-
-            if not vision.targetDetected(self.limelight):
-                return False
-
-        # safeguard against crazy high numbers being inputted and causing 
-        # huge amount of robot rotations
-        if degrees > 180:
-            return False
-
-        accuracy = abs(accuracy)
-        accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
-
-        while True:
-            accurate = self._turnDegree(degrees, accuracy, multiplier, visionTarget)
-            self.multiDrive.update()
-            if accurate:
-                accuracyCount += 1
-            else:
-                accuracyCount = 0
-
-            if accuracyCount > 5:
-                return True
-
-            yield
+    # Helpful Movement Functions
 
     # turns the robot a small fraction of the inputted value degree.
-    # if called in a loop, the result will be the robot turning the
-    # desired amount
+    # if called in a loop, the result will be the robot turning the desired amount
     def _turnDegree(self, degrees, accuracy=3, multiplier=1, visionTarget=False):
-        # if degrees is None, the robot will *only* allign with a vision target
+        # if degrees is None, the robot will *only* try to allign
+        # with a vision target and not move otherwise
+        
         # visionTarget: weather or not the robot will try to align to a vision target
 
         if degrees is None and not visionTarget:
-            print("visionTarget must be True if degrees is None")
-            return False
+            raise ValueError("visionTarget must be True if degrees is None")
 
         self.pathFollower.updateRobotPosition()
 
@@ -264,11 +237,44 @@ class CompetitionBot2020(sea.GeneratorBot):
         speed *= self.driveGear.turnScale
 
         self.multiDrive.drive(speed, math.pi/2, 0) 
-
+    
+        # returns if the robot is within the desired accuracy
         return -accuracy < abs(offset) < accuracy
 
+    # turns the robot a certain amount
+    # or aligns with a vision target if visionTarget is True
+    def turnDegrees(self, degrees, accuracy=3, multiplier=1, visionTarget=False):
+
+        # the function ends if the robot is looking for a vision target but there are none
+        if visionTarget:
+            self.limelight.putNumber('pipeline', vision.DUAL_PIPELINE)
+
+            if not vision.targetDetected(self.limelight):
+                return False
+
+        # stops the robot from spinnig uncontrollably
+        if degrees > 180:
+            return False
+
+        accuracy = abs(accuracy)
+        accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
+
+        while True:
+            accurate = self._turnDegree(degrees, accuracy, multiplier, visionTarget)
+            self.multiDrive.update()
+            
+            if accurate:
+                accuracyCount += 1
+            else:
+                accuracyCount = 0
+
+            if accuracyCount > 5:
+                return True
+
+            yield
+
     def faceVisionTarget(self):
-        self.limelight.putNumber('pipeline', 0)
+        self.limelight.putNumber('pipeline', vision.DUAL_PIPELINE)
         hOffset = vision.getXOffset(self.limelight)
 
         if not vision.targetDetected(self.limelight) or abs(hOffset) > 180:
@@ -307,6 +313,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             speed *= self.driveGear.moveScale
             
             self.multiDrive.drive(0, math.pi/2, speed)
+            self.multiDrive.update()
 
             if -accuracy < abs(offset) < accuracy:
                 accuracyCount += 1
