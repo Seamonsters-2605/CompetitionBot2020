@@ -113,14 +113,13 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
-            self.buttonControl(),
             self.updateDashboardGenerator(),
             self.updateMotorData())
 
     # switches the robot into teleop
     def manualMode(self):
         for wheel in self.superDrive.wheels:
-            wheel.setIdleMode(rev.IdleMode.kCoast)
+            wheel.setIdleMode(rev.IdleMode.kBrake)
          
         self.piston1.set(SOLENOID_FORWARD)
         self.piston2.set(SOLENOID_FORWARD)
@@ -187,28 +186,6 @@ class CompetitionBot2020(sea.GeneratorBot):
     def autoIdle(self):
         self.pathFollower.updateRobotPosition()
         self.superDrive.drive(0, 0, 0)
-
-    # takes in input from the physical driver station
-    def buttonControl(self):
-        # clears events on buttons
-        for button in range(1, 11):
-            self.buttonBoard.getRawButtonPressed(button)
-
-        while True:
-
-            if self.buttonBoard.getRawButtonPressed(3):
-                self.driveSpeed = "slow"
-            elif self.buttonBoard.getRawButtonPressed(4):
-                self.driveSpeed = "medium"
-            elif self.buttonBoard.getRawButtonPressed(5):
-                self.driveSpeed = "fast"
-
-            if self.buttonBoard.getRawButtonPressed(2):
-                self.toggleDriveMode()
-
-            self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
-
-            yield
 
     # changes the drive mode when the button
     # on the driver station is pressed
