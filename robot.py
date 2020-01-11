@@ -16,7 +16,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # devices
         self.controller = wpilib.XboxController(0)
-        self.buttonBoard = wpilib.Joystick(1)
 
         ahrs = navx.AHRS.create_spi()
 
@@ -89,7 +88,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
 
-    # different driving modes
+    # Different Drive Modes
 
     # robot is controlled by the driver
     def teleop(self):
@@ -186,20 +185,6 @@ class CompetitionBot2020(sea.GeneratorBot):
     def autoIdle(self):
         self.pathFollower.updateRobotPosition()
         self.superDrive.drive(0, 0, 0)
-
-    # changes the drive mode when the button
-    # on the driver station is pressed
-    def toggleDriveMode(self):
-        if self.driveMode == "voltage":
-            self.driveMode = "velocity"
-            
-        # position mode is too funky to use 
-
-        #elif self.driveMode == "velocity":
-        #    self.driveMode = "position"
-
-        else:
-            self.driveMode = "voltage"
 
     # updates the dashboard
     def updateDashboardGenerator(self):
