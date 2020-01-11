@@ -125,7 +125,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     # switches the robot into teleop
     def manualMode(self):
         for wheel in self.superDrive.wheels:
-            wheel.setIdleMode(rev.IdleMode.kCoast)
+            wheel.setIdleMode(rev.IdleMode.kBrake)
          
         self.piston1.set(SOLENOID_FORWARD)
         self.piston2.set(SOLENOID_FORWARD)
