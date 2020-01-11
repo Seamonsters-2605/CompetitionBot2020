@@ -179,8 +179,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.controller.getAButtonPressed():
                 yield from self.faceVisionTarget()
             if self.controller.getBumper(0):
-                currentAngle = math.degrees(self.pathFollower.robotAngle)
-                self._turnDegree(-currentAngle, accuracy=0, multiplier=9, visionTarget=True)
+                self._turnDegree(None, accuracy=0, multiplier=9, visionTarget=True)
         
             yield
 
@@ -234,15 +233,29 @@ class CompetitionBot2020(sea.GeneratorBot):
     # if called in a loop, the result will be the robot turning the
     # desired amount
     def _turnDegree(self, degrees, accuracy=3, multiplier=1, visionTarget=False):
+        # if degrees is None, the robot will *only* allign with a vision target
+        # visionTarget: weather or not the robot will try to align to a vision target
+
+        if degrees is None and not visionTarget:
+            print("visionTarget must be True if degrees is None")
+            return False
+
         self.pathFollower.updateRobotPosition()
 
-        offset = math.degrees(self.pathFollower.robotAngle) + degrees
-        if visionTarget and vision.targetDetected(self.limelight):
-            hOffset = -vision.getXOffset(self.limelight) 
+        if visionTarget:
+
+            if vision.targetDetected(self.limelight):
+                hOffset = -vision.getXOffset(self.limelight)
+
+            elif degrees is None:
+                return False
 
             # prevents robot from spinning uncontrollably
             if abs(hOffset) < 180:
                 offset = hOffset
+
+        else:
+            offset = math.degrees(self.pathFollower.robotAngle) + degrees
 
         # as the robot gets closer to the target angle, it will slow down
         speed = (-offset / 360) * multiplier
