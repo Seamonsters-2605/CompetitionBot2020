@@ -171,7 +171,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             mag = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
             mag *= self.driveGear.moveScale
 
-            self.multiDrive.drive(turn, math.pi/2, mag)
+            self.multiDrive.drive(mag, math.pi/2, turn)
             self.multiDrive.update()
 
             self.ledStrip.setSpeed(self.ledInput)
@@ -236,7 +236,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             speed = 1
         speed *= self.driveGear.turnScale
 
-        self.multiDrive.drive(speed, math.pi/2, 0) 
+        self.multiDrive.drive(0, math.pi/2, speed) 
     
         # returns if the robot is within the desired accuracy
         return -accuracy < abs(offset) < accuracy
@@ -312,7 +312,7 @@ class CompetitionBot2020(sea.GeneratorBot):
                 speed = 1
             speed *= self.driveGear.moveScale
             
-            self.multiDrive.drive(0, math.pi/2, speed)
+            self.multiDrive.drive(speed, math.pi/2, 0)
             self.multiDrive.update()
 
             if -accuracy < abs(offset) < accuracy:
