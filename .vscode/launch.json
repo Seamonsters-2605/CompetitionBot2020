@@ -8,7 +8,7 @@
             "name": "Simulate",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/robot.py",
             "args": [
                 "sim"
             ]
@@ -17,7 +17,7 @@
             "name": "Test",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/robot.py",
             "args": [
                 "test"
             ]
@@ -26,7 +26,7 @@
             "name": "Deploy",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/robot.py",
             "args": [
                 "deploy",
                 "--builtin",
@@ -37,7 +37,7 @@
             "name": "Fast deploy (skip tests)",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/robot.py",
             "args": [
                 "deploy",
                 "--builtin",
