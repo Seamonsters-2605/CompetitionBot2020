@@ -8,6 +8,7 @@ import dashboard
 import autoScheduler
 import vision
 from networktables import NetworkTables
+import random # this is only needed to make the getColor() placeholder
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
@@ -199,6 +200,47 @@ class CompetitionBot2020(sea.GeneratorBot):
     def autoIdle(self):
         self.pathFollower.updateRobotPosition()
         self.superDrive.drive(0, 0, 0)
+
+
+    # Control panel stuff
+
+    # returns yellow, green, blue, or red
+    def getColor():
+        return ["red", "yellow", "green", "blue"][random.randint(0,3)]
+
+    # turns control panel certain number of rotations (integer)
+    def cpTurn(rotations):
+        startColor = getColor() # the color the camera starts on
+        colorPassed = 0 # The amount of times the camera sees startColor
+        curColor = "" # the current color the camera is on
+        colorsSeen = [""]*5 # the previous 5 colors, from most recent (4) to oldest (0)
+        colorCounted = False # Whether or not startColor was counted; prevents the program from counting the same color multiple times
+        
+
+        while (colorPassed / 2) <= rotations:
+            #rotate(x degrees) THIS IS A PLACEHOLDER 
+            curColor = getColor() # These 3 lines add the most recent color to the list and remove the oldest one
+            colorsSeen.append(curColor)
+            del colorsSeen[0]
+
+            if (colorsSeen == [startColor]*5) and (not colorCounted): # increases the counted number of rotations if the whole list is the startcolor.
+                colorPassed += 1
+                colorCounted = True
+
+            else if (not startColor in colorsSeen): # Allows counting to start again if on a different color
+                colorCounted = False
+
+    # Turns the wheel until it reaches a certain color
+    def cpGoto(color):
+        curColor = getColor() # The last recorded color
+        colorsSeen = [""]*5 # The previous 5 colors, from most recent (4) to oldest (0)
+
+        while (colorsSeen != [color]*5): # Repeats until the list is all the color requested
+            #rotate(x degrees) THIS IS A PLACEHOLDER
+            curColor = getColor() # These 3 lines add the most recent color to the list and remove the oldest one
+            colorsSeen.append(curColor)
+            del colorsSeen[0]
+            
 
     # Helpful Movement Functions
 
