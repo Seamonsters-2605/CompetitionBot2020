@@ -300,7 +300,8 @@ class AngledWheel(Wheel):
             encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot * 60
             # always incremented, even if not in position mode
             # used by getTargetPosition
-            self._positionTarget += encoderCountsPerSecond * tDiff
+            self._positionTarget += (encoderCountsPerSecond * tDiff / 62.920803275)
+            # _positionTarget is close to the actual robot, but are off by a bit
 
             if self.driveMode == DISABLED:
                 if self._motorState != self.driveMode:
@@ -350,7 +351,7 @@ class AngledWheel(Wheel):
         for motor in self.motors:
             try:
                 encPos += motor.getEncoder().getPosition()
-            except AssertionError:
+            except AssertionError: # Breaks in the simulator
                 pass
         encPos /= len(self.motors)
         return self._sensorPositionToDistance(encPos)
