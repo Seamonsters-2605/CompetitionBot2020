@@ -47,6 +47,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
+        self.compressor.stop()
         self.piston1 = wpilib.DoubleSolenoid(0, 1)
         self.piston2 = wpilib.DoubleSolenoid(2, 3)
 
