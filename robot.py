@@ -167,9 +167,9 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            turn = sea.deadZone(self.controller.getY(1), deadZone=0.05)
+            turn = sea.deadZone(self.controller.getX(1), deadZone=0.05)
             turn *= self.driveGear.turnScale
-            mag = -sea.deadZone(self.controller.getX(0), deadZone=0.05)
+            mag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
             mag *= self.driveGear.moveScale
 
             self.multiDrive.drive(mag, math.pi/2, turn)
