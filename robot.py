@@ -201,13 +201,15 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.superDrive.drive(0, 0, 0)
 
 
-    # Control panel stuff
+    # Control panel functions
 
     # returns yellow, green, blue, or red
     def getColor():
         return ["red", "yellow", "green", "blue"][random.randint(0,3)]
+    
+    cpColors = ["red","yellow","blue","green"] # The order of colors as they show up on the control panel, clockwise
 
-    # turns control panel certain number of rotations (integer)
+    # turns control panel certain number of rotations
     def cpTurn(rotations):
         startColor = getColor() # the color the camera starts on
         colorPassed = 0 # The amount of times the camera sees startColor
@@ -229,10 +231,15 @@ class CompetitionBot2020(sea.GeneratorBot):
             else if (not startColor in colorsSeen): # Allows counting to start again if on a different color
                 colorCounted = False
 
-    # Turns the wheel until it reaches a certain color
-    def cpGoto(color):
+    # Turns the wheel until it's on the right color
+    def cpGoto(color, relative = True): # the "relative" flag, if True, rotates the control panel until the GAME sensor sees the color. If False, rotates the control panel until the ROBOT sees the color.
         curColor = getColor() # The last recorded color
         colorsSeen = [""]*5 # The previous 5 colors, from most recent (4) to oldest (0)
+        colorIndex = cpColors.index(color)
+
+        if relative: # Changes the color the robot is looking for if relative
+            newColorIndex = (colorID + 2) % 4
+            color = cpColors[newColorIndex]
 
         while (colorsSeen != [color]*5): # Repeats until the list is all the color requested
             #rotate(x degrees) THIS IS A PLACEHOLDER
