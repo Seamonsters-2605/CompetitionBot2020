@@ -177,9 +177,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.ledStrip.setSpeed(self.ledInput)
 
-            if self.controller.getAButtonPressed():
-                yield from self.faceVisionTarget()
-            if self.controller.getBumper(0):
+            if self.controller.getBumper(1):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=9, visionTarget=True)
