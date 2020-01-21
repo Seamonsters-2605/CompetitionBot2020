@@ -203,42 +203,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     # Control panel functions
 
-    # returns yellow, green, blue, or red
-    def getColor():
-        return ["red", "yellow", "green", "blue"][random.randint(0,3)]
     
-    cpColors = ["red","yellow","blue","green"] # The order of colors as they show up on the control panel, clockwise
-
-    def cpNextColor(): # Turns the wheel clockwise until it is on the next color.
-        startColor = getColor() # the color the camera starts on
-        colorsSeen = [startColor]*5 # The previous 5 colors, from most recent (4) to oldest (0)
-
-        while startColor in colorsSeen:
-            #rotate(x degrees) THIS IS A PLACEHOLDER
-            colorsSeen.append(getColor())
-            del colorsSeen[0]
-
-        for _ in range(5): # rotates the control panel a little bit more so that the camera is not right on the edge
-            #rotate(x degrees) also a placeholder
-
-             
-
-
-    # turns control panel certain number of rotations
-    def cpTurn(rotations):
-        for _ in range(0, rotations * 8):
-            cpNextColor()
-
-    # Turns the wheel until it's on the right color
-    def cpGoto(color, relative = True): # the "relative" flag, if True, rotates the control panel until the GAME sensor sees the color. If False, rotates the control panel until the ROBOT sees the color.
-        colorIndex = cpColors.index(color)
-        newColorIndex = (colorIndex + 2) % 4
-        
-        if relative:
-            color = cpColors[newColorIndex]
-
-        while getColor() != color:
-            cpNextColor()
             
 
     # Helpful Movement Functions
