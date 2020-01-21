@@ -48,6 +48,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
+        self.compressor.stop()
         self.piston1 = wpilib.DoubleSolenoid(0, 1)
         self.piston2 = wpilib.DoubleSolenoid(2, 3)
 
@@ -167,9 +168,9 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            turn = sea.deadZone(self.controller.getX(0), deadZone=0.05)
+            turn = sea.deadZone(self.controller.getX(1), deadZone=0.05)
             turn *= self.driveGear.turnScale
-            mag = -sea.deadZone(self.controller.getY(1), deadZone=0.05)
+            mag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
             mag *= self.driveGear.moveScale
 
             self.multiDrive.drive(mag, math.pi/2, turn)
@@ -177,12 +178,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.ledStrip.setSpeed(self.ledInput)
 
-            if self.controller.getAButtonPressed():
-                yield from self.faceVisionTarget()
-            if self.controller.getBumper(0):
+            if self.controller.getBumper(1):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
-                self._turnDegree(None, accuracy=0, multiplier=9, visionTarget=True)
+                self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
         
             yield
 
