@@ -553,7 +553,7 @@ class SuperHolonomicDrive:
     def undisable(self):
         self._disableCounter = 0
 
-    def drive(self, magnitude, direction, turn, wheelNum=None, motorNum=None):
+    def drive(self, magnitude, direction, turn):
         """
         Drive the robot. This should be called 50 times per second.
 
@@ -563,8 +563,6 @@ class SuperHolonomicDrive:
         :param magnitude: feet per second
         :param direction: radians. 0 is right, positive counter-clockwise
         :param turn: radians per second. positive counter-clockwise
-        :param wheelNum: optional int argument to drive a single wheel
-        :param motorNum: optional int argument to drive a single motor
         :return: the scale of the actual output speed, as a fraction of the
             input magnitude and turn components
         """
@@ -583,40 +581,24 @@ class SuperHolonomicDrive:
         wheelDirections = []
         wheelLimitScales = []
 
-        if wheelNum is None:
-            for wheel in self.wheels:
-                wheelVectorX, wheelVectorY = self._calcWheelVector(
-                    wheel, moveX, moveY, turn)
-                wheelMag = math.sqrt(wheelVectorX ** 2.0 + wheelVectorY ** 2.0)
-                wheelDir = math.atan2(wheelVectorY, wheelVectorX)
-                wheelMagnitudes.append(wheelMag)
-                wheelDirections.append(wheelDir)
-                wheelLimitScales.append(wheel.limitMagnitude(wheelMag, wheelDir))
+        for wheel in self.wheels:
+            wheelVectorX, wheelVectorY = self._calcWheelVector(
+                wheel, moveX, moveY, turn)
+            wheelMag = math.sqrt(wheelVectorX ** 2.0 + wheelVectorY ** 2.0)
+            wheelDir = math.atan2(wheelVectorY, wheelVectorX)
+            wheelMagnitudes.append(wheelMag)
+            wheelDirections.append(wheelDir)
+            wheelLimitScales.append(wheel.limitMagnitude(wheelMag, wheelDir))
 
-            minWheelScale = min(wheelLimitScales)
-            for i in range(len(self.wheels)):
-                if wheelMagnitudes[i] == 0:
-                    self.wheels[i].stop()
-                else:
-                        self.wheels[i].drive(wheelMagnitudes[i] * minWheelScale,
-                            wheelDirections[i], motorNum)
-            return minWheelScale
-        else:
-            try:
-                wheelVectorX, wheelVectorY = self._calcWheelVector(
-                    self.wheels[wheelNum], moveX, moveY, turn)
-                wheelMag = math.sqrt(wheelVectorX ** 2.0 + wheelVectorY ** 2.0)
-                wheelDir = math.atan2(wheelVectorY, wheelVectorX)
-
-                wheelScale = self.wheels[wheelNum].limitMagnitude(wheelMag, wheelDir)
-                if wheelMag == 0:
-                    self.wheels[wheelNum].stop()
-                else:
-                    self.wheels[wheelNum].drive(wheelMag * wheelScale, wheelDir, motorNum)
-                return wheelScale
-            except:
-                print("Wheel " + str(wheelNum) + " not in list of wheels")
-    
+        minWheelScale = min(wheelLimitScales)
+        for i in range(len(self.wheels)):
+            if wheelMagnitudes[i] == 0:
+                self.wheels[i].stop()
+            else:
+                    self.wheels[i].drive(wheelMagnitudes[i] * minWheelScale,
+                        wheelDirections[i])
+        return minWheelScale
+            
     def orientWheels(self, magnitude, direction, turn):
         """
         Orient the wheels as if the robot was driving, but don't move.
