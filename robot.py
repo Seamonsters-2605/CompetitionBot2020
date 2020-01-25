@@ -180,7 +180,7 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.controller.getBumper(1):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
-                self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
+                self._turnDegree(None, accuracy=0, multiplier=(20 / self.driveGear.turnScale), visionTarget=True)
         
             yield
 
