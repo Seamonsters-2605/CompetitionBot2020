@@ -3,6 +3,7 @@ import math
 import coordinates
 import seamonsters as sea
 import drivetrain
+import autoActions
 
 FIELD_WIDTH = 520
 FIELD_HEIGHT = 260
@@ -46,8 +47,11 @@ class CompetitionDashboard(sea.Dashboard):
             "maxTemp" : []
             }
 
+        self.updateSchedulerFlag = False
+
         leftSide.append(self.initStats(robot))
         leftSide.append(self.initLedControl(robot))
+        leftSide.append(self.initScheduler(robot))
 
         middle.append(self.initCamera(robot))
         middle.append(self.initFieldMap(robot))
@@ -67,6 +71,10 @@ class CompetitionDashboard(sea.Dashboard):
         pf = self.robot.pathFollower
         self.updateRobotPosition(
             pf.robotX, pf.robotY, pf.robotAngle)
+
+        if self.updateSchedulerFlag:
+            self.updateScheduler()
+            self.updateSchedulerFlag = False
 
         # updates the values in self.motorDataTable
         for motorNum in range(6):
@@ -233,6 +241,75 @@ class CompetitionDashboard(sea.Dashboard):
 
         return fieldBox
 
+    def initScheduler(self, robot):
+        schedulerBox = self.sectionBox()
+
+        controlBox = gui.HBox()
+        schedulerBox.append(controlBox)
+        manualModeBtn = gui.Button("Manual")
+        manualModeBtn.set_on_click_listener(robot.c_manualMode)
+        controlBox.append(manualModeBtn)
+        autoModeBtn = gui.Button("Auto")
+        autoModeBtn.set_on_click_listener(robot.c_autoMode)
+        controlBox.append(autoModeBtn)
+
+        self.controlModeGroup = sea.ToggleButtonGroup()
+        self.controlModeGroup.addButton(manualModeBtn, "manual")
+        self.controlModeGroup.addButton(autoModeBtn, "auto")
+
+        hbox = gui.HBox()
+        hbox.style['align-items'] = 'flex-start'
+        schedulerBox.append(hbox)
+
+        addActionBox = gui.VBox()
+        hbox.append(addActionBox)
+
+        self.autoSpeed = 6
+        def slowSpeed():
+            self.autoSpeed = 3
+        def mediumSpeed():
+            self.autoSpeed = 6
+        def fastSpeed():
+            self.autoSpeed = 8
+
+        speedTabBox = gui.TabBox()
+        speedTabBox.add_tab(gui.Widget(), "Slow", slowSpeed)
+        speedTabBox.add_tab(gui.Widget(), "Med", mediumSpeed)
+        speedTabBox.add_tab(gui.Widget(), "Fast", fastSpeed)
+        speedTabBox.select_by_index(1)
+        addActionBox.append(speedTabBox)
+
+        addActionBox.append(gui.Label("Auto actions:"))
+
+        self.genericActionList = gui.ListView()
+        self.genericActionList.append("Drive to Point", "drivetopoint")
+        self.genericActionList.append("Rotate in place", "rotate")
+        index = 0
+        for action in robot.genericAutoActions:
+            self.genericActionList.append(gui.ListItem(action.name), str(index))
+            index += 1
+        self.genericActionList.set_on_selection_listener(self.c_addGenericAction)
+        addActionBox.append(self.genericActionList)
+
+        hbox.append(gui.HBox(width=10))
+
+        scheduleListBox = gui.VBox()
+        hbox.append(scheduleListBox)
+        clearScheduleBox = gui.HBox()
+        clearScheduleBox.style['align-items'] = 'flex-end'
+        scheduleListBox.append(clearScheduleBox)
+        clearScheduleBox.append(gui.Label("Schedule:"))
+        clearScheduleBtn = gui.Button("Clear")
+        clearScheduleBtn.set_on_click_listener(self.c_clearSchedule)
+        clearScheduleBox.append(clearScheduleBtn)
+
+        self.schedulerList = gui.ListView()
+        self.schedulerList.set_on_selection_listener(self.c_removeAction)
+        scheduleListBox.append(self.schedulerList)
+        
+        return schedulerBox
+
+
     def initLedControl(self, robot):
         ledBox = self.sectionBox()
 
@@ -289,6 +366,35 @@ class CompetitionDashboard(sea.Dashboard):
         self.cursorArrow.setPosition(
             coord.x, coord.y, coord.angle)
 
+    def updateScheduler(self):
+        scheduler = self.robot.autoScheduler
+        self.schedulerList.empty()
+
+        for line in self.robotPathLines:
+            self.fieldSvg.remove_child(line)
+        self.robotPathLines.clear()
+        lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
+
+        index = 0
+        for action in scheduler.actionList:
+            name = action.name
+            if action == scheduler.runningAction:
+                name = "* " + name
+            listItem = gui.ListItem(name)
+            self.schedulerList.append(listItem, str(index))
+            lineX, lineY = self.actionLines(lineX, lineY, action)
+            index += 1
+
+    def actionLines(self, lineX, lineY, action):
+        for coord in action.coords:
+            x1, y1 = fieldToSvgCoordinates(coord[0], coord[1])
+            line = gui.SvgLine(lineX, lineY, x1, y1)
+            line.set_stroke(width=3)
+            self.robotPathLines.append(line)
+            self.fieldSvg.append(line)
+            lineX, lineY = x1, y1
+        return lineX, lineY
+
     # Callbacks
 
     def c_setRobotPosition(self, button):
@@ -304,6 +410,31 @@ class CompetitionDashboard(sea.Dashboard):
             if math.hypot(x - point.x, y - point.y) < 1:
                 self.selectedCoord = point
         self.updateCursorPosition()
+    
+    def c_addGenericAction(self, listview, key, driveCoordinate=None):
+        if driveCoordinate is None:
+            driveCoordinate = self.selectedCoord
+        if key == "drivetopoint":
+            action = autoActions.createDriveToPointAction(
+                self.robot.pathFollower, driveCoordinate, self.autoSpeed)
+        elif key == "rotate":
+            action = autoActions.createRotateInPlaceAction(
+                self.robot.pathFollower, driveCoordinate.angle)
+        else:
+            action = self.robot.genericAutoActions[int(key)]
+        self.robot.autoScheduler.actionList.append(action)
+        self.updateScheduler()
+
+    def c_clearSchedule(self, button):
+        self.robot.autoScheduler.actionList.clear()
+        self.updateScheduler()
+
+    def c_removeAction(self, listview, key):
+        index = int(key)
+        actionList = self.robot.autoScheduler.actionList
+        if index < len(actionList):
+            del actionList[index]
+        self.updateScheduler()
 
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - FIELD_WIDTH  / 2) / FIELD_PIXELS_PER_FOOT,

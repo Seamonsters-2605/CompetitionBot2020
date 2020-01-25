@@ -8,6 +8,7 @@ import dashboard
 import autoScheduler
 import vision
 from networktables import NetworkTables
+import autoActions
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
@@ -93,6 +94,8 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.motorData[motor]["maxAmp"] = initAmps
             self.motorData[motor]["maxTemp"] = initTemp
+
+        self.genericAutoActions = autoActions.createGenericAutoActions(self)
 
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
@@ -354,11 +357,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             yield
 
-    # updates self.autoScheduler to run functions in autonomous
+    # updates the dashboard scheduler to run functions in autonomous
     def updateScheduler(self):
-        # needs work
-
-        pass
+        if self.app is not None:
+            self.app.updateSchedulerFlag = True
 
     # Dashboard Callbacks
     
@@ -375,6 +377,14 @@ class CompetitionBot2020(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_stop(self, button):
         self.superDrive.disable()
+
+    @sea.queuedDashboardEvent
+    def c_manualMode(self, button):
+        self.manualMode()
+
+    @sea.queuedDashboardEvent
+    def c_autoMode(self, button):
+        self.autoMode()
 
     @sea.queuedDashboardEvent
     def c_compressor(self, button):

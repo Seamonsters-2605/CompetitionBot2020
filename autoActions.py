@@ -16,7 +16,7 @@ def driveToPoint(pathFollower : sea.PathFollower, coord : coordinates.FieldCoord
             0.2, math.radians(2)),
         25)
 
-def createDriveToPointAction(pathFollower, coord, speed, key):
+def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
         lambda: driveToPoint(pathFollower, coord, speed))
 
@@ -36,5 +36,11 @@ def endAuto(robot):
     yield
     robot.manualMode()
 
-def createEndAction(robot, key):
+def createEndAction(robot):
     return Action("END", lambda: endAuto(robot))
+
+def createGenericAutoActions(robot):
+    return [
+        createEndAction(robot),
+        Action("Wait 1 sec", waitOneSecond)
+    ]
