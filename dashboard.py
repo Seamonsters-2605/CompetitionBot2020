@@ -386,8 +386,8 @@ class CompetitionDashboard(sea.Dashboard):
             index += 1
 
     def actionLines(self, lineX, lineY, action):
-        for coord in action.coords:
-            x1, y1 = fieldToSvgCoordinates(coord[0], coord[1])
+        if action.coord is not None:
+            x1, y1 = fieldToSvgCoordinates(action.coord.x, action.coord.y)
             line = gui.SvgLine(lineX, lineY, x1, y1)
             line.set_stroke(width=3)
             self.robotPathLines.append(line)

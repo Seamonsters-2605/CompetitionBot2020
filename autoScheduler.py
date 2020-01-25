@@ -2,9 +2,10 @@ import seamonsters as sea
 
 class Action(sea.State):
 
-    def __init__(self, name, function):
+    def __init__(self, name, function, coord=None):
         self.name = name
         self.function = function
+        self.coord = coord
 
 class AutoScheduler:
 

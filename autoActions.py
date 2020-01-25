@@ -18,7 +18,7 @@ def driveToPoint(pathFollower : sea.PathFollower, coord : coordinates.FieldCoord
 
 def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
-        lambda: driveToPoint(pathFollower, coord, speed))
+        lambda: driveToPoint(pathFollower, coord, speed), coord)
 
 def rotateInPlace(pathFollower, angle):
     coord = coordinates.FieldCoordinate("Rotated",
