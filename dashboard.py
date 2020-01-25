@@ -266,11 +266,11 @@ class CompetitionDashboard(sea.Dashboard):
 
         self.autoSpeed = 6
         def slowSpeed():
-            self.autoSpeed = 3
+            self.autoSpeed = 4
         def mediumSpeed():
             self.autoSpeed = 6
         def fastSpeed():
-            self.autoSpeed = 8
+            self.autoSpeed = 10
 
         speedTabBox = gui.TabBox()
         speedTabBox.add_tab(gui.Widget(), "Slow", slowSpeed)

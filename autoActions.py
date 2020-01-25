@@ -2,19 +2,11 @@ import math, coordinates, drivetrain
 from autoScheduler import Action
 import seamonsters as sea
 
-def driveToPoint(pathFollower : sea.PathFollower, coord : coordinates.FieldCoordinate, speed):
+def driveToPoint(pathFollower, coord, speed):
     drivetrain.mediumVelocityGear.applyGear(pathFollower.drive)
 
-    angle = sea.circleDistance(pathFollower.robotAngle, coord.angle) + pathFollower.robotAngle
-    dist = math.hypot(coord.x - pathFollower.robotX, coord.y - pathFollower.robotY)
-    if dist < 0.1:
-        time = 1
-    else:
-        time = dist / speed
     yield from sea.ensureTrue(
-        pathFollower.driveToPointGenerator(coord.x, coord.y, angle, time,
-            1, math.radians(10)),
-        25)
+        pathFollower.driveToPointGenerator(coord.x, coord.y, 1, math.radians(10)), 25)
 
 def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,

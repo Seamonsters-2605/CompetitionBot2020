@@ -67,19 +67,13 @@ class PathFollower:
         self.robotX += math.cos(moveDir + self.robotAngle) * moveDist
         self.robotY += math.sin(moveDir + self.robotAngle) * moveDist
 
-    def driveToPointGenerator(self, x, y, angle, time,
-            robotPositionTolerance=0, robotAngleTolerance=0):
+    def driveToPointGenerator(self, x, y, robotPositionTolerance=0, robotAngleTolerance=0):
         """
         A generator to drive to a location on the field while simultaneously
         pointing the robot in a new direction. This will attempt to move the
-        robot at a velocity so it reaches the target position angle in ``time``
-        seconds. This generator never exits, but yields ``True`` or ``False``
+        robot so it reaches the target position
+        This generator never exits, but yields ``True`` or ``False``
         if the robot is close enough to its target position, within tolerance.
-
-        If ``time`` is zero, the robot will attempt to move to the position as
-        fast as possible.
-
-        Position mode is recommended!
         """
         dist, aDiff = self._robotVectorToPoint(x, y)
         for wheel in self.drive.wheels:
@@ -89,9 +83,6 @@ class PathFollower:
             dist = 0
         if abs(aDiff) < math.radians(1): # TODO
             aDiff = 0
-        targetMag = 0
-        if time != 0:
-            targetMag = dist / time
 
         accel = 0
         while True:
@@ -103,24 +94,27 @@ class PathFollower:
 
             dist, aDiff = self._robotVectorToPoint(x, y)
 
-            # is the robot close enough to the target position to reach it in
-            # the next iteration?
-            atPosition = targetMag == 0 or dist < targetMag / sea.ITERATIONS_PER_SECOND
-            if atPosition:
-                mag = dist * sea.ITERATIONS_PER_SECOND
-            else:
-                mag = targetMag
+            # make robot turn the shorter distance
+            # and not always go clockwise
+            aDiff %= math.pi * 2
+            if aDiff > math.pi:
+                aDiff -= math.pi * 2
+            if aDiff < -math.pi:
+                aDiff += math.pi * 2
+
+            # is the robot close enough to call it good?
+            atPosition = abs(dist) <= robotPositionTolerance
             atAngle = abs(aDiff) <= robotAngleTolerance
 
-            print("aDiff = " + str(aDiff) + " robotAngleTolerance = " + str(robotAngleTolerance))
-
+            # turn to face the target first, then drive forward
             if atAngle:
                 self.drive.drive(dist * accel, math.pi/2, aDiff * accel)
             else:
                 self.drive.drive(0, 0, aDiff * accel)
-            yield (atPosition or dist <= robotPositionTolerance)
 
-    # return magnitude, direction
+            yield atPosition
+
+    # return magnitude, angle
     def _robotVectorToPoint(self, x, y):
         xDiff = x - self.robotX
         yDiff = y - self.robotY
