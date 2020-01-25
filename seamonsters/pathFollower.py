@@ -47,16 +47,6 @@ class PathFollower:
     def _getAHRSAngle(self):
         return -math.radians(self.ahrs.getAngle()) - self._ahrsOrigin
 
-    def waitForOrientWheelsGenerator(self, magnitude, direction, turn):
-        """
-        Orient wheels to prepare to drive with the given mag/dir/turn.
-        """
-        if magnitude == 0 and turn == 0:
-            return
-        for _ in range(0, 10):
-            self.drive.orientWheels(magnitude, direction, turn)
-            yield
-
     def updateRobotPosition(self):
         moveDist, moveDir, moveTurn, self._drivePositionState = \
             self.drive.getRobotPositionOffset(self._drivePositionState, target=False)
@@ -91,11 +81,7 @@ class PathFollower:
 
         Position mode is recommended!
         """
-        dist, moveDir = self._robotVectorToPoint(x, y)
-        aDiff = angle - self.robotAngle
-        # actual velocities don't matter for orientWheels as long as the ratios
-        # are correct
-        yield from self.waitForOrientWheelsGenerator(dist, moveDir, aDiff)
+        dist, aDiff = self._robotVectorToPoint(x, y)
         for wheel in self.drive.wheels:
             wheel.resetPosition()
 
@@ -104,10 +90,8 @@ class PathFollower:
         if abs(aDiff) < math.radians(1): # TODO
             aDiff = 0
         targetMag = 0
-        targetAVel = 0
         if time != 0:
             targetMag = dist / time
-            targetAVel = aDiff / time
 
         accel = 0
         while True:
@@ -117,8 +101,7 @@ class PathFollower:
 
             self.updateRobotPosition()
 
-            dist, dir = self._robotVectorToPoint(x, y)
-            aDiff = angle - self.robotAngle
+            dist, aDiff = self._robotVectorToPoint(x, y)
 
             # is the robot close enough to the target position to reach it in
             # the next iteration?
@@ -127,44 +110,19 @@ class PathFollower:
                 mag = dist * sea.ITERATIONS_PER_SECOND
             else:
                 mag = targetMag
-            atAngle = targetAVel == 0 or abs(aDiff) < abs(targetAVel / sea.ITERATIONS_PER_SECOND)
-            if atAngle:
-                aVel = aDiff * sea.ITERATIONS_PER_SECOND
-            else:
-                aVel = abs(targetAVel)
-                if aDiff < 0:
-                    aVel = -aVel
+            atAngle = abs(aDiff) <= robotAngleTolerance
 
-            self.drive.drive(mag * accel, dir, aVel * accel)
-            yield (atPosition or dist <= robotPositionTolerance) \
-                and (atAngle or abs(aDiff) <= robotAngleTolerance)
+            print("aDiff = " + str(aDiff) + " robotAngleTolerance = " + str(robotAngleTolerance))
+
+            if atAngle:
+                self.drive.drive(dist * accel, math.pi/2, aDiff * accel)
+            else:
+                self.drive.drive(0, 0, aDiff * accel)
+            yield (atPosition or dist <= robotPositionTolerance)
 
     # return magnitude, direction
     def _robotVectorToPoint(self, x, y):
         xDiff = x - self.robotX
         yDiff = y - self.robotY
         return (math.sqrt(xDiff ** 2 + yDiff ** 2),
-                math.atan2(yDiff, xDiff) - self.robotAngle)
-
-    def _readDataLine(self, line):
-        return (float(n) for n in line)
-
-    def followPathData(self, data):
-        """
-        Follow path data read from a file. ``data`` should be a list of line
-        tuples returned by ``sea.readDataFile``.
-        """
-        lastTime, lastX, lastY, lastAngle = self._readDataLine(data[0])
-        self.setPosition(lastX, lastY, math.radians(lastAngle))
-        for point in data[1:]:
-            t, x, y, angle = self._readDataLine(point)
-            if lastX == x and lastY == y and lastAngle == angle:
-                yield from sea.wait(int((t - lastTime) * sea.ITERATIONS_PER_SECOND))
-            else:
-                yield from sea.untilTrue(
-                    self.driveToPointGenerator(x, y, math.radians(angle),
-                        t - lastTime))
-            lastTime = t
-            lastX = x
-            lastY = y
-            lastAngle = angle
+                math.atan2(yDiff, xDiff) - self.robotAngle - math.pi/2)
