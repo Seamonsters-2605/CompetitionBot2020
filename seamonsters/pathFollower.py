@@ -67,11 +67,11 @@ class PathFollower:
         self.robotX += math.cos(moveDir + self.robotAngle) * moveDist
         self.robotY += math.sin(moveDir + self.robotAngle) * moveDist
 
-    def driveToPointGenerator(self, x, y, robotPositionTolerance=0, robotAngleTolerance=0):
+    def driveToPointGenerator(self, x, y, speed=1, robotPositionTolerance=0, robotAngleTolerance=0):
         """
         A generator to drive to a location on the field while simultaneously
         pointing the robot in a new direction. This will attempt to move the
-        robot so it reaches the target position
+        robot so it reaches the target position at a given speed
         This generator never exits, but yields ``True`` or ``False``
         if the robot is close enough to its target position, within tolerance.
         """
@@ -106,11 +106,14 @@ class PathFollower:
             atPosition = abs(dist) <= robotPositionTolerance
             atAngle = abs(aDiff) <= robotAngleTolerance
 
+            mag = dist * accel * speed
+            aMag = aDiff * accel * speed
+
             # turn to face the target first, then drive forward
             if atAngle:
-                self.drive.drive(dist * accel, math.pi/2, aDiff * accel)
+                self.drive.drive(mag, math.pi/2, aMag)
             else:
-                self.drive.drive(0, 0, aDiff * accel)
+                self.drive.drive(0, 0, aMag)
 
             yield atPosition
 

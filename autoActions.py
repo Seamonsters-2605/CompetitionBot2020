@@ -6,7 +6,7 @@ def driveToPoint(pathFollower, coord, speed):
     drivetrain.mediumVelocityGear.applyGear(pathFollower.drive)
 
     yield from sea.ensureTrue(
-        pathFollower.driveToPointGenerator(coord.x, coord.y, 1, math.radians(10)), 25)
+        pathFollower.driveToPointGenerator(coord.x, coord.y, 1, 1, math.radians(5)), 25)
 
 def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
