@@ -7,8 +7,8 @@ import navx
 import dashboard
 import autoScheduler
 import vision
+import controlpanel
 from networktables import NetworkTables
-import random # this is only needed to make the getColor() placeholder
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
@@ -182,7 +182,10 @@ class CompetitionBot2020(sea.GeneratorBot):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
-        
+
+            if self.controller.getYButton():
+                controlpanel.nextColor()
+
             yield
 
     # switches to use the dashboard for testing purposes
@@ -199,11 +202,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     def autoIdle(self):
         self.pathFollower.updateRobotPosition()
         self.superDrive.drive(0, 0, 0)
-
-
-    # Control panel functions
-
-    
+   
             
 
     # Helpful Movement Functions
