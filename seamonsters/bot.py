@@ -21,9 +21,8 @@ class GeneratorBot(RobotBase):
         self.iterator = None
         self.earlyStop = False
 
-        # hal.UsageReporting.kResourceType_Framework is an enum for 22
-        # hal.UsageReporting.kFramework_Timed is an enum for 4
-        hal.report(22, 4)
+        hal.report(hal.tResourceType.kResourceType_Framework,
+            hal.tInstances.kFramework_Timed)
 
         self._expirationTime = 0
         self._notifier = hal.initializeNotifier()
