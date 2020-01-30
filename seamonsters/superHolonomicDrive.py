@@ -230,7 +230,7 @@ class AngledWheel(Wheel):
     # for wheels with gearboxes, so all motors can be driven at the same speed
     def addMotor(self, motor: rev.CANSparkMax):
         self.motors.append(motor)
-        self.motorControllers.append(rev.CANPIDController(motor))
+        self.motorControllers.append(motor.getPIDController())
 
     # for switching between break and coast mode for the motors
     def setIdleMode(self, mode):
