@@ -1,9 +1,6 @@
 import robot
 import random
-
-# randomly returns yellow, green, blue, or red
-def getColor():
-    return ["red", "yellow", "green", "blue"][random.randint(0,3)]
+from colorSensor import getColor
 
 cpColors = ["red","yellow","blue","green"] # The order of colors as they show up on the control panel, clockwise
 
