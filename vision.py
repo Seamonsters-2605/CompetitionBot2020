@@ -4,8 +4,11 @@ from networktables import NetworkTables
 import robot
 
 # very rough values
-LIMELIGHT_HEIGHT = 16 # inches
-TARGET_HEIGHT = 29 # inches
+# LIMELIGHT_HEIGHT = 16 # inches
+# TARGET_HEIGHT = 29 # inches
+LIMELIGHT_HEIGHT = 1.33 # feet
+TARGET_HEIGHT = 7.48 # feet
+LIMELIGHT_ANGLE = math.radians() # angle, in radians
 
 BASE_TARGET_RATIO = .4
 
@@ -32,7 +35,7 @@ def targetDetected(limelight):
 def getXOffset(limelight):
     return limelight.getNumber('tx', None)
 
-# returns the vertical offset of a vision target in degrees
+# returns the vertical offset of a vision target in degreess
 # None if there are no vision targets
 def getYOffset(limelight):
     return limelight.getNumber('ty', None)
@@ -41,9 +44,9 @@ def getYOffset(limelight):
 def getDistance(limelight):
     yAngle = getYOffset(limelight)
 
-    leg = TARGET_HEIGHT - LIMELIGHT_HEIGHT
+    leg = (TARGET_HEIGHT + 8.5/12) - LIMELIGHT_HEIGHT # 8.5 inches to center of hexagon
 
-    return leg / math.tan(math.radians(yAngle)) * (1 - .234)
+    return leg / math.tan(math.radians(yAngle)+LIMELIGHT_ANGLE)
 
 # returns the anglular offset of the normal of the vision target
 def getAngleOffset(limelight):
