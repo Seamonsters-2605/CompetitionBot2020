@@ -21,7 +21,7 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
     sparkMax3 = rev.CANSparkMax(sparkMaxNum3, motorType)
     for sparkMax in [sparkMax1, sparkMax2, sparkMax3]:
         sparkMax.restoreFactoryDefaults()
-        sparkMax.setIdleMode(rev.IdleMode.kBrake)
+        sparkMax.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
         superDrive.motors.append(sparkMax)
 
     # maxVoltageVelocity = 5 ft per second * 60 seconds = 300 rpm

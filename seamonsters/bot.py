@@ -2,7 +2,7 @@ __author__ = "seamonsters"
 
 import traceback
 import hal
-from wpilib.robotbase import RobotBase
+from wpilib import RobotBase
 from wpilib import RobotController
 import logging
 

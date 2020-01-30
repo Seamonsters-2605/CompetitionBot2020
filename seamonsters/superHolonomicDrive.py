@@ -230,7 +230,7 @@ class AngledWheel(Wheel):
     # for wheels with gearboxes, so all motors can be driven at the same speed
     def addMotor(self, motor: rev.CANSparkMax):
         self.motors.append(motor)
-        self.motorControllers.append(rev._impl.CANPIDController(motor))
+        self.motorControllers.append(rev.CANPIDController(motor))
 
     # for switching between break and coast mode for the motors
     def setIdleMode(self, mode):
@@ -471,7 +471,7 @@ class SwerveWheel(Wheel):
         if self.reverseSteerMotor:
             pos = -pos
         if self._motorDisabled:
-            self.steerMotor.setIdleMode(rev.IdleMode.kBrake)
+            self.steerMotor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
             self._motorDisabled = False
         self.steerMotor.setEncPosition(pos + self._steerOrigin)
 
@@ -513,7 +513,7 @@ class SwerveWheel(Wheel):
         self.angledWheel.disable()
         if not self._motorDisabled:
             self.steerMotor.disable()
-            self.steerMotor.setIdleMode(rev.IdleMode.kCoast)
+            self.steerMotor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
             self._motorDisabled = True
 
     def resetPosition(self):
