@@ -2,11 +2,15 @@ import math, coordinates, drivetrain
 from autoScheduler import Action
 import seamonsters as sea
 
-def driveToPoint(pathFollower, coord, speed):
+def driveToPoint(pathFollower, coord, speed, rotateAtTheEnd=False):
     drivetrain.mediumVelocityGear.applyGear(pathFollower.drive)
 
+    angle = None
+    if rotateAtTheEnd:
+        angle = coord.angle
+
     yield from sea.ensureTrue(
-        pathFollower.driveToPointGenerator(coord.x, coord.y, 1, 1, math.radians(5)), 25)
+        pathFollower.driveToPointGenerator(coord.x, coord.y, angle, 1, 1, math.radians(5)), 25)
 
 def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
@@ -15,7 +19,7 @@ def createDriveToPointAction(pathFollower, coord, speed):
 def rotateInPlace(pathFollower, angle):
     coord = coordinates.FieldCoordinate("Rotated",
         pathFollower.robotX, pathFollower.robotY, angle)
-    yield from driveToPoint(pathFollower, coord, 5)
+    yield from driveToPoint(pathFollower, coord, 5, True)
 
 def createRotateInPlaceAction(pathFollower, angle):
     return Action("Rotate to " + str(round(math.degrees(angle))),
