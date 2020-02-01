@@ -12,6 +12,9 @@ from networktables import NetworkTables
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
+CONTROLLER_RIGHT = wpilib.interfaces._interfaces.GenericHID.Hand.kRightHand
+CONTROLLER_LEFT = wpilib.interfaces._interfaces.GenericHID.Hand.kLeftHand
+
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
@@ -167,9 +170,9 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            turn = sea.deadZone(self.controller.getX(1), deadZone=0.05)
+            turn = sea.deadZone(self.controller.getX(CONTROLLER_RIGHT), deadZone=0.05)
             turn *= self.driveGear.turnScale
-            mag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
+            mag = -sea.deadZone(self.controller.getY(CONTROLLER_LEFT), deadZone=0.05)
             mag *= self.driveGear.moveScale
 
             self.multiDrive.drive(mag, math.pi/2, turn)

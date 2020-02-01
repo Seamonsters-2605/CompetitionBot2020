@@ -41,7 +41,7 @@ class GeneratorBot(_wpilib.RobotBaseUser):
         self._updateAlarm()
 
         while True:
-            if hal.waitForNotifierAlarm(self._notifier) == 0:
+            if hal.waitForNotifierAlarm(self._notifier[0]) == 0:
                 if self.iterator is not None:
                     self.iterator.close()
                     self.iterator = None
@@ -98,7 +98,7 @@ class GeneratorBot(_wpilib.RobotBaseUser):
 
     def _updateAlarm(self) -> None:
         """Update the alarm hardware to reflect the next alarm."""
-        hal.updateNotifierAlarm(self._notifier, int(self._expirationTime * 1e6))
+        hal.updateNotifierAlarm(self._notifier[0], int(self._expirationTime * 1e6))
 
     def robotInit(self):
         """
