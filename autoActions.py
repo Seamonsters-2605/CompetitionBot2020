@@ -10,7 +10,7 @@ def driveToPoint(pathFollower, coord, speed, rotateAtTheEnd=False):
         angle = coord.angle
 
     yield from sea.ensureTrue(
-        pathFollower.driveToPointGenerator(coord.x, coord.y, angle, 1, 1, math.radians(5)), 25)
+        pathFollower.driveToPointGenerator(coord.x, coord.y, angle, 1, 2, math.radians(5)), 25)
 
 def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,

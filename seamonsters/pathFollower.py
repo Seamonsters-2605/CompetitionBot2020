@@ -120,13 +120,13 @@ class PathFollower:
             # updates the angle and position reached variables
             if not hasReachedInitialAngle:
                 hasReachedInitialAngle = atAngle
-            else:
+            elif not hasReachedFinalAngle:
                 hasReachedFinalAngle = atAngle
             if not hasReachedPosition:
                 hasReachedPosition = atPosition
 
             mag = dist * accel * speed
-            aMag = aDiff * accel * speed
+            aMag = -aDiff * accel * speed
 
             # once the robot reaches the initial angle,
             # it will drive forward until it reaches the 
