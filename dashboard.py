@@ -1,9 +1,6 @@
 import remi.gui as gui
-import math
-import coordinates
 import seamonsters as sea
-import drivetrain
-import autoActions
+import json, os, autoActions, drivetrain, coordinates, math, glob
 
 FIELD_WIDTH = 520
 FIELD_HEIGHT = 260
@@ -21,6 +18,9 @@ class CompetitionDashboard(sea.Dashboard):
         vbox.style['margin'] = '0.5em'
         vbox.style['padding'] = '0.2em'
         return vbox
+
+    def presetPath(self):
+        return sea.getRobotPath('autoPresets')
 
     def main(self, robot, appCallback):
         self.robot = robot
@@ -264,13 +264,13 @@ class CompetitionDashboard(sea.Dashboard):
         addActionBox = gui.VBox()
         hbox.append(addActionBox)
 
-        self.autoSpeed = 6
+        self.autoSpeed = 1
         def slowSpeed():
-            self.autoSpeed = 4
+            self.autoSpeed = 0.5
         def mediumSpeed():
-            self.autoSpeed = 6
+            self.autoSpeed = 1
         def fastSpeed():
-            self.autoSpeed = 10
+            self.autoSpeed = 1.5
 
         speedTabBox = gui.TabBox()
         speedTabBox.add_tab(gui.Widget(), "Slow", slowSpeed)
@@ -282,7 +282,7 @@ class CompetitionDashboard(sea.Dashboard):
         addActionBox.append(gui.Label("Auto actions:"))
 
         self.genericActionList = gui.ListView()
-        self.genericActionList.append("Drive to Point", "drivetopoint")
+        self.genericActionList.append("Drive to Point", "drive")
         self.genericActionList.append("Rotate in place", "rotate")
         index = 0
         for action in robot.genericAutoActions:
@@ -306,6 +306,31 @@ class CompetitionDashboard(sea.Dashboard):
         self.schedulerList = gui.ListView()
         self.schedulerList.set_on_selection_listener(self.c_removeAction)
         scheduleListBox.append(self.schedulerList)
+
+        schedulePresetLbl = gui.Label("Auto Sequence Presets")
+        schedulerBox.append(schedulePresetLbl)
+        presetIn = gui.Input(default_value="file name")
+        schedulerBox.append(presetIn)
+        schedulePresets = gui.HBox()
+        schedulerBox.append(schedulePresets)
+        self.presetDropdown = gui.DropDown()
+        self.updatePresetFileDropdown()
+        schedulerBox.append(self.presetDropdown)
+        openPresetBtn = gui.Button("Open")
+        schedulePresets.append(openPresetBtn)
+        openPresetBtn.set_on_click_listener(self.c_openAutoPreset, self.presetDropdown)
+        newPresetBtn = gui.Button("New")
+        schedulePresets.append(newPresetBtn)
+        newPresetBtn.set_on_click_listener(self.c_saveAutoPresetFromText, presetIn)
+        schedulePresets.append(newPresetBtn)
+        savePresetBtn = gui.Button("Save")
+        schedulePresets.append(savePresetBtn)
+        savePresetBtn.set_on_click_listener(self.c_saveAutoPresetFromDropdown, self.presetDropdown)
+        schedulePresets.append(savePresetBtn)
+        deletePresetBtn = gui.Button("Delete")
+        schedulePresets.append(deletePresetBtn)
+        deletePresetBtn.set_on_click_listener(self.c_deleteAutoPreset, self.presetDropdown)
+        schedulePresets.append(deletePresetBtn)
         
         return schedulerBox
 
@@ -386,7 +411,7 @@ class CompetitionDashboard(sea.Dashboard):
             index += 1
 
     def actionLines(self, lineX, lineY, action):
-        if action.coord is not None:
+        if action.coord is not None and action.key != "rotate":
             x1, y1 = fieldToSvgCoordinates(action.coord.x, action.coord.y)
             line = gui.SvgLine(lineX, lineY, x1, y1)
             line.set_stroke(width=3)
@@ -394,6 +419,19 @@ class CompetitionDashboard(sea.Dashboard):
             self.fieldSvg.append(line)
             lineX, lineY = x1, y1
         return lineX, lineY
+
+    def updatePresetFileDropdown(self):
+        self.presetDropdown.empty()
+        for file in glob.glob(os.path.join(self.presetPath(), "*.json")):
+            fileName = os.path.basename(file)
+            self.presetDropdown.append(fileName, file)
+    
+    def saveAutoPreset(self, fileLocation):
+        autoPreset = self.robot.autoScheduler.saveSchedule()
+        with open(fileLocation,"w") as presetFile:
+            json.dump(autoPreset, presetFile)
+        print("Preset saved")
+        self.updatePresetFileDropdown()
 
     # Callbacks
 
@@ -411,15 +449,15 @@ class CompetitionDashboard(sea.Dashboard):
                 self.selectedCoord = point
         self.updateCursorPosition()
     
-    def c_addGenericAction(self, listview, key, driveCoordinate=None):
-        if driveCoordinate is None:
-            driveCoordinate = self.selectedCoord
-        if key == "drivetopoint":
+    def c_addGenericAction(self, listview, key, coord=None):
+        if coord is None:
+            coord = self.selectedCoord
+        if key == "drive":
             action = autoActions.createDriveToPointAction(
-                self.robot.pathFollower, driveCoordinate, self.autoSpeed)
+                self.robot.pathFollower, coord, self.autoSpeed)
         elif key == "rotate":
             action = autoActions.createRotateInPlaceAction(
-                self.robot.pathFollower, driveCoordinate.angle)
+                self.robot.pathFollower, coord)
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)
@@ -435,6 +473,50 @@ class CompetitionDashboard(sea.Dashboard):
         if index < len(actionList):
             del actionList[index]
         self.updateScheduler()
+
+    # Auto Presets:
+
+    def c_openAutoPreset(self, dropDownItem, file):
+        if file.get_key() is None:
+            print("No file selected")
+            return
+        # file should be blank because it will delete everything in it
+        self.robot.autoScheduler.actionList.clear()
+        with open(file.get_key(),"r") as presetFile:
+            try:
+                preset = json.load(presetFile)
+            except:
+                print("File is empty")
+                return
+            for action in preset:
+                coord = None
+                if action["coord"] != []:
+                    # creates a field coordinate
+                    coord = coordinates.FieldCoordinate(action["coord"][0], 
+                        action["coord"][1], action["coord"][2], action["coord"][3])
+
+                self.c_addGenericAction(self.genericActionList, action["key"], coord)
+        
+        self.updateScheduler()
+        self.updatePresetFileDropdown()
+
+    def c_saveAutoPresetFromText(self, button, textInput):
+        # file needs to be blank 
+        self.saveAutoPreset(os.path.join(self.presetPath(), textInput.get_value() + ".json"))
+
+    def c_saveAutoPresetFromDropdown(self, dropDownItem, file):
+        #file needs to be blank
+        if file.get_key() is None:
+            print("No file selected")
+            return
+        self.saveAutoPreset(file.get_key())
+
+    def c_deleteAutoPreset(self, dropDownItem, file):
+        if file.get_key() is None:
+            print("No file selected")
+            return
+        os.unlink(file.get_key())
+        self.updatePresetFileDropdown()
 
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - FIELD_WIDTH  / 2) / FIELD_PIXELS_PER_FOOT,

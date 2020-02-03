@@ -2,9 +2,11 @@ import seamonsters as sea
 
 class Action(sea.State):
 
-    def __init__(self, name, function, coord=None):
+    def __init__(self, name, function, key, coord=None):
         self.name = name
         self.function = function
+        # key is the action type as a string
+        self.key = key
         self.coord = coord
 
 class AutoScheduler:
@@ -32,3 +34,16 @@ class AutoScheduler:
                     self.actionList.remove(self.runningAction)
         finally:
             self.runningAction = None
+
+    # converts the schedule into something that can be saved in a json file
+    def saveSchedule(self):
+        schedulePresets = []
+        for action in self.actionList:
+            newAction = {
+                    "key" : action.key,
+                    "coord" : []
+                }
+            if action.coord is not None:
+                newAction["coord"] = [action.name, action.coord.x, action.coord.y, action.coord.angle]
+            schedulePresets.append(newAction)
+        return schedulePresets
