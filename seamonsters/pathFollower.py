@@ -89,7 +89,9 @@ class PathFollower:
         # if the robot has reached the angle or position
         hasReachedInitialAngle = False
         hasReachedPosition = False
-        hasReachedFinalAngle = finalAngle is None
+        hasReachedFinalAngle = True
+        if finalAngle is not None:
+            hasReachedFinalAngle = False
 
         accel = 0
         while True:
@@ -103,7 +105,7 @@ class PathFollower:
 
             # when it reaches the initial angle,
             # work towards the final angle
-            if hasReachedPosition and finalAngle is not None:
+            if hasReachedPosition and not hasReachedFinalAngle:
                 aDiff = finalAngle - self.robotAngle
 
             # make robot turn the shorter distance
@@ -121,10 +123,10 @@ class PathFollower:
             # updates the angle and position reached variables
             if not hasReachedInitialAngle:
                 hasReachedInitialAngle = atAngle
+            elif not hasReachedPosition:
+                hasReachedPosition = atPosition
             elif not hasReachedFinalAngle:
                 hasReachedFinalAngle = atAngle
-            if not hasReachedPosition:
-                hasReachedPosition = atPosition
 
             mag = dist * accel * speed
             aMag = -aDiff * accel * speed

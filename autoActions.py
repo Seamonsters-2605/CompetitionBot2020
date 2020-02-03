@@ -5,12 +5,15 @@ import seamonsters as sea
 def driveToPoint(pathFollower, coord, speed, rotateAtTheEnd=False):
     drivetrain.mediumVelocityGear.applyGear(pathFollower.drive)
 
+    if coord in coordinates.targetPoints:
+        rotateAtTheEnd = True
+
     angle = None
     if rotateAtTheEnd:
         angle = coord.angle
 
     yield from sea.ensureTrue(
-        pathFollower.driveToPointGenerator(coord.x, coord.y, angle, speed, 2, math.radians(5)), 25)
+        pathFollower.driveToPointGenerator(coord.x, coord.y, angle, speed, 1, math.radians(5)), 25)
 
 def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
