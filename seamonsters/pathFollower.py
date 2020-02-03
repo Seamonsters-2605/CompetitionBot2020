@@ -1,5 +1,6 @@
 import math
 import seamonsters as sea
+import sys
 
 class PathFollower:
     """
@@ -127,6 +128,10 @@ class PathFollower:
 
             mag = dist * accel * speed
             aMag = -aDiff * accel * speed
+            
+            # the robot is a simultaion
+            if sys.argv[1] == 'sim':
+                aMag *= -1
 
             # once the robot reaches the initial angle,
             # it will drive forward until it reaches the 

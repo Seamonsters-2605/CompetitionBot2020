@@ -175,6 +175,9 @@ class CompetitionBot2020(sea.GeneratorBot):
             turn *= self.driveGear.turnScale
             mag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
             mag *= self.driveGear.moveScale
+            
+            if self.isSimulation():
+                mag *= -1
 
             self.multiDrive.drive(mag, math.pi/2, turn)
             self.multiDrive.update()
