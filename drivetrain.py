@@ -1,7 +1,6 @@
 import seamonsters as sea 
-import rev
 from gear import DriveGear
-import math
+import math, rev
 
 ROBOT_LENGTH = 3
 ROBOT_WIDTH = 3

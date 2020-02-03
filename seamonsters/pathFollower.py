@@ -1,6 +1,5 @@
-import math
+import math, sys
 import seamonsters as sea
-import sys
 
 class PathFollower:
     """

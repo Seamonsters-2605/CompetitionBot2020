@@ -1,14 +1,6 @@
-import wpilib
-import rev
-import drivetrain
+import wpilib, rev, drivetrain, math, navx, dashboard, autoScheduler, vision, autoActions
 import seamonsters as sea 
-import math
-import navx
-import dashboard
-import autoScheduler
-import vision
 from networktables import NetworkTables
-import autoActions
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse

@@ -1,7 +1,5 @@
-import math
-import rev
+import math, rev, time
 import seamonsters as sea
-import time
 
 TWO_PI = math.pi * 2
 

@@ -1,7 +1,6 @@
 import seamonsters as sea
-import math
 from networktables import NetworkTables
-import robot
+import math
 
 # very rough values
 LIMELIGHT_HEIGHT = 16 # inches

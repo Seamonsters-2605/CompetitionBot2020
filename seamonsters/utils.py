@@ -1,7 +1,4 @@
-import math
-import sys
-import os
-import time
+import math, sys, os, time
 
 ITERATIONS_PER_SECOND = 50.0
 
