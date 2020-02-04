@@ -283,49 +283,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         yield from self.turnDegrees(-hOffset, accuracy=2, multiplier=9, visionTarget=True)
 
-    # drives the robot a specified distance in a straight line
-    # distance measured in feet
-    def driveDist(self, distance, accuracy=0.025, slowDist=1):
-        accuracy = abs(accuracy)
-        accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
-
-        # the right side is negative because the motor is turned around
-        targetDistL = self.superDrive.wheels[0].getRealPosition() + distance
-        targetDistR = -self.superDrive.wheels[1].getRealPosition() + distance
-        targetDist = (targetDistL + targetDistR) / 2
-
-        def getLocation():
-            locationL = self.superDrive.wheels[0].getRealPosition()
-            locationR = -self.superDrive.wheels[1].getRealPosition()
-            location = (locationL + locationR) / 2
-
-            return location
-
-        while True:
-            self.pathFollower.updateRobotPosition()
-
-            offset = targetDist - getLocation()
-            
-            # the robot will start to slow down once it is 
-            # slowDist feet away from the target
-            speed = offset / slowDist 
-            if speed > 1:
-                speed = 1
-            speed *= self.driveGear.moveScale
-            
-            self.multiDrive.drive(speed, math.pi/2, 0)
-            self.multiDrive.update()
-
-            if -accuracy < abs(offset) < accuracy:
-                accuracyCount += 1
-            else:
-                accuracyCount = 0
-
-            if accuracyCount > 5:
-                return True
-
-            yield
-
     # updates the dashboard
     def updateDashboardGenerator(self):
         if self.app is not None:
