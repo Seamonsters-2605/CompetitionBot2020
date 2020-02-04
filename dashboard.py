@@ -214,12 +214,14 @@ class CompetitionDashboard(sea.Dashboard):
         self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
         fieldBox.append(self.fieldSvg)
 
-        self.image = gui.SvgShape(0, 0)
+        """
+        self.image = gui.Svg(0, 0)
         self.image.type = 'image'
         self.image.attributes['width'] = FIELD_WIDTH
         self.image.attributes['height'] = FIELD_HEIGHT
         self.image.attributes['xlink:href'] = '/res:field.PNG'
         self.fieldSvg.append(self.image)
+        """
 
         self.targetPoints = coordinates.targetPoints
         for point in self.targetPoints:

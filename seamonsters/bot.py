@@ -1,10 +1,10 @@
 __author__ = "seamonsters"
 
 import traceback, hal, logging
-from wpilib.robotbase import RobotBase
+from wpilib import _wpilib
 from wpilib import RobotController
 
-class GeneratorBot(RobotBase):
+class GeneratorBot(_wpilib.RobotBaseUser):
     """
     A robot which runs generators throughout the cycles of autonomous, teleop,
     and test mode. The generators are iterated 50 times per second, synchronized
@@ -15,12 +15,12 @@ class GeneratorBot(RobotBase):
     logger = logging.getLogger("robot")
 
     def __init__(self):
-        RobotBase.__init__(self)
+        _wpilib.RobotBaseUser.__init__(self)
         self.iterator = None
         self.earlyStop = False
 
-        hal.report(hal.UsageReporting.kResourceType_Framework,
-                   hal.UsageReporting.kFramework_Timed)
+        hal.report(hal.tResourceType.kResourceType_Framework,
+            hal.tInstances.kFramework_Timed)
 
         self._expirationTime = 0
         self._notifier = hal.initializeNotifier()
@@ -39,7 +39,7 @@ class GeneratorBot(RobotBase):
         self._updateAlarm()
 
         while True:
-            if hal.waitForNotifierAlarm(self._notifier) == 0:
+            if hal.waitForNotifierAlarm(self._notifier[0]) == 0:
                 if self.iterator is not None:
                     self.iterator.close()
                     self.iterator = None
@@ -96,7 +96,7 @@ class GeneratorBot(RobotBase):
 
     def _updateAlarm(self) -> None:
         """Update the alarm hardware to reflect the next alarm."""
-        hal.updateNotifierAlarm(self._notifier, int(self._expirationTime * 1e6))
+        hal.updateNotifierAlarm(self._notifier[0], int(self._expirationTime * 1e6))
 
     def robotInit(self):
         """

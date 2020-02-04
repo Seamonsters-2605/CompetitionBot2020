@@ -5,6 +5,9 @@ from networktables import NetworkTables
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
 
+CONTROLLER_RIGHT = wpilib.interfaces._interfaces.GenericHID.Hand.kRightHand
+CONTROLLER_LEFT = wpilib.interfaces._interfaces.GenericHID.Hand.kLeftHand
+
 class CompetitionBot2020(sea.GeneratorBot):
 
     def robotInit(self):
@@ -122,7 +125,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     # switches the robot into teleop
     def manualMode(self):
         for wheel in self.superDrive.wheels:
-            wheel.setIdleMode(rev.IdleMode.kBrake)
+            wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
          
         self.piston1.set(SOLENOID_FORWARD)
         self.piston2.set(SOLENOID_FORWARD)
@@ -132,14 +135,14 @@ class CompetitionBot2020(sea.GeneratorBot):
     # switches the robot into auto
     def autoMode(self):
         for wheel in self.superDrive.wheels:
-            wheel.setIdleMode(rev.IdleMode.kBrake)
-         
+            wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
+
         self.controlModeMachine.replace(self.autoState)
 
     # switches the robot into test mode
     def testMode(self):
         for wheel in self.superDrive.wheels:
-            wheel.setIdleMode(rev.IdleMode.kCoast)
+            wheel.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
             
         self.superDrive.disable()
         self.controlModeMachine.replace(self.testState)
@@ -163,9 +166,9 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
 
-            turn = sea.deadZone(self.controller.getX(1), deadZone=0.05)
+            turn = sea.deadZone(self.controller.getX(CONTROLLER_LEFT), deadZone=0.05)
             turn *= self.driveGear.turnScale
-            mag = -sea.deadZone(self.controller.getY(0), deadZone=0.05)
+            mag = -sea.deadZone(self.controller.getY(CONTROLLER_RIGHT), deadZone=0.05)
             mag *= self.driveGear.moveScale
             
             if self.isSimulation():
@@ -176,7 +179,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.ledStrip.setSpeed(self.ledInput)
 
-            if self.controller.getBumper(1):
+            if self.controller.getBumper(CONTROLLER_RIGHT):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
