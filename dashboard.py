@@ -47,6 +47,7 @@ class CompetitionDashboard(sea.Dashboard):
 
         rightSide.append(self.initManual(robot))
         rightSide.append(self.initTest(robot))
+        rightSide.append(self.initTest(robot))
 
         root.append(leftSide)
         root.append(middle)
@@ -133,9 +134,9 @@ class CompetitionDashboard(sea.Dashboard):
         motorNumberIn = gui.Input()
         motorSelectionBox = sea.hBoxWith(gui.Label("Motor Number:"), motorNumberIn)
 
-        motorSpeedSlider = gui.Slider(default_value=0, min= -1.0, max= 1.0, step= 0.05)
+        motorSpeedInput = gui.Input()
         testButton = gui.Button("Test")
-        motorSpeedBox = sea.hBoxWith(testButton, gui.Label("Speed:"), motorSpeedSlider)
+        motorSpeedBox = sea.hBoxWith(testButton, gui.Label("Speed:"), motorSpeedInput)
 
         def testMotor(button):
             robot.superDrive.disable()
@@ -154,10 +155,17 @@ class CompetitionDashboard(sea.Dashboard):
                 print("Motor number incorrect")
                 return
         
+            testSpeed = float(motorSpeedInput.get_value())
+
+            if testSpeed > -1.0 and testSpeed < 1.0:
+                testSpeed = 0.0
+            else:
+                print("Motor Speed Error")
+
             robot.testSettings["wheelNum"] = wheelNum
             robot.testSettings["motorNum"] = motorNum
-            robot.testSettings["speed"] = float(motorSpeedSlider.get_value())
-            
+            robot.testSettings["speed"] = testSpeed
+
         testButton.set_on_click_listener(testMotor)
 
         testBox.append(gui.Label("Test"))
