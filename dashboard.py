@@ -46,8 +46,8 @@ class CompetitionDashboard(sea.Dashboard):
         middle.append(self.initCamera(robot))
 
         rightSide.append(self.initManual(robot))
-        rightSide.append(self.initTest(robot))
-        rightSide.append(self.initTest(robot))
+        rightSide.append(self.initTest(robot, "Motor Test 1"))
+        rightSide.append(self.initTest(robot, "Motor Test 2"))
 
         root.append(leftSide)
         root.append(middle)
@@ -128,7 +128,7 @@ class CompetitionDashboard(sea.Dashboard):
         cameraBox.append(videoFeedBox)
         return cameraBox
 
-    def initTest(self, robot):
+    def initTest(self, robot, label):
         testBox = self.sectionBox()
 
         motorNumberIn = gui.Input()
@@ -168,7 +168,7 @@ class CompetitionDashboard(sea.Dashboard):
 
         testButton.set_on_click_listener(testMotor)
 
-        testBox.append(gui.Label("Test"))
+        testBox.append(gui.Label(label))
         testBox.append(motorSelectionBox)
         testBox.append(motorSpeedBox)
         return testBox
