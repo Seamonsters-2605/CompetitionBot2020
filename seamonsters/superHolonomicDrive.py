@@ -399,7 +399,6 @@ class SwerveWheel(Wheel):
         self.zeroSteering()
         self._targetDirection = angledWheel.angle
         self._motorDisabled = True
-        self._encoderCheckCount = 0
 
     def zeroSteering(self, currentAngle=0):
         """
@@ -443,12 +442,6 @@ class SwerveWheel(Wheel):
             self._simulatedCurrentDirection -= change
         else:
             self._simulatedCurrentDirection += change
-        
-        self._encoderCheckCount += 1
-        if self._encoderCheckCount % CHECK_SWERVE_ENCODER_CYCLE == 0:
-            curPos = self._getCurrentSteeringAngle()
-            if abs(curPos - self._simulatedCurrentDirection) > MAX_SWERVE_ERROR:
-                self.faults.append("Can't reach target!")
 
     def _drive(self, magnitude, direction):
         self._updateMotorPosition()
