@@ -140,7 +140,7 @@ p {
     margin: 0 0 16px
 }
 a {
-    color: rgba(21, 90, 21, 0.8);
+    color: rgb(219, 98, 54);
     font-weight: 500
 }
 blockquote {
@@ -269,7 +269,7 @@ button {
     text-decoration: none;
     text-align: center;
     vertical-align: middle;
-    background: rgba(21, 182, 21, 1);
+    background: rgb(219, 98, 54);
     color: rgb(255, 255, 255);
     box-shadow: 3px 3px 5px rgb(150,150,150);
 }
@@ -287,7 +287,7 @@ button:disabled {
     color: #9F9F9F;
 }
 button:active{
-    background: rgba(21, 90, 21, 1);
+    background: rgb(168, 75, 42);
     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .12), 0 2px 0px -1px rgba(0, 0, 0, .2);
 }
 .TextInput {
