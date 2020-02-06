@@ -38,6 +38,14 @@ def endAuto(robot):
 def createEndAction(robot):
     return Action("END", lambda: endAuto(robot), 0)
 
+def setRobotPosition(pathFollower, coord):
+    yield
+    pathFollower.setPosition(coord.x, coord.y, coord.angle)
+
+def createSetRobotPositionAction(pathFollower, coord):
+    return Action("Set Starting Position", 
+        lambda: setRobotPosition(pathFollower, coord), "set", coord)
+
 # generic actions have a key that is the same as the index in the list
 # so they can be recreated easily by the auto preset opener
 def createGenericAutoActions(robot):
