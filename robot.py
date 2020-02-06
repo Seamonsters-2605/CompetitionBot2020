@@ -10,17 +10,8 @@ class RevClientBot(sea.GeneratorBot):
 
         self.pdp = wpilib.PowerDistributionPanel(50)
 
-        motor1 = rev.CANSparkMax(1, rev.CANSparkMax.MotorType.kBrushless)
-        motor2 = rev.CANSparkMax(2, rev.CANSparkMax.MotorType.kBrushless)
-        motor3 = rev.CANSparkMax(3, rev.CANSparkMax.MotorType.kBrushless)
-        motor4 = rev.CANSparkMax(4, rev.CANSparkMax.MotorType.kBrushless)
-        motor5 = rev.CANSparkMax(5, rev.CANSparkMax.MotorType.kBrushless)
-        motor6 = rev.CANSparkMax(6, rev.CANSparkMax.MotorType.kBrushless)
-        motor7 = rev.CANSparkMax(7, rev.CANSparkMax.MotorType.kBrushless)
-        motor8 = rev.CANSparkMax(8, rev.CANSparkMax.MotorType.kBrushless)
-        motor9 = rev.CANSparkMax(9, rev.CANSparkMax.MotorType.kBrushless)
-
-        self.motors = [motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8, motor9]
+        self.motor0 = None
+        self.motor1 = None
 
         # controls the state of the robot
         self.controlModeMachine = sea.StateMachine()
@@ -29,10 +20,12 @@ class RevClientBot(sea.GeneratorBot):
         # testing
         self.testSettings = [{ \
             "motorNum" : 1,
-            "speed" : 0
+            "speed" : 0,
+            "makeNewMotor" : False
             }, { \
             "motorNum" : 2,
-            "speed" : 0
+            "speed" : 0,
+            "makeNewMotor" : False
             }]
 
         self.app = None 
@@ -59,15 +52,36 @@ class RevClientBot(sea.GeneratorBot):
     def mainGenerator(self):
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
-            self.updateDashboardGenerator(),
-            self.updateMotorData())
+            self.updateDashboardGenerator())
 
     # switches to use the dashboard for testing purposes
     def testing(self):
         while True:
 
-            self.motors[self.testSettings[0]["motorNum"]].set(self.testSettings[0]["speed"])
-            self.motors[self.testSettings[1]["motorNum"]].set(self.testSettings[1]["speed"])
+            if self.testSettings[0]["makeNewMotor"]:
+                self.motor0 = rev.CANSparkMax(self.testSettings[0]["motorNum"], rev.MotorType.kBrushless)
+                if self.motor0.getFirmwareVersion() == 0:
+                    self.motor0 = None
+                    print("Motor with ID: %s not found" % self.testSettings[0]["motorNum"])
+                self.testSettings[0]["makeNewMotor"] = False
+
+            if self.testSettings[1]["makeNewMotor"]:
+                self.motor1 = rev.CANSparkMax(self.testSettings[1]["motorNum"], rev.MotorType.kBrushless)
+                if self.motor1.getFirmwareVersion() == 0:
+                    self.motor1 = None
+                    print("Motor with ID: %s not found" % self.testSettings[1]["motorNum"])
+                self.testSettings[1]["makeNewMotor"] = False
+            
+            if self.motor0 != None and self.motor1 != None:
+                if self.motor0.getDeviceId() == self.motor1.getDeviceId():
+                    self.motor1 = None
+                    print("Cannot test the same motor")
+                
+            if self.motor0 != None:
+                self.motor0.set(self.testSettings[0]["speed"])
+
+            if self.motor1 != None:
+                self.motor1.set(self.testSettings[1]["speed"])
 
             yield
 
@@ -80,25 +94,6 @@ class RevClientBot(sea.GeneratorBot):
             if self.app is not None:
                 v = self.app.doEvents()
             yield v
-
-    # updates the motor data for the dashboard
-    def updateMotorData(self):
-        while True:
-
-            for motor in range(len(self.superDrive.motors)):
-                amps = round(self.superDrive.motors[motor].getOutputCurrent(), 2)
-                temp = round(self.superDrive.motors[motor].getMotorTemperature(), 2)
-
-                self.motorData[motor]["amps"] = amps
-                self.motorData[motor]["temp"] = temp
-
-                if amps > self.motorData[motor]["maxAmp"]:
-                    self.motorData[motor]["maxAmp"] = amps
-
-                if temp > self.motorData[motor]["maxTemp"]:
-                    self.motorData[motor]["maxTemp"] = temp
-
-            yield
 
 if __name__ == "__main__":
     wpilib.run(RevClientBot)

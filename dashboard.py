@@ -57,6 +57,7 @@ class RevDashboard(sea.Dashboard):
 
             robot.testSettings[testNum - 1]["motorNum"] = motorNum
             robot.testSettings[testNum - 1]["speed"] = testSpeed
+            robot.testSettings[testNum - 1]["makeNewMotor"] = True
 
         testButton.set_on_click_listener(testMotor)
 
