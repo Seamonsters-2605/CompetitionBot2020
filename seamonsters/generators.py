@@ -1,7 +1,6 @@
 __author__ = "seamonsters"
 
-import itertools
-import logging
+import itertools, logging
 
 logger = logging.getLogger("seamonsters")
 

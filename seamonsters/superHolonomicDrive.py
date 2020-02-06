@@ -1,7 +1,5 @@
-import math
-import rev
+import math, rev, time
 import seamonsters as sea
-import time
 
 TWO_PI = math.pi * 2
 
@@ -222,7 +220,6 @@ class AngledWheel(Wheel):
 
         self._motorState = None
         self._positionTarget = 0
-        self._encoderCheckCount = 0
         self._oldPosition = 0
         self._positionOccurence = 0
         self._prevTime = time.time()
@@ -245,36 +242,6 @@ class AngledWheel(Wheel):
             return self.maxVoltageVelocity / abs(magnitude)
         return 1.0
 
-    def _encoderCheck(self):
-        for motor in self.motors:
-            newPosition = motor.getEncoder().getPosition()
-            err = motor.setEncPosition(motor.getEncoder().getPosition())
-            # setEncPosition() returns a CANError so we set it to the current
-            # position to get the error but affect nothing
-            if err == rev.CANError.kTimeout:
-                print("Stale CAN frame so we won't check for errors :(",
-                    motor.getDeviceId())
-                return
-            elif err != rev.CANError.kOK:
-                print("Spark max error", motor.getDeviceId())
-
-            if abs(newPosition - self._oldPosition) <= 1:
-                self._positionOccurence += 1
-            else:
-                self._positionOccurence = 0
-                self._oldPosition = newPosition
-
-            if self._positionOccurence >= MAX_POSITION_OCCURENCE:
-                self.faults.append("Encoder not moving")
-                self._positionOccurence = 0
-
-            if self.driveMode == rev.ControlType.kPosition:
-                # TODO: this is arbitrary
-                maxError = self.encoderCountsPerFoot * MAX_DRIVE_ERROR
-                if abs(newPosition - self._positionTarget) > maxError:
-                    self.faults.append("Can't reach target")
-                    self._positionTarget = newPosition
-
     def _drive(self, inputMagnitude, direction, motorNum=None):
         motorsToDrive = range(0, len(self.motors))
         if motorNum is not None: # for driving individual motors
@@ -288,7 +255,6 @@ class AngledWheel(Wheel):
             if self.driveMode == rev.ControlType.kPosition \
                     and self._motorState != self.driveMode:
                 self._positionTarget = self.motors[motor].getEncoder().getPosition()
-                self._encoderCheckCount = 0
 
             curTime = time.time()
             if self.realTime and self._motorState == self.driveMode:
@@ -300,7 +266,8 @@ class AngledWheel(Wheel):
             encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot * 60
             # always incremented, even if not in position mode
             # used by getTargetPosition
-            self._positionTarget += encoderCountsPerSecond * tDiff
+            self._positionTarget += (encoderCountsPerSecond * tDiff / 62.920803275)
+            # _positionTarget is close to the actual robot, but are off by a bit
 
             if self.driveMode == DISABLED:
                 if self._motorState != self.driveMode:
@@ -313,17 +280,6 @@ class AngledWheel(Wheel):
                 self.motorControllers[motor].setReference(magnitude * 12, self.driveMode)# the 12 is for 12 volts
 
             self._motorState = self.driveMode
-
-            self._encoderCheckCount += 1
-            # TODO: document constant
-            if abs(encoderCountsPerSecond) > 400 \
-                    and not self.driveMode == DISABLED:
-                if self._encoderCheckCount % CHECK_DRIVE_ENCODER_CYCLE == 0:
-                    # getEncoder().getPosition is slow so only check a few times
-                    # per second
-                    self._encoderCheck()
-            else:
-                self._positionOccurence = 0
 
     def _stop(self):
         self.drive(0, 0)
@@ -350,7 +306,7 @@ class AngledWheel(Wheel):
         for motor in self.motors:
             try:
                 encPos += motor.getEncoder().getPosition()
-            except AssertionError:
+            except AssertionError: # Breaks in the simulator
                 pass
         encPos /= len(self.motors)
         return self._sensorPositionToDistance(encPos)
@@ -441,7 +397,6 @@ class SwerveWheel(Wheel):
         self.zeroSteering()
         self._targetDirection = angledWheel.angle
         self._motorDisabled = True
-        self._encoderCheckCount = 0
 
     def zeroSteering(self, currentAngle=0):
         """
@@ -485,12 +440,6 @@ class SwerveWheel(Wheel):
             self._simulatedCurrentDirection -= change
         else:
             self._simulatedCurrentDirection += change
-        
-        self._encoderCheckCount += 1
-        if self._encoderCheckCount % CHECK_SWERVE_ENCODER_CYCLE == 0:
-            curPos = self._getCurrentSteeringAngle()
-            if abs(curPos - self._simulatedCurrentDirection) > MAX_SWERVE_ERROR:
-                self.faults.append("Can't reach target!")
 
     def _drive(self, magnitude, direction):
         self._updateMotorPosition()

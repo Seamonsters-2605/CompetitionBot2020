@@ -1,10 +1,8 @@
 __author__ = "seamonsters"
 
-import traceback
-import hal
+import traceback, hal, logging
 from wpilib import _wpilib
 from wpilib import RobotController
-import logging
 
 class GeneratorBot(_wpilib.RobotBaseUser):
     """

@@ -1,6 +1,6 @@
 import seamonsters as sea
-import math
 from networktables import NetworkTables
+import math
 
 LIMELIGHT_HEIGHT = 1.33 # feet
 TARGET_HEIGHT = 7.48 # feet

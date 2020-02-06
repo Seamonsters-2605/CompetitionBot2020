@@ -1,12 +1,5 @@
-import os
-import sys
-import queue
-import threading
-import remi
+import os, sys, queue, threading, remi, socket, time, logging
 import remi.gui as gui
-import socket
-import time
-import logging
 import seamonsters as sea
 
 DASHBOARD_PORT = 5805

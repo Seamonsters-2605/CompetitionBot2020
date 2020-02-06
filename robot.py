@@ -1,12 +1,5 @@
-import wpilib
-import rev
-import drivetrain
+import wpilib, rev, drivetrain, math, navx, dashboard, autoScheduler, vision, autoActions
 import seamonsters as sea 
-import math
-import navx
-import dashboard
-import autoScheduler
-import vision
 from networktables import NetworkTables
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
@@ -33,6 +26,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         # multiDrive allows the robot to be driven multiple times in a loop and the values are averaged
         self.multiDrive = sea.MultiDrive(self.superDrive) 
         self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
+        self.pathFollower.setPosition(-16, 10, math.radians(-90))
 
         self.limelight = NetworkTables.getTable('limelight')
         self.limelight.putNumber('pipeline', vision.DUAL_PIPELINE)
@@ -96,6 +90,8 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.motorData[motor]["maxAmp"] = initAmps
             self.motorData[motor]["maxTemp"] = initTemp
 
+        self.genericAutoActions = autoActions.createGenericAutoActions(self)
+
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
 
@@ -140,7 +136,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     def autoMode(self):
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
-         
+        
         self.controlModeMachine.replace(self.autoState)
 
     # switches the robot into test mode
@@ -174,13 +170,16 @@ class CompetitionBot2020(sea.GeneratorBot):
             turn *= self.driveGear.turnScale
             mag = -sea.deadZone(self.controller.getY(CONTROLLER_LEFT), deadZone=0.05)
             mag *= self.driveGear.moveScale
+            
+            if self.isSimulation():
+                mag *= -1
 
             self.multiDrive.drive(mag, math.pi/2, turn)
             self.multiDrive.update()
 
             self.ledStrip.setSpeed(self.ledInput)
 
-            if self.controller.getBumper(1):
+            if self.controller.getBumper(CONTROLLER_RIGHT):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(20 / self.driveGear.turnScale), visionTarget=True)
@@ -284,49 +283,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         yield from self.turnDegrees(-hOffset, accuracy=2, multiplier=9, visionTarget=True)
 
-    # drives the robot a specified distance in a straight line
-    # distance measured in feet
-    def driveDist(self, distance, accuracy=0.025, slowDist=1):
-        accuracy = abs(accuracy)
-        accuracyCount = 0 # the amount of iterations the robot has been within the accuracy range
-
-        # the right side is negative because the motor is turned around
-        targetDistL = self.superDrive.wheels[0].getRealPosition() + distance
-        targetDistR = -self.superDrive.wheels[1].getRealPosition() + distance
-        targetDist = (targetDistL + targetDistR) / 2
-
-        def getLocation():
-            locationL = self.superDrive.wheels[0].getRealPosition()
-            locationR = -self.superDrive.wheels[1].getRealPosition()
-            location = (locationL + locationR) / 2
-
-            return location
-
-        while True:
-            self.pathFollower.updateRobotPosition()
-
-            offset = targetDist - getLocation()
-            
-            # the robot will start to slow down once it is 
-            # slowDist feet away from the target
-            speed = offset / slowDist 
-            if speed > 1:
-                speed = 1
-            speed *= self.driveGear.moveScale
-            
-            self.multiDrive.drive(speed, math.pi/2, 0)
-            self.multiDrive.update()
-
-            if -accuracy < abs(offset) < accuracy:
-                accuracyCount += 1
-            else:
-                accuracyCount = 0
-
-            if accuracyCount > 5:
-                return True
-
-            yield
-
     # updates the dashboard
     def updateDashboardGenerator(self):
         if self.app is not None:
@@ -356,11 +312,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             yield
 
-    # updates self.autoScheduler to run functions in autonomous
+    # updates the dashboard scheduler to run functions in autonomous
     def updateScheduler(self):
-        # needs work
-
-        pass
+        if self.app is not None:
+            self.app.updateSchedulerFlag = True
 
     # Dashboard Callbacks
     
@@ -377,6 +332,14 @@ class CompetitionBot2020(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_stop(self, button):
         self.superDrive.disable()
+
+    @sea.queuedDashboardEvent
+    def c_manualMode(self, button):
+        self.manualMode()
+
+    @sea.queuedDashboardEvent
+    def c_autoMode(self, button):
+        self.autoMode()
 
     @sea.queuedDashboardEvent
     def c_compressor(self, button):
