@@ -4,7 +4,6 @@ import traceback, hal, logging
 from wpilib import _wpilib
 from wpilib import RobotController
 
-
 class GeneratorBot(_wpilib.RobotBaseUser):
     """
     A robot which runs generators throughout the cycles of autonomous, teleop,
