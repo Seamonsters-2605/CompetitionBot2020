@@ -140,7 +140,7 @@ class PathFollower:
                 hasReachedFinalAngle = atAngle
 
             mag = dist * accel * speed
-            aMag = -aDiff * accel * speed
+            aMag = -aDiff * accel * speed * 2
             
             # the robot is a simultaion
             if sys.argv[1] == 'sim':
@@ -157,6 +157,8 @@ class PathFollower:
             if not hasReachedInitialAngle or (hasReachedPosition and not hasReachedFinalAngle):
                 self.drive.drive(0, 0, aMag)
             elif not hasReachedPosition:
+                if abs(aDiff) > robotAngleTolerance: # so it will correct if the robot is off course
+                    aMag *= 1.5
                 self.drive.drive(mag, math.pi/2, aMag)
 
             yield hasReachedPosition and hasReachedFinalAngle
