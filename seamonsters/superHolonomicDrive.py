@@ -1,7 +1,5 @@
-import math
-import rev
+import math, rev, time
 import seamonsters as sea
-import time
 
 TWO_PI = math.pi * 2
 
@@ -257,7 +255,6 @@ class AngledWheel(Wheel):
             if self.driveMode == rev.ControlType.kPosition \
                     and self._motorState != self.driveMode:
                 self._positionTarget = self.motors[motor].getEncoder().getPosition()
-                self._encoderCheckCount = 0
 
             curTime = time.time()
             if self.realTime and self._motorState == self.driveMode:
@@ -269,7 +266,8 @@ class AngledWheel(Wheel):
             encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot * 60
             # always incremented, even if not in position mode
             # used by getTargetPosition
-            self._positionTarget += encoderCountsPerSecond * tDiff
+            self._positionTarget += (encoderCountsPerSecond * tDiff / 62.920803275)
+            # _positionTarget is close to the actual robot, but are off by a bit
 
             if self.driveMode == DISABLED:
                 if self._motorState != self.driveMode:
@@ -308,7 +306,7 @@ class AngledWheel(Wheel):
         for motor in self.motors:
             try:
                 encPos += motor.getEncoder().getPosition()
-            except AssertionError:
+            except AssertionError: # Breaks in the simulator
                 pass
         encPos /= len(self.motors)
         return self._sensorPositionToDistance(encPos)

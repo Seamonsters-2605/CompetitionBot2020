@@ -1,7 +1,6 @@
 __author__ = "seamonsters"
 
-import wpilib
-import math
+import wpilib, math
 
 class Gamepad(wpilib.Joystick):
     """
