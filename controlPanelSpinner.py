@@ -8,7 +8,7 @@ class ControlPanelSpinner:
         self.motorController = motor.getPIDController()
         self.speed = 60
 
-        self.cpColors = ["red","yellow","blue","green"] # The order of colors as they show up on the control panel, clockwise
+        self.cpColors = ["R","Y","B","G"] # The order of colors as they show up on the control panel, clockwise
 
 
     # Starts the motor

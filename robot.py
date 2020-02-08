@@ -185,10 +185,6 @@ class CompetitionBot2020(sea.GeneratorBot):
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
 
-            if self.controller.getYButton():
-                controlPanel.nextColor(self)
-                print(colorSensor.getColor())
-
             yield
 
     # switches to use the dashboard for testing purposes
