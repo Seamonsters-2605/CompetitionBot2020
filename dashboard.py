@@ -21,13 +21,29 @@ class RevDashboard(sea.Dashboard):
         root = gui.VBox(width = 300, margin = "0px auto")
         root.style['align-items'] = 'stretch'
 
-        root.append(self.initTest(robot, 1))
-        root.append(self.initTest(robot, 2))
+        root.append(self.initMotorTest(robot, 1))
+        root.append(self.initMotorTest(robot, 2))
+        root.append(self.initColorTest(robot))
 
         appCallback(self)
         return root
 
-    def initTest(self, robot, testNum):
+    def initColorTest(self, robot):
+        testBox = self.sectionBox()
+
+        testButton = gui.Button("Print Color")
+
+        def getTestColor(button):
+            robot.testSettings[2]["getColor"] = True
+        
+        testButton.set_on_click_listener(getTestColor)
+        testBox.append(gui.Label("ColorSensorV3 Test:"))
+        testBox.append(testButton)
+
+        return testBox
+
+
+    def initMotorTest(self, robot, testNum):
         testBox = self.sectionBox()
 
         motorNumberIn = gui.Input()

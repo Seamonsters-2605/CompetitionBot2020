@@ -3,6 +3,7 @@ import rev
 import seamonsters as sea 
 import math
 import dashboard
+from colorSensor import getColor
 
 class RevClientBot(sea.GeneratorBot):
 
@@ -12,6 +13,8 @@ class RevClientBot(sea.GeneratorBot):
 
         self.motor0 = None
         self.motor1 = None
+
+        self.color = None
 
         # controls the state of the robot
         self.controlModeMachine = sea.StateMachine()
@@ -26,6 +29,8 @@ class RevClientBot(sea.GeneratorBot):
             "motorNum" : 2,
             "speed" : 0,
             "makeNewMotor" : False
+            }, {
+                "getColor" : False
             }]
 
         self.app = None 
@@ -82,6 +87,11 @@ class RevClientBot(sea.GeneratorBot):
 
             if self.motor1 != None:
                 self.motor1.set(self.testSettings[1]["speed"])
+            
+            if self.testSettings[2]["getColor"]:
+                self.color = getColor()
+                print(self.color)
+                self.testSettings[2]["getColor"] = False
 
             yield
 
