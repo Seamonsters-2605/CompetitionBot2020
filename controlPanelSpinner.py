@@ -66,17 +66,12 @@ class ControlPanelSpinner:
 
 # Color Sensor drive testing
 
-def driveToColorGenerator(self, robot, color : str, speed):
+def driveToColor(robot, color : str, speed):
 
-    detectedColor = None
-    while detectedColor != color:
-        
+    detectedColor = colorSensor.getColor()
+    if detectedColor != color:
         robot.multiDrive.drive(speed, math.pi/2, 0)
         robot.multiDrive.update()
         detectedColor = colorSensor.getColor()
-
-        yield
-    
-    robot.multiDrive.drive(0, math.pi/2, 0)
     
 
