@@ -8,6 +8,7 @@ import dashboard
 import autoScheduler
 import vision
 import controlpanel
+import colorSensor
 from networktables import NetworkTables
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
@@ -187,7 +188,8 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
 
             if self.controller.getYButton():
-                controlpanel.nextColor()
+                # controlpanel.nextColor()
+                print(colorSensor.getColor())
 
             yield
 
