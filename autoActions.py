@@ -13,7 +13,7 @@ def driveToPoint(pathFollower, coord, speed, rotateAtTheEnd=False):
         angle = coord.angle
 
     yield from sea.ensureTrue(
-        pathFollower.driveToPointGenerator(coord.x, coord.y, angle, speed, 1, math.radians(5)), 25)
+        pathFollower.driveToPointGenerator(coord.x, coord.y, angle, speed, 2, math.radians(5)), 25)
 
 def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
@@ -37,6 +37,14 @@ def endAuto(robot):
 
 def createEndAction(robot):
     return Action("END", lambda: endAuto(robot), 0)
+
+def setRobotPosition(pathFollower, coord):
+    yield
+    pathFollower.setPosition(coord.x, coord.y, coord.angle)
+
+def createSetRobotPositionAction(pathFollower, coord):
+    return Action("Set Starting Position", 
+        lambda: setRobotPosition(pathFollower, coord), "set", coord)
 
 # generic actions have a key that is the same as the index in the list
 # so they can be recreated easily by the auto preset opener
