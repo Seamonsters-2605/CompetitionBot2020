@@ -1,6 +1,6 @@
 import robot, random, colorSensor
 
-cpColors = ["red","yellow","blue","green"] # The order of colors as they show up on the control panel, clockwise
+cpColors = ["R","Y","B","G"] # The order of colors as they show up on the control panel, clockwise
 
 # It then returns the value of that color, shifted STEPS colors clockwise. 
 # For example, typing shiftColor("red", 2) will return "blue" because that is two colors clockwise of red on the color wheel.

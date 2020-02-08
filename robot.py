@@ -186,8 +186,7 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
 
             if self.controller.getYButton():
-                # controlpanel.nextColor()
-                print(colorSensor.getColor())
+                controlpanel.nextColor()
 
             yield
 
