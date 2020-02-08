@@ -1,4 +1,4 @@
-import wpilib, rev, drivetrain, math, navx, dashboard, autoScheduler, vision, autoActions, controlpanel
+import wpilib, rev, drivetrain, math, navx, dashboard, autoScheduler, vision, autoActions, controlPanelSpinner
 import seamonsters as sea 
 import colorSensor
 from networktables import NetworkTables
@@ -184,9 +184,6 @@ class CompetitionBot2020(sea.GeneratorBot):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
-
-            if self.controller.getYButton():
-                controlpanel.nextColor()
 
             yield
 
