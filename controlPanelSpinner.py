@@ -51,6 +51,8 @@ class ControlPanelSpinner:
 
     # turns control panel certain number of rotations
     def rotate(self, rotations):
+        self.speed = 60
+
         for _ in range(0, rotations * 8):
             self.nextColor()
         
@@ -59,6 +61,7 @@ class ControlPanelSpinner:
 
     # Turns the control panel until it's on the requested color
     def goto(self, color): 
+        self.speed = 30
         while colorSensor.getColor() != color:
             self.nextColor()
 
