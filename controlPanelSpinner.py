@@ -1,4 +1,4 @@
-import random, colorSensor, rev
+import random, math, colorSensor, rev
 import seamonsters as sea
 
 class ControlPanelSpinner:
@@ -63,3 +63,20 @@ class ControlPanelSpinner:
             self.nextColor()
 
         print("finished goto(), on color " + colorSensor.getColor())
+
+# Color Sensor drive testing
+
+def driveToColorGenerator(self, robot, color : str, speed):
+
+    detectedColor = None
+    while detectedColor != color:
+        
+        robot.multiDrive.drive(speed, math.pi/2, 0)
+        robot.multiDrive.update()
+        detectedColor = colorSensor.getColor()
+
+        yield
+    
+    robot.multiDrive.drive(0, math.pi/2, 0)
+    
+
