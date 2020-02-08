@@ -57,6 +57,7 @@ class CompetitionDashboard(sea.Dashboard):
         middle.append(self.initFieldMap(robot))
 
         rightSide.append(self.initManual(robot))
+        self.autoSpeedGroup.highlight("medium")
         rightSide.append(self.initTest(robot))
 
         root.append(leftSide)
@@ -102,6 +103,7 @@ class CompetitionDashboard(sea.Dashboard):
         gearButtons = []
         speedButtons = []
         compressorButtons = []
+        autoSpeedButtons = []
         
         self.gearGroup = sea.ToggleButtonGroup()
         for mode in robot.driveGears.keys():
@@ -123,13 +125,40 @@ class CompetitionDashboard(sea.Dashboard):
             button.set_on_click_listener(robot.c_compressor)
             compressorButtons.append(button)
             self.compressorGroup.addButton(button)
-        
+
+        self.autoSpeedGroup = sea.ToggleButtonGroup()
+
+        # auto speed controls
+        self.autoSpeed = 0.5
+        def slowSpeed(button):
+            self.autoSpeed = 0.25
+            self.autoSpeedGroup.highlight("slow")
+        def mediumSpeed(button):
+            self.autoSpeed = 0.5
+            self.autoSpeedGroup.highlight("medium")
+        def fastSpeed(button):
+            self.autoSpeed = 1
+            self.autoSpeedGroup.highlight("fast")
+
+        slowBtn = gui.Button("slow")
+        slowBtn.set_on_click_listener(slowSpeed)
+        medBtn = gui.Button("medium")
+        medBtn.set_on_click_listener(mediumSpeed)
+        fastBtn = gui.Button("fast")
+        fastBtn.set_on_click_listener(fastSpeed)
+
+        for button in [slowBtn, medBtn, fastBtn]:
+            autoSpeedButtons.append(button)
+            self.autoSpeedGroup.addButton(button)
+
         gearBox = sea.hBoxWith(gui.Label("Gears:"), gearButtons)
         speedBox = sea.hBoxWith(gui.Label("Speed:"), speedButtons)
         compressorBox = sea.hBoxWith(gui.Label("Compressor:"), compressorButtons)
+        autoSpeedBox = sea.hBoxWith(gui.Label("Auto Speeds:"), autoSpeedButtons)
 
         driveControlBox.append(gearBox)
         driveControlBox.append(speedBox)
+        driveControlBox.append(autoSpeedBox)
         driveControlBox.append(compressorBox)
 
         manualBox.append(driveControlBox)
@@ -259,21 +288,6 @@ class CompetitionDashboard(sea.Dashboard):
 
         addActionBox = gui.VBox()
         hbox.append(addActionBox)
-
-        self.autoSpeed = 0.5
-        def slowSpeed():
-            self.autoSpeed = 0.25
-        def mediumSpeed():
-            self.autoSpeed = 0.5
-        def fastSpeed():
-            self.autoSpeed = 1
-
-        speedTabBox = gui.TabBox()
-        speedTabBox.add_tab(gui.Widget(), "Slow", slowSpeed)
-        speedTabBox.add_tab(gui.Widget(), "Med", mediumSpeed)
-        speedTabBox.add_tab(gui.Widget(), "Fast", fastSpeed)
-        speedTabBox.select_by_index(1)
-        addActionBox.append(speedTabBox)
 
         addActionBox.append(gui.Label("Auto actions:"))
 

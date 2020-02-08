@@ -124,6 +124,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     # switches the robot into teleop
     def manualMode(self):
+        if self.app is not None:
+            self.app.controlModeGroup.highlight("manual")
+
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
          
@@ -134,6 +137,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     # switches the robot into auto
     def autoMode(self):
+        if self.app is not None:
+            self.app.controlModeGroup.highlight("auto")
+
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
         
