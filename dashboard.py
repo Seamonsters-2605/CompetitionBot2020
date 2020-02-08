@@ -154,7 +154,7 @@ class CompetitionDashboard(sea.Dashboard):
         gearBox = sea.hBoxWith(gui.Label("Gears:"), gearButtons)
         speedBox = sea.hBoxWith(gui.Label("Speed:"), speedButtons)
         compressorBox = sea.hBoxWith(gui.Label("Compressor:"), compressorButtons)
-        autoSpeedBox = sea.hBoxWith(gui.Label("Auto Speeds:"), autoSpeedButtons)
+        autoSpeedBox = sea.hBoxWith(gui.Label("Auto Speed:"), autoSpeedButtons)
 
         driveControlBox.append(gearBox)
         driveControlBox.append(speedBox)

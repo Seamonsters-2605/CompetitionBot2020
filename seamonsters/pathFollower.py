@@ -92,6 +92,9 @@ class PathFollower:
         if finalAngle is not None:
             hasReachedFinalAngle = False
 
+        # if the robot should go backwards
+        backwards = False
+
         accel = 0
         while True:
             accel += 0.1
@@ -112,8 +115,17 @@ class PathFollower:
             aDiff %= math.pi * 2
             if aDiff > math.pi:
                 aDiff -= math.pi * 2
-            if aDiff < -math.pi:
+            elif aDiff < -math.pi:
                 aDiff += math.pi * 2
+
+            # decide if the robot should go 
+            # backwards and adjust the angle
+            if aDiff > math.pi / 2:
+                aDiff -= math.pi
+                backwards = True
+            elif aDiff < -math.pi / 2:
+                aDiff += math.pi
+                backwards = True
 
             # is the robot close enough to call it good?
             atPosition = abs(dist) <= robotPositionTolerance
@@ -133,6 +145,9 @@ class PathFollower:
             # the robot is a simultaion
             if sys.argv[1] == 'sim':
                 aMag *= -1
+
+            if backwards:
+                mag *= -1
 
             # once the robot reaches the initial angle,
             # it will drive forward until it reaches the 
