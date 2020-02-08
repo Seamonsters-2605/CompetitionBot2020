@@ -1,4 +1,4 @@
-import wpilib, rev, drivetrain, math, navx, dashboard, autoScheduler, vision, autoActions, controlpanel
+import wpilib, rev, drivetrain, math, navx, dashboard, autoScheduler, vision, autoActions, controlPanelSpinner
 import seamonsters as sea 
 import colorSensor
 from networktables import NetworkTables
@@ -186,7 +186,7 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
 
             if self.controller.getYButton():
-                # controlpanel.nextColor()
+                controlPanel.nextColor(self)
                 print(colorSensor.getColor())
 
             yield
