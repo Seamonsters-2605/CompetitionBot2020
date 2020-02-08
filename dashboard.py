@@ -214,7 +214,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
         fieldBox.append(self.fieldSvg)
 
-        self.image = gui.SvgImage('/res:field.PNG', 0, 0, FIELD_WIDTH, FIELD_HEIGHT)
+        self.image = gui.SvgImage('/res:field.png', 0, 0, FIELD_WIDTH, FIELD_HEIGHT)
         self.fieldSvg.append(self.image)
 
         self.targetPoints = coordinates.targetPoints
@@ -260,13 +260,13 @@ class CompetitionDashboard(sea.Dashboard):
         addActionBox = gui.VBox()
         hbox.append(addActionBox)
 
-        self.autoSpeed = 1
+        self.autoSpeed = 0.5
         def slowSpeed():
-            self.autoSpeed = 0.5
+            self.autoSpeed = 0.25
         def mediumSpeed():
-            self.autoSpeed = 1
+            self.autoSpeed = 0.5
         def fastSpeed():
-            self.autoSpeed = 1.5
+            self.autoSpeed = 1
 
         speedTabBox = gui.TabBox()
         speedTabBox.add_tab(gui.Widget(), "Slow", slowSpeed)
