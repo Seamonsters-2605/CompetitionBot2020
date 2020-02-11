@@ -153,6 +153,9 @@ class PathFollower:
             # it will drive forward until it reaches the 
             # position and then face the final angle 
 
+            print(str(hasReachedInitialAngle) + str(hasReachedPosition) + str(hasReachedFinalAngle) + 
+                " Angle = " + str(round(math.degrees(aDiff))))
+
             # turn to face the target first, then drive forward
             if not hasReachedInitialAngle or (hasReachedPosition and not hasReachedFinalAngle):
                 self.drive.drive(0, 0, aMag)

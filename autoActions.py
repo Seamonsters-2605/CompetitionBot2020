@@ -28,6 +28,16 @@ def createRotateInPlaceAction(pathFollower, coord):
     return Action("Rotate to " + str(round(math.degrees(coord.angle))),
         lambda: rotateInPlace(pathFollower, coord.angle), "rotate", coord)
 
+def createRotateTowardsPointAction(pathFollower, coord):
+    # calculates the angle to rotate to be
+    # facing at the point coord
+    xDiff = coord.x - pathFollower.robotX
+    yDiff = coord.y - pathFollower.robotY
+    angle = math.atan2(yDiff, xDiff) - pathFollower.robotAngle - math.pi/2
+
+    return Action("Rotate towards " + coord.name, 
+        lambda: rotateInPlace(pathFollower, angle), "face", coord)
+
 def waitOneSecond():
     yield from sea.wait(sea.ITERATIONS_PER_SECOND)
 
