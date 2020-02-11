@@ -181,9 +181,6 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.isSimulation():
                 mag *= -1
 
-            self.multiDrive.drive(mag, math.pi/2, turn)
-            self.multiDrive.update()
-
             self.ledStrip.setSpeed(self.ledInput)
 
             if self.controller.getBumper(CONTROLLER_RIGHT):
@@ -191,8 +188,19 @@ class CompetitionBot2020(sea.GeneratorBot):
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
 
+            colorSpeed = 2
+
             if self.controller.getBButton():
-                controlPanelSpinner.driveToColor(self, "G", 0.1)
+                yield from controlPanelSpinner.driveToColor(self, "R", colorSpeed)
+            elif self.controller.getAButton():
+                yield from controlPanelSpinner.driveToColor(self, "G", colorSpeed)
+            elif self.controller.getXButton():
+                yield from controlPanelSpinner.driveToColor(self, "B", colorSpeed)
+            elif self.controller.getYButton():
+                yield from controlPanelSpinner.driveToColor(self, "Y", colorSpeed)
+            else:
+                self.multiDrive.drive(mag, math.pi/2, turn)
+                self.multiDrive.update()
 
             yield
 

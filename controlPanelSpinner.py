@@ -68,10 +68,10 @@ class ControlPanelSpinner:
 
 def driveToColor(robot, color : str, speed):
 
-    detectedColor = colorSensor.getColor()
-    if detectedColor != color:
+    while colorSensor.getColor() != color:
         robot.multiDrive.drive(speed, math.pi/2, 0)
         robot.multiDrive.update()
-        detectedColor = colorSensor.getColor()
+        yield
     
-
+    robot.multiDrive.drive(0, 0, 0)
+    return
