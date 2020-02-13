@@ -31,7 +31,7 @@ def createRotateTowardsPointAction(pathFollower, coord):
     # facing at the point coord
     xDiff = coord.x - pathFollower.robotX
     yDiff = coord.y - pathFollower.robotY
-    angle = math.atan2(yDiff, xDiff) - pathFollower.robotAngle - math.pi/2
+    angle = math.atan2(yDiff, xDiff) - math.pi / 2
 
     newCoord = coordinates.FieldCoordinate("Rotated",
         pathFollower.robotX, pathFollower.robotY, angle)
