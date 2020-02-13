@@ -118,14 +118,15 @@ class PathFollower:
             elif aDiff < -math.pi:
                 aDiff += math.pi * 2
 
-            # decide if the robot should go 
-            # backwards and adjust the angle
-            if aDiff > math.pi / 2:
-                aDiff -= math.pi
-                backwards = True
-            elif aDiff < -math.pi / 2:
-                aDiff += math.pi
-                backwards = True
+            if not hasReachedPosition:
+                # decide if the robot should go 
+                # backwards and adjust the angle
+                if aDiff > math.pi / 2:
+                    aDiff -= math.pi
+                    backwards = True
+                elif aDiff < -math.pi / 2:
+                    aDiff += math.pi
+                    backwards = True
 
             # is the robot close enough to call it good?
             atPosition = abs(dist) <= robotPositionTolerance
@@ -152,9 +153,6 @@ class PathFollower:
             # once the robot reaches the initial angle,
             # it will drive forward until it reaches the 
             # position and then face the final angle 
-
-            print(str(hasReachedInitialAngle) + str(hasReachedPosition) + str(hasReachedFinalAngle) + 
-                " Angle = " + str(round(math.degrees(aDiff))))
 
             # turn to face the target first, then drive forward
             if not hasReachedInitialAngle or (hasReachedPosition and not hasReachedFinalAngle):
