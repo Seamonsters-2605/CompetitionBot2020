@@ -19,14 +19,14 @@ def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
         lambda: driveToPoint(pathFollower, coord, speed), "drive", coord)
 
-def createRotateInPlaceAction(pathFollower, coord, speed):
+def createRotateInPlaceAction(pathFollower, coord):
     newCoord = coordinates.FieldCoordinate("Rotated",
         pathFollower.robotX, pathFollower.robotY, coord.angle)
     
     return Action("Rotate to " + newCoord.name,
-        lambda: driveToPoint(pathFollower, newCoord, speed, True), "rotate", newCoord)
+        lambda: driveToPoint(pathFollower, newCoord, 0.5, True), "rotate", newCoord)
 
-def createRotateTowardsPointAction(pathFollower, coord, speed):
+def createRotateTowardsPointAction(pathFollower, coord):
     # calculates the angle to rotate to be
     # facing at the point coord
     xDiff = coord.x - pathFollower.robotX
@@ -37,7 +37,7 @@ def createRotateTowardsPointAction(pathFollower, coord, speed):
         pathFollower.robotX, pathFollower.robotY, angle)
 
     return Action("Rotate towards " + newCoord.name,
-        lambda: driveToPoint(pathFollower, newCoord, speed, True), "face", newCoord)
+        lambda: driveToPoint(pathFollower, newCoord, 0.5, True), "face", newCoord)
 
 def waitOneSecond():
     yield from sea.wait(sea.ITERATIONS_PER_SECOND)
