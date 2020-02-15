@@ -11,11 +11,14 @@ BASE_TARGET_RATIO = .4
 # pipeline
 DUAL_PIPELINE = 0
 
+# used for default values, the actual number doesn't matter
+DEFAULT_VALUE = 12345
+
 # does the limelight see a vision target?
 def targetDetected(limelight):
-        hasTargets = limelight.getNumber('tv', 1234)
+        hasTargets = limelight.getNumber('tv', DEFAULT_VALUE)
 
-        if hasTargets == 1234:
+        if hasTargets == DEFAULT_VALUE:
             print("No limelight connection")
             return False
 
@@ -27,12 +30,12 @@ def targetDetected(limelight):
 # returns the horizontal offset of a vision target in degrees
 # None if there are no vision targets
 def getXOffset(limelight):
-    return limelight.getNumber('tx', 1234)
+    return limelight.getNumber('tx', DEFAULT_VALUE)
 
 # returns the vertical offset of a vision target in degreess
 # None if there are no vision targets
 def getYOffset(limelight):
-    return limelight.getNumber('ty', 1234)
+    return limelight.getNumber('ty', DEFAULT_VALUE)
 
 # returns the distance a vision target is away from the limelight
 def getDistance(limelight):
