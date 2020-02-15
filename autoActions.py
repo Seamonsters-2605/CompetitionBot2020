@@ -19,14 +19,28 @@ def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
         lambda: driveToPoint(pathFollower, coord, speed), "drive", coord)
 
-def rotateInPlace(pathFollower, angle):
-    coord = coordinates.FieldCoordinate("Rotated",
-        pathFollower.robotX, pathFollower.robotY, angle)
-    yield from driveToPoint(pathFollower, coord, 2, True)
-
 def createRotateInPlaceAction(pathFollower, coord):
-    return Action("Rotate to " + str(round(math.degrees(coord.angle))),
-        lambda: rotateInPlace(pathFollower, coord.angle), "rotate", coord)
+    newCoord = coordinates.FieldCoordinate("Rotated",
+        pathFollower.robotX, pathFollower.robotY, coord.angle)
+    
+    return Action("Rotate to " + newCoord.name,
+        lambda: driveToPoint(pathFollower, newCoord, 0.5, True), "rotate", newCoord)
+
+def createRotateTowardsPointAction(robot, coord):
+    # calculates the angle to rotate to be
+    # facing at the point coord
+    xDiff = coord.x - robot.pathFollower.robotX
+    yDiff = coord.y - robot.pathFollower.robotY
+    angle = math.atan2(yDiff, xDiff) - math.pi / 2
+
+    newCoord = coordinates.FieldCoordinate("Rotated",
+        robot.pathFollower.robotX, robot.pathFollower.robotY, angle)
+
+    # rotates to where it thinks the location is
+    # then uses the limelight to get very close
+    return Action("Rotate towards " + newCoord.name,
+        lambda: sea.sequence(driveToPoint(robot.pathFollower, newCoord, 0.5, True), 
+        robot.faceVisionTarget()), "face", newCoord)
 
 def waitOneSecond():
     yield from sea.wait(sea.ITERATIONS_PER_SECOND)
