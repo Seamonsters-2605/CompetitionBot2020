@@ -1,4 +1,5 @@
-import wpilib, rev, drivetrain, math, navx, dashboard, autoScheduler, vision, autoActions
+import wpilib, rev, math, navx
+import drivetrain, dashboard, autoScheduler, vision, autoActions, intake
 import seamonsters as sea 
 from networktables import NetworkTables
 
@@ -21,6 +22,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.ledStrip = wpilib.PWM(0)
         self.ledInput = -0.99
+
+        # subsystems
+        self.intake = intake.Intake(13, [4, 5, 6, 7]) # need to change these values later
 
         self.superDrive = drivetrain.initDrivetrain()
         # multiDrive allows the robot to be driven multiple times in a loop and the values are averaged
@@ -155,6 +159,11 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     # is run in teleop to get input and make the robot go 
     def driving(self):
+
+        # reset button detection
+        self.controller.getAButtonPressed()
+        self.controller.getYButtonReleased()
+        
         while True:
 
             self.pathFollower.updateRobotPosition()
@@ -189,7 +198,13 @@ class CompetitionBot2020(sea.GeneratorBot):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(20 / self.driveGear.turnScale), visionTarget=True)
-        
+            
+            if self.controller.getAButtonPressed():
+                self.intake.toggleMotor()
+
+            if self.controller.getYButtonReleased():
+                self.intake.toggleIntake()
+
             yield
 
     # switches to use the dashboard for testing purposes
