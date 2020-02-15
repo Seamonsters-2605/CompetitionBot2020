@@ -302,7 +302,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         if not vision.targetDetected(self.limelight) or abs(hOffset) > 180:
             return False
 
-        yield from self.turnDegrees(-hOffset, accuracy=2, multiplier=9, visionTarget=True)
+        yield from self.turnDegrees(-hOffset, accuracy=1, multiplier=9, visionTarget=True)
 
     # updates the dashboard
     def updateDashboardGenerator(self):
