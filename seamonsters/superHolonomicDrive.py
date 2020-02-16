@@ -263,21 +263,24 @@ class AngledWheel(Wheel):
                 tDiff = 1 / sea.ITERATIONS_PER_SECOND
             self._prevTime = curTime
 
-            encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot * 60
+            encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot
             # always incremented, even if not in position mode
             # used by getTargetPosition
-            self._positionTarget += (encoderCountsPerSecond * tDiff / 62.920803275)
+            self._positionTarget += encoderCountsPerSecond * tDiff
             # _positionTarget is close to the actual robot, but are off by a bit
 
             if self.driveMode == DISABLED:
                 if self._motorState != self.driveMode:
                     self.motors[motor].disable()
             elif self.driveMode == rev.ControlType.kVelocity:
-                self.motorControllers[motor].setReference(encoderCountsPerSecond, self.driveMode)
+                # encoder counts per second * 60 to get the rpm to set the motor
+                self.motorControllers[motor].setReference(encoderCountsPerSecond * 60, self.driveMode)
             elif self.driveMode == rev.ControlType.kPosition:
+                # spin the motor to the target position for the next iteration
                 self.motorControllers[motor].setReference(self._positionTarget, self.driveMode)
             elif self.driveMode == rev.ControlType.kVoltage:
-                self.motorControllers[motor].setReference(magnitude * 12, self.driveMode)# the 12 is for 12 volts
+                # the 12 is for 12 volts
+                self.motorControllers[motor].setReference(magnitude * 12, self.driveMode)
 
             self._motorState = self.driveMode
 

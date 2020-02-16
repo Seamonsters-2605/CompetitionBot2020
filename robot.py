@@ -125,6 +125,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     # switches the robot into teleop
     def manualMode(self):
+        if self.app is not None:
+            self.app.controlModeGroup.highlight("manual")
+
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
          
@@ -135,6 +138,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
     # switches the robot into auto
     def autoMode(self):
+        if self.app is not None:
+            self.app.controlModeGroup.highlight("auto")
+
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
   
@@ -175,15 +181,26 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.isSimulation():
                 mag *= -1
 
-            self.multiDrive.drive(mag, math.pi/2, turn)
-            self.multiDrive.update()
-
             self.ledStrip.setSpeed(self.ledInput)
 
             if self.controller.getBumper(CONTROLLER_RIGHT):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(36 / self.driveGear.turnScale), visionTarget=True)
+
+            colorSpeed = 2
+
+            if self.controller.getBButton():
+                yield from controlPanelSpinner.driveToColor(self, "R", colorSpeed)
+            elif self.controller.getAButton():
+                yield from controlPanelSpinner.driveToColor(self, "G", colorSpeed)
+            elif self.controller.getXButton():
+                yield from controlPanelSpinner.driveToColor(self, "B", colorSpeed)
+            elif self.controller.getYButton():
+                yield from controlPanelSpinner.driveToColor(self, "Y", colorSpeed)
+            else:
+                self.multiDrive.drive(mag, math.pi/2, turn)
+                self.multiDrive.update()
 
             yield
 

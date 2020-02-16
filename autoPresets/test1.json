@@ -1,1 +1,1 @@
-[{"key": "rotate", "coord": ["Rotate to 180", 0, 0, 3.141592653589793]}]
+[{"key": "set", "coord": ["Set Starting Position", -15.4875, -7.5171875, -1.5707963267948966]}, {"key": "drive", "coord": ["Drive to Selected", -12.1875, 4.2828125, -1.5707963267948966]}, {"key": "drive", "coord": ["Drive to Selected", 2.1125, 5.0828125, -1.5707963267948966]}, {"key": "drive", "coord": ["Drive to Selected", 13.6125, -2.7171875, -1.5707963267948966]}]

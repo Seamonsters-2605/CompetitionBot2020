@@ -25,7 +25,7 @@ class CompetitionDashboard(sea.Dashboard):
     def main(self, robot, appCallback):
         self.robot = robot
 
-        root = gui.HBox(width = 1000, margin = "0px auto")
+        root = gui.HBox(width = 1200, margin = "0px auto")
         root.style['align-items'] = 'stretch'
 
         leftSide = gui.VBox()
@@ -57,6 +57,7 @@ class CompetitionDashboard(sea.Dashboard):
         middle.append(self.initFieldMap(robot))
 
         rightSide.append(self.initManual(robot))
+        self.autoSpeedGroup.highlight("medium")
         rightSide.append(self.initTest(robot))
 
         root.append(leftSide)
@@ -102,6 +103,7 @@ class CompetitionDashboard(sea.Dashboard):
         gearButtons = []
         speedButtons = []
         compressorButtons = []
+        autoSpeedButtons = []
         
         self.gearGroup = sea.ToggleButtonGroup()
         for mode in robot.driveGears.keys():
@@ -123,13 +125,40 @@ class CompetitionDashboard(sea.Dashboard):
             button.set_on_click_listener(robot.c_compressor)
             compressorButtons.append(button)
             self.compressorGroup.addButton(button)
-        
+
+        self.autoSpeedGroup = sea.ToggleButtonGroup()
+
+        # auto speed controls
+        self.autoSpeed = 0.5
+        def slowSpeed(button):
+            self.autoSpeed = 0.25
+            self.autoSpeedGroup.highlight("slow")
+        def mediumSpeed(button):
+            self.autoSpeed = 0.5
+            self.autoSpeedGroup.highlight("medium")
+        def fastSpeed(button):
+            self.autoSpeed = 1
+            self.autoSpeedGroup.highlight("fast")
+
+        slowBtn = gui.Button("slow")
+        slowBtn.set_on_click_listener(slowSpeed)
+        medBtn = gui.Button("medium")
+        medBtn.set_on_click_listener(mediumSpeed)
+        fastBtn = gui.Button("fast")
+        fastBtn.set_on_click_listener(fastSpeed)
+
+        for button in [slowBtn, medBtn, fastBtn]:
+            autoSpeedButtons.append(button)
+            self.autoSpeedGroup.addButton(button)
+
         gearBox = sea.hBoxWith(gui.Label("Gears:"), gearButtons)
         speedBox = sea.hBoxWith(gui.Label("Speed:"), speedButtons)
         compressorBox = sea.hBoxWith(gui.Label("Compressor:"), compressorButtons)
+        autoSpeedBox = sea.hBoxWith(gui.Label("Auto Speed:"), autoSpeedButtons)
 
         driveControlBox.append(gearBox)
         driveControlBox.append(speedBox)
+        driveControlBox.append(autoSpeedBox)
         driveControlBox.append(compressorBox)
 
         manualBox.append(driveControlBox)
@@ -214,7 +243,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
         fieldBox.append(self.fieldSvg)
 
-        self.image = gui.SvgImage('/res:field.PNG', 0, 0, FIELD_WIDTH, FIELD_HEIGHT)
+        self.image = gui.SvgImage('/res:field.png', 0, 0, FIELD_WIDTH, FIELD_HEIGHT)
         self.fieldSvg.append(self.image)
 
         self.targetPoints = coordinates.targetPoints
@@ -260,26 +289,12 @@ class CompetitionDashboard(sea.Dashboard):
         addActionBox = gui.VBox()
         hbox.append(addActionBox)
 
-        self.autoSpeed = 1
-        def slowSpeed():
-            self.autoSpeed = 0.5
-        def mediumSpeed():
-            self.autoSpeed = 1
-        def fastSpeed():
-            self.autoSpeed = 1.5
-
-        speedTabBox = gui.TabBox()
-        speedTabBox.add_tab(gui.Widget(), "Slow", slowSpeed)
-        speedTabBox.add_tab(gui.Widget(), "Med", mediumSpeed)
-        speedTabBox.add_tab(gui.Widget(), "Fast", fastSpeed)
-        speedTabBox.select_by_index(1)
-        addActionBox.append(speedTabBox)
-
         addActionBox.append(gui.Label("Auto actions:"))
 
         self.genericActionList = gui.ListView()
         self.genericActionList.append("Drive to Point", "drive")
         self.genericActionList.append("Rotate in place", "rotate")
+        self.genericActionList.append("Set Starting Positon", "set")
         index = 0
         for action in robot.genericAutoActions:
             self.genericActionList.append(gui.ListItem(action.name), str(index))
@@ -407,7 +422,7 @@ class CompetitionDashboard(sea.Dashboard):
             index += 1
 
     def actionLines(self, lineX, lineY, action):
-        if action.coord is not None and action.key != "rotate":
+        if action.coord is not None and action.key != "rotate" and action.key != "set":
             x1, y1 = fieldToSvgCoordinates(action.coord.x, action.coord.y)
             line = gui.SvgLine(lineX, lineY, x1, y1)
             line.set_stroke(width=3)
@@ -453,6 +468,9 @@ class CompetitionDashboard(sea.Dashboard):
                 self.robot.pathFollower, coord, self.autoSpeed)
         elif key == "rotate":
             action = autoActions.createRotateInPlaceAction(
+                self.robot.pathFollower, coord)
+        elif key == "set":
+            action = autoActions.createSetRobotPositionAction(
                 self.robot.pathFollower, coord)
         else:
             action = self.robot.genericAutoActions[int(key)]
