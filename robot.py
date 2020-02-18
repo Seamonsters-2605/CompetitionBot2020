@@ -161,8 +161,8 @@ class CompetitionBot2020(sea.GeneratorBot):
     def driving(self):
 
         # reset button detection
-        self.controller.getAButtonPressed()
-        self.controller.getYButtonReleased()
+        self.controller.getBButtonPressed()
+        self.controller.getYButtonPressed()
         
         while True:
 
@@ -174,12 +174,16 @@ class CompetitionBot2020(sea.GeneratorBot):
                     self.app.gearGroup.highlight(self.driveMode)
                     self.app.speedGroup.highlight(self.driveSpeed)
 
-            # if self.piston1.get() == SOLENOID_REVERSE and self.driveSpeed != "slow":
-            #     self.piston1.set(SOLENOID_FORWARD)
-            #     self.piston2.set(SOLENOID_FORWARD)
-            # elif self.piston1.get() == SOLENOID_FORWARD and self.driveSpeed == "slow":
-            #     self.piston1.set(SOLENOID_REVERSE)
-            #     self.piston2.set(SOLENOID_REVERSE)
+            """
+            if self.piston1.get() == SOLENOID_REVERSE and self.driveSpeed != "slow":
+                self.piston1.set(SOLENOID_FORWARD)
+                self.piston2.set(SOLENOID_FORWARD)
+            elif self.piston1.get() == SOLENOID_FORWARD and self.driveSpeed == "slow":
+                self.piston1.set(SOLENOID_REVERSE)
+                self.piston2.set(SOLENOID_REVERSE)
+            """
+
+            # Drivetrain:
 
             turn = sea.deadZone(self.controller.getX(CONTROLLER_RIGHT), deadZone=0.05)
             turn *= self.driveGear.turnScale
@@ -192,17 +196,25 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.multiDrive.drive(mag, math.pi/2, turn)
             self.multiDrive.update()
 
+            # LED Strip:
+
             self.ledStrip.setSpeed(self.ledInput)
+
+            # Vision Alignment:
 
             if self.controller.getBumper(CONTROLLER_RIGHT):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(20 / self.driveGear.turnScale), visionTarget=True)
             
-            if self.controller.getAButtonPressed():
+            # Intake:
+
+            self.intake.reversed = not self.controller.getAButton()
+
+            if self.controller.getBButtonPressed():
                 self.intake.toggleMotor()
 
-            if self.controller.getYButtonReleased():
+            if self.controller.getYButtonPressed():
                 self.intake.toggleIntake()
 
             yield

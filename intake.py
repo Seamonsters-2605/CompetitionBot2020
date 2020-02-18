@@ -18,6 +18,7 @@ class Intake:
         self.motorController = motor.getPIDController()
 
         self.running = False
+        self.reversed = False
         self.deployed = False
 
         self.stop()
@@ -47,18 +48,34 @@ class Intake:
     # Motor functions:
 
     # spins the motor at 10,000 rpm
+    def spinForwards(self):
+        self.reversed = False
+        self.start()
+        
+    # spins the motor backwards at 10,000 rpm
+    def spinReversed(self):
+        self.reversed = True
+        self.start()
+
+    # starts the motor taking into account if the motor is reversed
     def start(self):
         self.running = True
-        self.motorController.setReference(10_000, rev.ControlType.kVelocity)
+
+        if self.reversed:
+            self.motorController.setReference(-10_000, rev.ControlType.kVelocity)
+        else:
+            self.motorController.setReference(10_000, rev.ControlType.kVelocity)
 
     # stops the motor
     def stop(self):
         self.running = False
         self.motorController.setReference(0, rev.ControlType.kVelocity)
 
-    # switches between start and stop
+    # toggles between spinning and not spinning each time it is called
     def toggleMotor(self):
         if self.running:
             self.stop()
         else:
             self.start()
+        
+        self.running = not self.running
