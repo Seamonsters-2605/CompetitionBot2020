@@ -43,11 +43,11 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
 # slow gear is set to max because the shifting gearbox slows it down
 
 slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, gearRatio=1/18.03, 
-moveScale=0.55, turnScale=0.8)
+moveScale=0.4, turnScale=0.2)
 mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRatio=1/6.49,
-moveScale=0.35, turnScale=0.5)
+moveScale=0.3, turnScale=0.12)
 fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1/6.49, 
-moveScale=0.55, turnScale=0.8) 
+moveScale=0.4, turnScale=0.18) 
 
 slowVelocityGear = DriveGear("Slow Velocity", rev.ControlType.kVelocity,
     gearRatio=1/18.03, moveScale=4, turnScale=1.5, p=0.0000688, i=0.0000007, d=0.00001, f=0.0)
