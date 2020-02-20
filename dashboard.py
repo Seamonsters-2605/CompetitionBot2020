@@ -294,7 +294,8 @@ class CompetitionDashboard(sea.Dashboard):
 
         self.genericActionList = gui.ListView()
         self.genericActionList.append("Drive to Point", "drive")
-        self.genericActionList.append("Rotate in place", "rotate")
+        self.genericActionList.append("Rotate in Place", "rotate")
+        self.genericActionList.append("Rotate towards Point", "face")
         self.genericActionList.append("Set Starting Positon", "set")
         index = 0
         for action in robot.genericAutoActions:
@@ -442,7 +443,7 @@ class CompetitionDashboard(sea.Dashboard):
             index += 1
 
     def actionLines(self, lineX, lineY, action):
-        if action.coord is not None and action.key != "rotate" and action.key != "set":
+        if action.coord is not None and action.key == "drive":
             x1, y1 = fieldToSvgCoordinates(action.coord.x, action.coord.y)
             line = gui.SvgLine(lineX, lineY, x1, y1)
             line.set_stroke(width=3)
@@ -489,6 +490,9 @@ class CompetitionDashboard(sea.Dashboard):
         elif key == "rotate":
             action = autoActions.createRotateInPlaceAction(
                 self.robot.pathFollower, coord)
+        elif key == "face":
+            action = autoActions.createRotateTowardsPointAction(
+                self.robot, coord)
         elif key == "set":
             action = autoActions.createSetRobotPositionAction(
                 self.robot.pathFollower, coord)

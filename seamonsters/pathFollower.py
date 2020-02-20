@@ -118,14 +118,15 @@ class PathFollower:
             elif aDiff < -math.pi:
                 aDiff += math.pi * 2
 
-            # decide if the robot should go 
-            # backwards and adjust the angle
-            if aDiff > math.pi / 2:
-                aDiff -= math.pi
-                backwards = True
-            elif aDiff < -math.pi / 2:
-                aDiff += math.pi
-                backwards = True
+            if not hasReachedPosition:
+                # decide if the robot should go 
+                # backwards and adjust the angle
+                if aDiff > math.pi / 2:
+                    aDiff -= math.pi
+                    backwards = True
+                elif aDiff < -math.pi / 2:
+                    aDiff += math.pi
+                    backwards = True
 
             # is the robot close enough to call it good?
             atPosition = abs(dist) <= robotPositionTolerance

@@ -13,9 +13,9 @@ DUAL_PIPELINE = 0
 
 # does the limelight see a vision target?
 def targetDetected(limelight):
-        hasTargets = limelight.getNumber('tv', None)
+        hasTargets = limelight.getNumber('tv', 1234)
 
-        if hasTargets == None:
+        if hasTargets == 1234:
             print("No limelight connection")
             return False
 
@@ -27,12 +27,12 @@ def targetDetected(limelight):
 # returns the horizontal offset of a vision target in degrees
 # None if there are no vision targets
 def getXOffset(limelight):
-    return limelight.getNumber('tx', None)
+    return limelight.getNumber('tx', 1234)
 
 # returns the vertical offset of a vision target in degreess
 # None if there are no vision targets
 def getYOffset(limelight):
-    return limelight.getNumber('ty', None)
+    return limelight.getNumber('ty', 1234)
 
 # returns the distance a vision target is away from the limelight
 def getDistance(limelight):
