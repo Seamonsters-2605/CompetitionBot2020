@@ -1,6 +1,6 @@
 import remi.gui as gui
 import seamonsters as sea
-import json, os, autoActions, drivetrain, coordinates, math, glob
+import json, os, autoActions, drivetrain, coordinates, math, glob, colorSensor
 
 FIELD_WIDTH = 520
 FIELD_HEIGHT = 260
@@ -96,6 +96,11 @@ class CompetitionDashboard(sea.Dashboard):
             maxTempRow = self.motorDataTable.children[self.motorDataDict["maxTempRow"]]
             maxTempItem = maxTempRow.children[self.motorDataDict["maxTemp"][motorNum]]
             maxTempItem.set_text(str(self.robot.motorData[motorNum]["maxTemp"]))
+
+        colorRow = self.colorInfoTable.children["colorRow"] # Updates color in self.colorInfoTable
+        colorRow.children["color"].text = colorSensor.getColor()
+        
+
 
     def initManual(self, robot):
         manualBox = self.sectionBox()
@@ -408,7 +413,6 @@ class CompetitionDashboard(sea.Dashboard):
 
         # Update button
         updateColorButton = gui.Button("Update")
-        updateColorButton.set_on_click_listener(robot.c_getColor)
 
         controlPanelBox.append(gui.Label("Control panel info"))
         controlPanelBox.append(self.colorInfoTable)

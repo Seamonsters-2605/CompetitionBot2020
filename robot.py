@@ -371,9 +371,5 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.compressor.stop()
                 self.app.compressorGroup.highlight("stop")
 
-    @sea.queuedDashboardEvent
-    def c_getColor(self, button):
-        print("h")
-
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2020)
