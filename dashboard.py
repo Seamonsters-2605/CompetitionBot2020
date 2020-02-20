@@ -59,6 +59,7 @@ class CompetitionDashboard(sea.Dashboard):
         rightSide.append(self.initManual(robot))
         self.autoSpeedGroup.highlight("medium")
         rightSide.append(self.initTest(robot))
+        rightSide.append(self.initControlPanel(robot))
 
         root.append(leftSide)
         root.append(middle)
@@ -393,6 +394,25 @@ class CompetitionDashboard(sea.Dashboard):
 
         statsBox.append(motorDataBox)
         return statsBox
+
+    def initControlPanel(self, robot):
+        controlPanelBox = self.sectionBox()
+
+        # Color info table
+        self.colorInfoTable = gui.Table()
+        colorRow = gui.TableRow(gui.TableItem("Color:"))
+        colorRow.append(gui.TableItem("color shows here"), "color") # adds color to row, key is color
+
+        self.colorInfoTable.append(colorRow, "colorRow") # adds color row to table, key is colorRow
+
+        # Update button
+        updateColorButton = gui.Button("Update")
+        updateColorButton.set_on_click_listener(robot.c_getColor)
+
+        controlPanelBox.append(gui.Label("Control panel info"))
+        controlPanelBox.append(self.colorInfoTable)
+        controlPanelBox.append(updateColorButton)
+        return controlPanelBox
 
     def updateRobotPosition(self, robotX, robotY, robotAngle):
         self.robotArrow.setPosition(robotX, robotY, robotAngle)
