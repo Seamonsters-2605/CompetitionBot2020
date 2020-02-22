@@ -8,6 +8,8 @@ class CarpetDirections(Enum):
     SOUTH = 0.961322
     WEST = 0.996944
 
+    values = [NORTH, EAST, SOUTH, WEST]
+
 class PathFollower:
     """
     Controls a SuperHolonomicDrive to follow paths on the field.
@@ -99,27 +101,22 @@ class PathFollower:
                 carpetOrientation = carpet["orientation"]
                 break
 
-        # if the carpet is oriented normally, do calculations with normal cardinal directions
-        if carpetOrientation:
-            if robotDifY > 0:
-                    robotDifX *= CarpetDirections.NORTH
-            elif robotDifY < 0:
-                robotDifY *= CarpetDirections.SOUTH
-            
-            if robotDifX > 0:
-                robotDifX *= CarpetDirections.EAST
-            elif robotDifX > 0:
-                robotDifX *= CarpetDirections.WEST
-        else: # if the carpet is rolled out in reverse, reverse the orientation of the cardinal directions
-            if robotDifY > 0:
-                    robotDifX *= CarpetDirections.SOUTH
-            elif robotDifY < 0:
-                robotDifY *= CarpetDirections.NORTH
-            
-            if robotDifX > 0:
-                robotDifX *= CarpetDirections.WEST
-            elif robotDifX > 0:
-                robotDifX *= CarpetDirections.EAST
+        carpetDirectionIndex = 0 if carpetOrientation else 2
+
+        # changes the cardinal directions based on carpet orientation
+        if robotDifY > 0:
+            # NORTH if carpet direction is normal, SOUTH otherwise
+            robotDifX *= CarpetDirections.values[carpetDirectionIndex % len(CarpetDirections.values)]
+        elif robotDifY < 0:
+            # SOUTH if carpet direction is normal, NORTH otherwise
+            robotDifY *= CarpetDirections.values[2 + carpetDirectionIndex % len(CarpetDirections.values)]
+        
+        if robotDifX > 0:
+            # EAST if carpet direction is normal, WEST otherwise
+            robotDifX *= CarpetDirections.values[1 + carpetDirectionIndex % len(CarpetDirections.values)]
+        elif robotDifX > 0:
+            # WEST if carpet direction is normal, EAST otherwise
+            robotDifX *= CarpetDirections.values[3 + carpetDirectionIndex % len(CarpetDirections.values)]
 
         self.robotY += robotDifY
         self.robotX += robotDifX
