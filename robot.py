@@ -134,8 +134,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
          
-        self.piston1.set(SOLENOID_REVERSE)
-        self.piston2.set(SOLENOID_REVERSE)
+        self.piston1.set(SOLENOID_FORWARD)
+        self.piston2.set(SOLENOID_FORWARD)
 
         self.controlModeMachine.replace(self.manualState)
 
@@ -174,14 +174,12 @@ class CompetitionBot2020(sea.GeneratorBot):
                     self.app.gearGroup.highlight(self.driveMode)
                     self.app.speedGroup.highlight(self.driveSpeed)
 
-            """
             if self.piston1.get() == SOLENOID_REVERSE and self.driveSpeed != "slow":
                 self.piston1.set(SOLENOID_FORWARD)
                 self.piston2.set(SOLENOID_FORWARD)
             elif self.piston1.get() == SOLENOID_FORWARD and self.driveSpeed == "slow":
                 self.piston1.set(SOLENOID_REVERSE)
                 self.piston2.set(SOLENOID_REVERSE)
-            """
 
             # Drivetrain:
 
