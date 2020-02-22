@@ -2,9 +2,9 @@ import math, sys
 import seamonsters as sea
 
 class CarpetDirections:
-    NORTH = 1.0472
+    NORTH =  0.911
     EAST = 0.98175
-    SOUTH = 0.961322
+    SOUTH = 1.011
     WEST = 0.996944
 
     values = [NORTH, EAST, SOUTH, WEST]
@@ -89,7 +89,7 @@ class PathFollower:
         robotDifX = math.cos(moveDir + self.robotAngle) * moveDist
         robotDifY = math.sin(moveDir + self.robotAngle) * moveDist
 
-        # Taking into account the wheel slippage:
+        # Taking into account the carpet variability:
 
         carpetOrientation = True # normal
 
@@ -105,7 +105,7 @@ class PathFollower:
         # changes the cardinal directions based on carpet orientation
         if robotDifY > 0:
             # NORTH if carpet direction is normal, SOUTH otherwise
-            robotDifX *= CarpetDirections.values[carpetDirectionIndex % len(CarpetDirections.values)]
+            robotDifY *= CarpetDirections.values[carpetDirectionIndex % len(CarpetDirections.values)]
         elif robotDifY < 0:
             # SOUTH if carpet direction is normal, NORTH otherwise
             robotDifY *= CarpetDirections.values[2 + carpetDirectionIndex % len(CarpetDirections.values)]
@@ -113,7 +113,7 @@ class PathFollower:
         if robotDifX > 0:
             # EAST if carpet direction is normal, WEST otherwise
             robotDifX *= CarpetDirections.values[1 + carpetDirectionIndex % len(CarpetDirections.values)]
-        elif robotDifX > 0:
+        elif robotDifX < 0:
             # WEST if carpet direction is normal, EAST otherwise
             robotDifX *= CarpetDirections.values[3 + carpetDirectionIndex % len(CarpetDirections.values)]
 
