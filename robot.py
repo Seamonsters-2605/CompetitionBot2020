@@ -50,9 +50,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # drive gears
         self.superDrive.gear = None
-        self.driveGear = drivetrain.mediumVelocityGear
+        self.driveGear = drivetrain.slowVelocityGear
         self.driveMode = "velocity"
-        self.driveSpeed = "medium"
+        self.driveSpeed = "slow"
         self.driveGears = \
             {"voltage" : \
                 {"slow" : drivetrain.slowVoltageGear, 
@@ -188,11 +188,10 @@ class CompetitionBot2020(sea.GeneratorBot):
             # for position testing
 
             if self.controller.getAButtonPressed():
-                _, _, _, self.initialPos = self.superDrive.getRobotPositionOffset(None)
+                self.initialPos = self.pathFollower.robotY
                 print("Drive Position Set")
             if self.controller.getBButtonPressed():
-                dist, _, rot, _ = self.superDrive.getRobotPositionOffset(self.initialPos)
-                print(dist, rot)
+                print(self.pathFollower.robotY - self.initialPos)
 
             if self.controller.getXButtonPressed():
                 self.wheelInitialPos0 = self.superDrive.wheels[0].motors[0].getEncoder().getPosition()
