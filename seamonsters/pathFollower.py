@@ -1,10 +1,12 @@
 import math, sys
 import seamonsters as sea
+from enum import Enum
 
-NORTH_CONST = 1.0472
-EAST_CONST = 0.98175
-SOUTH_CONST = 0.961322
-WEST_CONST = 0.996944
+class CarpetDirections(Enum):
+    NORTH = 1.0472
+    EAST = 0.98175
+    SOUTH = 0.961322
+    WEST = 0.996944
 
 class PathFollower:
     """
@@ -35,6 +37,20 @@ class PathFollower:
         self.robotX = 0
         self.robotY = 0
         self.robotAngle = 0
+
+        # the field is 52 feet long
+        # the carpets are 12 feet long
+        # True means the carpet is oriented normally, False is reversed
+        # the boundry is the edge of the carpet 
+        self.carpetOrientations = {
+            # the (-52/2) + x offsets the fact that (0, 0) is in the center
+            # making x the distance the carpet is from the blue alliance station
+            {"orientation" : True, "boundry" : (-52/2) + 12},
+            {"orientation" : True, "boundry" : (-52/2) + 24},
+            {"orientation" : True, "boundry" : (-52/2) + 36},
+            {"orientation" : True, "boundry" : (-52/2) + 48},
+            {"orientation" : True, "boundry" : (-52/2) + 52}
+        }
 
         self._robotAngleHistory = []
 
@@ -72,15 +88,38 @@ class PathFollower:
         robotDifX = math.cos(moveDir + self.robotAngle) * moveDist
         robotDifY = math.sin(moveDir + self.robotAngle) * moveDist
 
-        if robotDifY > 0:
-            robotDifX *= NORTH_CONST
-        elif robotDifY < 0:
-            robotDifY *= SOUTH_CONST
-        
-        if robotDifX > 0:
-            robotDifX *= EAST_CONST
-        elif robotDifX > 0:
-            robotDifX *= WEST_CONST
+        # Taking into account the wheel slippage:
+
+        carpetOrientation = True # normal
+
+        # determine the current carpet the robot is
+        # on and get the orientation of that carpet
+        for carpet in self.carpetOrientations:
+            if self.robotX > carpet["boundry"]:
+                carpetOrientation = carpet["orientation"]
+                break
+
+        # if the carpet is oriented normally, do calculations with normal cardinal directions
+        if carpetOrientation:
+            if robotDifY > 0:
+                    robotDifX *= CarpetDirections.NORTH
+            elif robotDifY < 0:
+                robotDifY *= CarpetDirections.SOUTH
+            
+            if robotDifX > 0:
+                robotDifX *= CarpetDirections.EAST
+            elif robotDifX > 0:
+                robotDifX *= CarpetDirections.WEST
+        else: # if the carpet is rolled out in reverse, reverse the orientation of the cardinal directions
+            if robotDifY > 0:
+                    robotDifX *= CarpetDirections.SOUTH
+            elif robotDifY < 0:
+                robotDifY *= CarpetDirections.NORTH
+            
+            if robotDifX > 0:
+                robotDifX *= CarpetDirections.WEST
+            elif robotDifX > 0:
+                robotDifX *= CarpetDirections.EAST
 
         self.robotY += robotDifY
         self.robotX += robotDifX
