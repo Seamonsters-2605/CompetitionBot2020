@@ -1,8 +1,7 @@
 import math, sys
 import seamonsters as sea
-from enum import Enum
 
-class CarpetDirections(Enum):
+class CarpetDirections:
     NORTH = 1.0472
     EAST = 0.98175
     SOUTH = 0.961322
@@ -44,7 +43,7 @@ class PathFollower:
         # the carpets are 12 feet long
         # True means the carpet is oriented normally, False is reversed
         # the boundry is the edge of the carpet 
-        self.carpetOrientations = {
+        self.carpetOrientations = [
             # the (-52/2) + x offsets the fact that (0, 0) is in the center
             # making x the distance the carpet is from the blue alliance station
             {"orientation" : True, "boundry" : (-52/2) + 12},
@@ -52,7 +51,7 @@ class PathFollower:
             {"orientation" : True, "boundry" : (-52/2) + 36},
             {"orientation" : True, "boundry" : (-52/2) + 48},
             {"orientation" : True, "boundry" : (-52/2) + 52}
-        }
+        ]
 
         self._robotAngleHistory = []
 
