@@ -1,5 +1,5 @@
 import wpilib, rev, math, navx
-import drivetrain, dashboard, autoScheduler, vision, autoActions, intake
+import drivetrain, dashboard, autoScheduler, vision, autoActions, intake, shooter
 import seamonsters as sea 
 from networktables import NetworkTables
 
@@ -25,6 +25,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # subsystems
         self.intake = intake.Intake(13, [4, 5, 6, 7]) # need to change these values later
+        self.shooter = shooter.Shooter(14, 15) # need to change these values later
 
         self.superDrive = drivetrain.initDrivetrain()
         # multiDrive allows the robot to be driven multiple times in a loop and the values are averaged
@@ -214,6 +215,12 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             if self.controller.getYButtonPressed():
                 self.intake.toggleIntake()
+
+            # Shooter:
+
+            self.shooter.spin()
+
+            # need to add a way to adjust the shooter speed
 
             yield
 
