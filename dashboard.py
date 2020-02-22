@@ -467,15 +467,18 @@ class CompetitionDashboard(sea.Dashboard):
         if key == "drive":
             action = autoActions.createDriveToPointAction(
                 self.robot.pathFollower, coord, self.autoSpeed)
+            pass
         elif key == "rotate":
             action = autoActions.createRotateInPlaceAction(
                 self.robot.pathFollower, coord)
+            pass
         elif key == "face":
             action = autoActions.createRotateTowardsPointAction(
                 self.robot, coord)
         elif key == "set":
             action = autoActions.createSetRobotPositionAction(
                 self.robot.pathFollower, coord)
+            pass
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)

@@ -185,6 +185,23 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             self.ledStrip.setSpeed(self.ledInput)
 
+            # for position testing
+
+            if self.controller.getAButtonPressed():
+                _, _, _, self.initialPos = self.superDrive.getRobotPositionOffset(None)
+                print("Drive Position Set")
+            if self.controller.getBButtonPressed():
+                dist, _, rot, _ = self.superDrive.getRobotPositionOffset(self.initialPos)
+                print(dist, rot)
+
+            if self.controller.getXButtonPressed():
+                self.wheelInitialPos0 = self.superDrive.wheels[0].motors[0].getEncoder().getPosition()
+                self.wheelInitialPos1 = self.superDrive.wheels[1].motors[0].getEncoder().getPosition()
+                print("Wheel Position Set")
+            if self.controller.getYButton():
+                print(self.superDrive.wheels[0].motors[0].getEncoder().getPosition() - self.wheelInitialPos0)
+                print(self.superDrive.wheels[1].motors[0].getEncoder().getPosition() - self.wheelInitialPos1)
+
             if self.controller.getBumper(CONTROLLER_RIGHT):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down

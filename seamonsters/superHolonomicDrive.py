@@ -659,7 +659,7 @@ class SuperHolonomicDrive:
         totalY /= pairCount
         totalA /= pairCount
 
-        return math.sqrt(totalX ** 2 + totalY ** 2), math.atan2(totalY, totalX), totalA
+        return math.hypot(totalX, totalY), math.atan2(totalY, totalX), totalA
 
 
 if __name__ == "__main__":

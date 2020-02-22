@@ -1,13 +1,18 @@
 import math, sys
 import seamonsters as sea
 
+NORTH_CONST = 1.0472
+EAST_CONST = 0.98175
+SOUTH_CONST = 0.961322
+WEST_CONST = 0.996944
+
 class PathFollower:
     """
     Controls a SuperHolonomicDrive to follow paths on the field.
     """
 
     NAVX_LAG = 7 # frames
-    NAVX_ERROR_CORRECTION = 0.1 # out of 1
+    NAVX_ERROR_CORRECTION = 1 # out of 1
 
     def __init__(self, drive, ahrs=None):
         """
@@ -49,7 +54,7 @@ class PathFollower:
 
     def updateRobotPosition(self):
         moveDist, moveDir, moveTurn, self._drivePositionState = \
-            self.drive.getRobotPositionOffset(self._drivePositionState, target=False)
+            self.drive.getRobotPositionOffset(self._drivePositionState, target=True)
             # set the target to False because it is more accurate
 
         self.robotAngle += moveTurn
@@ -64,8 +69,21 @@ class PathFollower:
                 for i in range(0, len(self._robotAngleHistory)):
                     self._robotAngleHistory[i] += error
 
-        self.robotX += math.cos(moveDir + self.robotAngle) * moveDist
-        self.robotY += math.sin(moveDir + self.robotAngle) * moveDist
+        robotDifX = math.cos(moveDir + self.robotAngle) * moveDist
+        robotDifY = math.sin(moveDir + self.robotAngle) * moveDist
+
+        if robotDifY > 0:
+            robotDifX *= NORTH_CONST
+        elif robotDifY < 0:
+            robotDifY *= SOUTH_CONST
+        
+        if robotDifX > 0:
+            robotDifX *= EAST_CONST
+        elif robotDifX > 0:
+            robotDifX *= WEST_CONST
+
+        self.robotY += robotDifY
+        self.robotX += robotDifX
 
     def driveToPointGenerator(self, x, y, finalAngle=None, speed=1, robotPositionTolerance=0, robotAngleTolerance=0):
         """
