@@ -71,7 +71,7 @@ class PathFollower:
 
     def updateRobotPosition(self):
         moveDist, moveDir, moveTurn, self._drivePositionState = \
-            self.drive.getRobotPositionOffset(self._drivePositionState, target=True)
+            self.drive.getRobotPositionOffset(self._drivePositionState, target=False)
             # set the target to False because it is more accurate
 
         self.robotAngle += moveTurn
