@@ -57,8 +57,8 @@ fastVelocityGear = DriveGear("Fast Velocity", rev.ControlType.kVelocity,
     gearRatio=1/6.49, moveScale=8, turnScale=4, p=0.00007, i=0.0000007, d=0.0001, f=0.0)
 
 slowPositionGear = DriveGear("Slow Position", rev.ControlType.kPosition,
-    gearRatio=1/18.03, moveScale=4, turnScale=3, p=0.5, i=0.0, d=3.0, f=0.0)
+    gearRatio=1/18.03, moveScale=4, turnScale=1.5, p=0.07, i=0.0, d=0.1, f=0.0)
 mediumPositionGear = DriveGear("Medium Position", rev.ControlType.kPosition,
-    gearRatio=1/6.49, moveScale=2, turnScale=1.5, p=0.5, i=0.0, d=3.0, f=0.0)
+    gearRatio=1/6.49, moveScale=2, turnScale=1.5,  p=0.3, i=0.0, d=0.1, f=0.0)
 fastPositionGear = DriveGear("Fast Position", rev.ControlType.kPosition,
-    gearRatio=1/6.49, moveScale=6, turnScale=5, p=0.5, i=0.0, d=3.0, f=0.0)
+    gearRatio=1/6.49, moveScale=6, turnScale=5,  p=0.3, i=0.0, d=0.1, f=0.0)
