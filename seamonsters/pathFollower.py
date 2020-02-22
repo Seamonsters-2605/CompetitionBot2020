@@ -121,10 +121,11 @@ class PathFollower:
             if not hasReachedPosition:
                 # decide if the robot should go 
                 # backwards and adjust the angle
-                if aDiff > math.pi / 2:
+                if aDiff > math.pi / 2 and not aDiff < math.pi / 2 + math.degrees(5):
                     aDiff -= math.pi
                     backwards = True
-                elif aDiff < -math.pi / 2:
+                # the additional 5 degrees makes it not go backwards occasionally on accident
+                elif aDiff < -math.pi / 2 and not aDiff > math.pi / 2 - math.degrees(5):
                     aDiff += math.pi
                     backwards = True
 
