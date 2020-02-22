@@ -208,13 +208,16 @@ class CompetitionBot2020(sea.GeneratorBot):
             
             # Intake:
 
-            self.intake.reversed = not self.controller.getAButton()
+            # go forward by default, back when the A button is held down
+            self.intake.reversed = self.controller.getAButton()
 
             if self.controller.getBButtonPressed():
                 self.intake.toggleMotor()
 
             if self.controller.getYButtonPressed():
                 self.intake.toggleIntake()
+
+            self.intake.run()
 
             # Shooter:
 

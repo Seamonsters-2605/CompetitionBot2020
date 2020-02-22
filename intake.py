@@ -16,6 +16,7 @@ class Intake:
         motor = rev.CANSparkMax(sparkNum, rev.CANSparkMax.MotorType.kBrushless)
         motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
         self.motorController = motor.getPIDController()
+        self.encoder = motor.getEncoder()
 
         self.running = False
         self.reversed = False
@@ -47,35 +48,63 @@ class Intake:
 
     # Motor functions:
 
-    # spins the motor at 10,000 rpm
+    # spins the motor forwards
     def spinForwards(self):
         self.reversed = False
-        self.start()
+        self.running = True
         
-    # spins the motor backwards at 10,000 rpm
+    # spins the motor backwards
     def spinReversed(self):
         self.reversed = True
-        self.start()
-
-    # starts the motor taking into account if the motor is reversed
-    def start(self):
         self.running = True
-
-        if self.reversed:
-            self.motorController.setReference(-10_000, rev.ControlType.kVelocity)
-        else:
-            self.motorController.setReference(10_000, rev.ControlType.kVelocity)
 
     # stops the motor
     def stop(self):
         self.running = False
-        self.motorController.setReference(0, rev.ControlType.kVelocity)
+
+    # starts the motor
+    def start(self):
+        self.running = True
+
+    # this is a generator, should be called every iteration
+    def run(self):
+        # for keeping track of motor stalling
+        motorStallCount = 0
+        motorSpeed = 10_000
+        fixingStall = False
+
+        while True:
+
+            # normal starting, stopping, and spinning in a certain direction
+            if self.running:
+                if self.reversed:
+                    motorSpeed = -10_000
+                else:
+                    motorSpeed = 10_000
+            else:
+                motorSpeed = 0
+
+            # counts if the motor is stalling while going forwards
+            if self.running and not self.reversed and abs(self.encoder.getVelocity()) <  50:
+                motorStallCount += 1
+            else:
+                motorStallCount = 0
+
+            # rotate the motor backwards if it has stalled for too long
+            if fixingStall or motorStallCount >= 10:
+                motorSpeed = -10_000
+                fixingStall = True
+                motorStallCount -= 1
+
+            # stop going back after the stall is fixed
+            if fixingStall and motorStallCount <= 0:
+                fixingStall = False
+
+            # drives the motor
+            self.motorController.setReference(motorSpeed, rev.ControlType.kVelocity)
+
+            yield
 
     # toggles between spinning and not spinning each time it is called
     def toggleMotor(self):
-        if self.running:
-            self.stop()
-        else:
-            self.start()
-        
         self.running = not self.running
