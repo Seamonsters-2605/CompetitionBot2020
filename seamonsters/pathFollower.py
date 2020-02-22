@@ -3,9 +3,9 @@ import seamonsters as sea
 
 class CarpetDirections:
     NORTH =  0.911
-    EAST = 0.98175
+    WEST = 0.98175
     SOUTH = 1.011
-    WEST = 0.996944
+    EAST = 0.996944
 
     values = [NORTH, EAST, SOUTH, WEST]
 
@@ -71,7 +71,7 @@ class PathFollower:
 
     def updateRobotPosition(self):
         moveDist, moveDir, moveTurn, self._drivePositionState = \
-            self.drive.getRobotPositionOffset(self._drivePositionState, target=True)
+            self.drive.getRobotPositionOffset(self._drivePositionState, target=False)
             # set the target to False because it is more accurate
 
         self.robotAngle += moveTurn
