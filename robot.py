@@ -194,12 +194,8 @@ class CompetitionBot2020(sea.GeneratorBot):
                 print(self.pathFollower.robotY - self.initialPos)
 
             if self.controller.getXButtonPressed():
-                self.wheelInitialPos0 = self.superDrive.wheels[0].motors[0].getEncoder().getPosition()
-                self.wheelInitialPos1 = self.superDrive.wheels[1].motors[0].getEncoder().getPosition()
-                print("Wheel Position Set")
-            if self.controller.getYButton():
-                print(self.superDrive.wheels[0].motors[0].getEncoder().getPosition() - self.wheelInitialPos0)
-                print(self.superDrive.wheels[1].motors[0].getEncoder().getPosition() - self.wheelInitialPos1)
+
+                yield from sea.ensureTrue(self.pathFollower.driveDistanceGenerator(10, robotPositionTolerance=0.1), 1)
 
             if self.controller.getBumper(CONTROLLER_RIGHT):
                 # the robot works towards aligning with a vision 

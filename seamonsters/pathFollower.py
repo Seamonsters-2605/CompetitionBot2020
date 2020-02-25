@@ -120,6 +120,14 @@ class PathFollower:
         self.robotY += robotDifY
         self.robotX += robotDifX
 
+    def driveDistanceGenerator(self, dist, speed=1, robotPositionTolerance=0):
+
+        x = math.cos(self.robotAngle) * dist
+        y = math.sin(self.robotAngle) * dist
+
+        yield from self.driveToPointGenerator(x, y, speed=speed, robotPositionTolerance=0, robotAngleTolerance=0.1)
+
+
     def driveToPointGenerator(self, x, y, finalAngle=None, speed=1, robotPositionTolerance=0, robotAngleTolerance=0):
         """
         A generator to drive to a location on the field while simultaneously
