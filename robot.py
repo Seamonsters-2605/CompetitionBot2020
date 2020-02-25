@@ -24,7 +24,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.ledInput = -0.99
 
         # subsystems
-        self.intake = intake.Intake(13, [4, 5, 6, 7]) # need to change these values later
+        self.intake = intake.Intake(13, 2, 3) # need to change these values later
         self.shooter = shooter.Shooter(14, 15) # need to change these values later
 
         self.superDrive = drivetrain.initDrivetrain()
@@ -50,8 +50,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
         self.compressor.stop()
-        self.piston1 = wpilib.DoubleSolenoid(0, 1)
-        self.piston2 = wpilib.DoubleSolenoid(2, 3)
+        self.piston = wpilib.DoubleSolenoid(0, 1)
 
         # drive gears
         self.superDrive.gear = None
@@ -135,8 +134,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
          
-        self.piston1.set(SOLENOID_FORWARD)
-        self.piston2.set(SOLENOID_FORWARD)
+        self.piston.set(SOLENOID_FORWARD)
 
         self.controlModeMachine.replace(self.manualState)
 
@@ -175,12 +173,10 @@ class CompetitionBot2020(sea.GeneratorBot):
                     self.app.gearGroup.highlight(self.driveMode)
                     self.app.speedGroup.highlight(self.driveSpeed)
 
-            if self.piston1.get() == SOLENOID_REVERSE and self.driveSpeed != "slow":
-                self.piston1.set(SOLENOID_FORWARD)
-                self.piston2.set(SOLENOID_FORWARD)
-            elif self.piston1.get() == SOLENOID_FORWARD and self.driveSpeed == "slow":
-                self.piston1.set(SOLENOID_REVERSE)
-                self.piston2.set(SOLENOID_REVERSE)
+            if self.piston.get() == SOLENOID_REVERSE and self.driveSpeed != "slow":
+                self.piston.set(SOLENOID_FORWARD)
+            elif self.piston.get() == SOLENOID_FORWARD and self.driveSpeed == "slow":
+                self.piston.set(SOLENOID_REVERSE)
 
             # Drivetrain:
 

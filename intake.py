@@ -5,13 +5,9 @@ class Intake:
     # pistonNums should be a list of length 4
     # the first 2 values for one piston and the
     # other 2 values for the other piston
-    def __init__(self, sparkNum, pistonNums : list):
+    def __init__(self, sparkNum, pistonNum1, pistonNum2):
 
-        if len(pistonNums) != 4:
-            raise ValueError("pistonNums must be length 4")
-
-        self.piston1 = wpilib.DoubleSolenoid(pistonNums[0], pistonNums[1])
-        self.piston2 = wpilib.DoubleSolenoid(pistonNums[2], pistonNums[3])
+        self.piston = wpilib.DoubleSolenoid(pistonNum1, pistonNum2)
 
         motor = rev.CANSparkMax(sparkNum, rev.CANSparkMax.MotorType.kBrushless)
         motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
@@ -30,14 +26,12 @@ class Intake:
     # pushes out the pistons
     def deploy(self):
         self.deployed = True
-        for piston in [self.piston1, self.piston2]:
-            piston.set(wpilib.DoubleSolenoid.Value.kForward)
+        self.piston.set(wpilib.DoubleSolenoid.Value.kForward)
 
     # pulls in the pistons
     def retract(self):
         self.deployed = False
-        for piston in [self.piston1, self.piston2]:
-            piston.set(wpilib.DoubleSolenoid.Value.kReverse)
+        self.piston.set(wpilib.DoubleSolenoid.Value.kReverse)
 
     # switches between in and out
     def toggleIntake(self):
