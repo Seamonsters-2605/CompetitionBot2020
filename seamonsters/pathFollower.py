@@ -120,7 +120,7 @@ class PathFollower:
         self.robotY += robotDifY
         self.robotX += robotDifX
 
-    def driveDistanceGenerator(self, dist, speed=1, robotPositionTolerance=0):
+    def driveDistanceGenerator(self, dist, speed=0.5, robotPositionTolerance=0):
 
         x = math.cos(self.robotAngle + math.radians(90)) * dist + self.robotX
         y = math.sin(self.robotAngle + math.radians(90)) * dist + self.robotY
