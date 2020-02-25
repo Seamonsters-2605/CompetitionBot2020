@@ -122,8 +122,8 @@ class PathFollower:
 
     def driveDistanceGenerator(self, dist, speed=1, robotPositionTolerance=0):
 
-        x = math.sin(self.robotAngle) * dist + self.robotX
-        y = math.cos(self.robotAngle) * dist + self.robotY
+        x = math.cos(self.robotAngle - math.radians(90)) * dist + self.robotX
+        y = math.sin(self.robotAngle - math.radians(90)) * dist + self.robotY
 
         yield from self.driveToPointGenerator(x, y, speed=speed, robotPositionTolerance=0, robotAngleTolerance=0.1)
 
