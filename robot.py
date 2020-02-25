@@ -197,6 +197,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
                 yield from sea.ensureTrue(self.pathFollower.driveDistanceGenerator(10, robotPositionTolerance=0.1), 1)
 
+            if self.controller.getYButtonPressed():
+
+                print(self.pathFollower._getAHRSAngle())
+
             if self.controller.getBumper(CONTROLLER_RIGHT):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
