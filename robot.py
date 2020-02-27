@@ -54,9 +54,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # drive gears
         self.superDrive.gear = None
-        self.driveGear = drivetrain.mediumVelocityGear
+        self.driveGear = drivetrain.slowVelocityGear
         self.driveMode = "velocity"
-        self.driveSpeed = "medium"
+        self.driveSpeed = "slow"
         self.driveGears = \
             {"voltage" : \
                 {"slow" : drivetrain.slowVoltageGear, 
