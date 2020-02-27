@@ -3,7 +3,6 @@ from autoScheduler import Action
 import seamonsters as sea
 
 def driveToPoint(pathFollower, coord, speed, rotateAtTheEnd=False):
-    drivetrain.mediumVelocityGear.applyGear(pathFollower.drive)
 
     if coord in coordinates.targetPoints:
         rotateAtTheEnd = True
