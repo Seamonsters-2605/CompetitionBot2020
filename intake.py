@@ -62,14 +62,9 @@ class Intake:
 
     # this is a generator, should be called every iteration
     def run(self):
-        # for keeping track of motor stalling
-        motorStallCount = 0
-        motorSpeed = 10_000
-        fixingStall = False
 
         while True:
 
-            # normal starting, stopping, and spinning in a certain direction
             if self.running:
                 if self.reversed:
                     motorSpeed = -10_000
@@ -77,22 +72,6 @@ class Intake:
                     motorSpeed = 10_000
             else:
                 motorSpeed = 0
-
-            # counts if the motor is stalling while going forwards
-            if self.running and not self.reversed and abs(self.encoder.getVelocity()) <  50:
-                motorStallCount += 1
-            else:
-                motorStallCount = 0
-
-            # rotate the motor backwards if it has stalled for too long
-            if fixingStall or motorStallCount >= 10:
-                motorSpeed = -10_000
-                fixingStall = True
-                motorStallCount -= 1
-
-            # stop going back after the stall is fixed
-            if fixingStall and motorStallCount <= 0:
-                fixingStall = False
 
             # drives the motor
             self.motorController.setReference(motorSpeed, rev.ControlType.kVelocity)
