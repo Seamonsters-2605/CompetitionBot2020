@@ -14,7 +14,8 @@ class CompetitionBot2020(sea.GeneratorBot):
     def robotInit(self):
 
         # devices
-        self.controller = wpilib.XboxController(0)
+        self.driverController = wpilib.XboxController(0)
+        self.operatorController = wpilib.XboxController(1)
 
         ahrs = navx.AHRS.create_spi()
 
@@ -161,8 +162,8 @@ class CompetitionBot2020(sea.GeneratorBot):
     def driving(self):
 
         # reset button detection
-        self.controller.getBButtonPressed()
-        self.controller.getYButtonPressed()
+        self.operatorController.getBButtonPressed()
+        self.operatorController.getYButtonPressed()
         
         while True:
 
@@ -181,9 +182,9 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # Drivetrain:
 
-            turn = sea.deadZone(self.controller.getX(CONTROLLER_RIGHT), deadZone=0.05)
+            turn = sea.deadZone(self.driverController.getX(CONTROLLER_RIGHT), deadZone=0.05)
             turn *= self.driveGear.turnScale
-            mag = -sea.deadZone(self.controller.getY(CONTROLLER_LEFT), deadZone=0.05)
+            mag = -sea.deadZone(self.driverController.getY(CONTROLLER_LEFT), deadZone=0.05)
             mag *= self.driveGear.moveScale
             
             if self.isSimulation():
@@ -198,27 +199,28 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # Vision Alignment:
 
-            if self.controller.getBumper(CONTROLLER_RIGHT):
+            if self.driverController.getBumper(CONTROLLER_RIGHT):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(20 / self.driveGear.turnScale), visionTarget=True)
             
             # Intake:
 
-            # go forward by default, back when the A button is held down
-            self.intake.reversed = self.controller.getAButton()
+            # go backwards by default, forwards when the A button is held down
+            self.intake.reversed = not self.driverController.getAButton()
 
-            if self.controller.getBButtonPressed():
+            # switches intake on and off
+            if self.operatorController.getBButtonPressed():
                 self.intake.toggleMotor()
 
-            if self.controller.getYButtonPressed():
+            if self.operatorController.getYButtonPressed():
                 self.intake.toggleIntake()
 
             self.intake.run()
 
             # Indexer:
-            
-            if self.controller.getXButton():
+
+            if self.operatorController.getXButton():
                 self.indexer.spinFast()
             else:
                 self.indexer.spinSlow()
