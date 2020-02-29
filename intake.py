@@ -74,9 +74,9 @@ class Intake:
 
         if self.running:
             if self.reversed:
-                motorSpeed = -10_000
+                motorSpeed = -5_000
             else:
-                motorSpeed = 10_000
+                motorSpeed = 5_000
 
             self.motorController.setReference(motorSpeed, rev.ControlType.kVelocity)
         else:
@@ -85,3 +85,7 @@ class Intake:
     # toggles between spinning and not spinning each time it is called
     def toggleMotor(self):
         self.running = not self.running
+
+    # toggles between forwards and backwards
+    def toggleDirection(self):
+        self.reversed = not self.reversed

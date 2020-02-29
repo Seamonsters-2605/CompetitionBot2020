@@ -168,7 +168,7 @@ class CompetitionDashboard(sea.Dashboard):
         cameraBox = self.sectionBox()
 
         videoFeedBox = gui.HBox()
-        videoFeed = gui.Image('http://10.26.5.6:5800/')
+        videoFeed = gui.Image('http://10.26.5.11:5800/')
         videoFeedBox.append(videoFeed)
 
         cameraBox.append(videoFeedBox)

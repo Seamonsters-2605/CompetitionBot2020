@@ -4,8 +4,8 @@ import seamonsters as sea
 from networktables import NetworkTables
 from motorNums import *
 
-SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
-SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
+SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kForward
+SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kReverse
 
 CONTROLLER_RIGHT = wpilib.interfaces._interfaces.GenericHID.Hand.kRightHand
 CONTROLLER_LEFT = wpilib.interfaces._interfaces.GenericHID.Hand.kLeftHand
@@ -163,11 +163,11 @@ class CompetitionBot2020(sea.GeneratorBot):
     def driving(self):
 
         # reset button detection
-        self.operatorController.getBButtonPressed()
         self.operatorController.getYButtonPressed()
-        self.operatorController.getAButtonPressed()
         self.operatorController.getXButtonPressed()
         self.operatorController.getBumperPressed(CONTROLLER_RIGHT)
+        self.operatorController.getBumperPressed(CONTROLLER_LEFT)
+        self.driverController.getBumperPressed(CONTROLLER_RIGHT)
         
         while True:
 
@@ -203,7 +203,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # Vision Alignment:
 
-            if self.driverController.getBumper(CONTROLLER_RIGHT):
+            if self.driverController.getBumper(CONTROLLER_LEFT):
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(20 / self.driveGear.turnScale), visionTarget=True)
@@ -211,10 +211,11 @@ class CompetitionBot2020(sea.GeneratorBot):
             # Intake:
 
             # go backwards by default, forwards when the A button is held down
-            self.intake.reversed = not self.driverController.getAButton()
+            if self.driverController.getBumperPressed(CONTROLLER_RIGHT):
+                self.intake.toggleDirection()
 
             # switches intake on and off
-            if self.operatorController.getBButtonPressed():
+            if self.operatorController.getBumperPressed(CONTROLLER_RIGHT):
                 self.intake.toggleMotor()
 
             if self.operatorController.getYButtonPressed():
@@ -224,14 +225,14 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # Indexer:
 
-            if self.operatorController.getXButtonPressed():
+            if self.operatorController.getBumperPressed(CONTROLLER_LEFT):
                 self.indexer.toggleMotors()
 
             self.indexer.run();
 
             # Shooter:
 
-            if self.operatorController.getAButtonPressed():
+            if self.operatorController.getXButtonPressed():
                 self.shooter.toggleMotors()
 
             self.shooter.spin()
