@@ -27,7 +27,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         # subsystems
         self.intake = intake.Intake(13, 2, 3)
         self.shooter = shooter.Shooter(14, 15)
-        self.indexer = indexer.Indexer(12, 20)
+        self.indexer = indexer.Indexer(19, 20)
 
         self.superDrive = drivetrain.initDrivetrain()
         # multiDrive allows the robot to be driven multiple times in a loop and the values are averaged

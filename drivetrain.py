@@ -13,7 +13,7 @@ def initDrivetrain():
     # 3 motors per wheel but wheels cannot have the same position so 
     # add a small amount to it to make it work
     _makeWheel(superDrive, 7, 8, 9, rev.MotorType.kBrushless, 1, 0)
-    _makeWheel(superDrive, 10, 11, 12, rev.MotorType.kBrushless, -1, 0, reverse=True)
+    _makeWheel(superDrive, 10, 11, 17, rev.MotorType.kBrushless, -1, 0, reverse=True)
     sea.setSimulatedDrivetrain(superDrive)
     return superDrive
 
