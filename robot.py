@@ -2,6 +2,7 @@ import wpilib, rev, math, navx
 import drivetrain, dashboard, autoScheduler, vision, autoActions, intake, shooter, indexer
 import seamonsters as sea 
 from networktables import NetworkTables
+from motorNums import *
 
 SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kForward
 SOLENOID_REVERSE = wpilib.DoubleSolenoid.Value.kReverse
@@ -25,9 +26,9 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.ledInput = -0.99
 
         # subsystems
-        self.intake = intake.Intake(13, 2, 3)
-        self.shooter = shooter.Shooter(14, 16)
-        self.indexer = indexer.Indexer(18, 20)
+        self.intake = intake.Intake(INTAKE, 2, 3)
+        self.shooter = shooter.Shooter(SHOOTER[0], SHOOTER[1])
+        self.indexer = indexer.Indexer(INDEXER, KICKER_WHEEL)
 
         self.superDrive = drivetrain.initDrivetrain()
         # multiDrive allows the robot to be driven multiple times in a loop and the values are averaged
