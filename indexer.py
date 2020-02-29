@@ -1,26 +1,31 @@
 import wpilib, rev
+from rev.color import ColorSensorV3
 
 class Indexer:
 
-    def __init__(self, motorNum1, motorNum2):
-        self.motor1 = rev.CANSparkMax(motorNum1, rev.CANSparkMax.MotorType.kBrushless)
-        self.motor2 = rev.CANSparkMax(motorNum2, rev.CANSparkMax.MotorType.kBrushless)
+    def __init__(self, motorNum):
 
-    # Motor Functions:
+        self.motor = rev.CANSparkMax(motorNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.motorController = self.motor.getPIDController()
 
-    # runs the motors to hold the balls inside
-    def spinSlow(self):
-        for motor in [self.motor1, self.motor2]:
-            # this needs to be adjusted
-            motor.set(0.5)
+        # used for proximity sensing
+        self.sensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
 
-    # runs the motors to get them into the shooter
-    def spinFast(self):
-        for motor in [self.motor1, self.motor2]:
-            # this needs to be adjusted
-            motor.set(1)
+    # generator to run the indexer when it detects a ball
+    def runGenerator(self):
+
+        proximity = self.sensor.getProximity()
+        color = self.sensor.getColor()
+
+        print(proximity, color)
+
+        yield
+
+    # starts the motors to move the balls
+    def start(self, rpm):
+        
+        self.motorController.setReference(rpm, rev.ControlType.kVelocity)
 
     # stops the motors
     def stop(self):
-        for motor in [self.motor1, self.motor2]:
-            motor.set(0)
+        self.motor.set(0)
