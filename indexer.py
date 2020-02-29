@@ -3,7 +3,7 @@ from rev.color import ColorSensorV3
 
 class Indexer:
 
-    def __init__(self, motorNum):
+    def __init__(self, motorNum, placeHolderNum):
 
         self.motor = rev.CANSparkMax(motorNum, rev.CANSparkMax.MotorType.kBrushless)
         self.motorController = self.motor.getPIDController()
@@ -14,12 +14,14 @@ class Indexer:
     # generator to run the indexer when it detects a ball
     def runGenerator(self):
 
-        proximity = self.sensor.getProximity()
-        color = self.sensor.getColor()
+        while True:
 
-        print(proximity, color)
+            proximity = self.sensor.getProximity()
+            color = self.sensor.getColor()
 
-        yield
+            print(proximity, color)
+
+            yield
 
     # starts the motors to move the balls
     def start(self, rpm):
