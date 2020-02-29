@@ -3,24 +3,46 @@ import rev
 class Shooter:
 
     def __init__(self, motorNum1, motorNum2):
+
+        p = 0.00007
+        i = 0.0000007
+        d = 0
+        f = 0
         
-        motor1 = rev.CANSparkMax(motorNum1, rev.CANSparkMax.MotorType.kBrushless)
-        motor2 = rev.CANSparkMax(motorNum2, rev.CANSparkMax.MotorType.kBrushless)
+        self.motor1 = rev.CANSparkMax(motorNum1, rev.CANSparkMax.MotorType.kBrushless)
+        self.motor2 = rev.CANSparkMax(motorNum2, rev.CANSparkMax.MotorType.kBrushless)
 
-        self.motorController1 = motor1.getPIDController()
-        self.motorController2 = motor2.getPIDController()
+        self.motorController1 = self.motor1.getPIDController()
+        self.motorController2 = self.motor2.getPIDController()
 
-        self.speed = 5_500 # rpm
+        for motorController in [self.motorController1, self.motorController2]:
+                motorController.setP(p)
+                motorController.setI(i)
+                motorController.setD(d)
+                motorController.setFF(f)
 
-    # drives the motors
+        self.running = False
+        self.speed = 5_500
+
+    # drives the motors, should be called 50 times a second
     def spin(self):
-        self.motorController1.setReference(self.speed, rev.ControlType.kVelocity)
-        self.motorController1.setReference(-self.speed, rev.ControlType.kVelocity)
+        
+        if self.running:
+            self.motorController1.setReference(self.speed, rev.ControlType.kVelocity)
+            self.motorController2.setReference(-self.speed, rev.ControlType.kVelocity)
+        else:
+            self.motor1.set(0)
+            self.motor2.set(0)
 
     # stops the motors
     def stop(self):
-        self.motorController1.setReference(0, rev.ControlType.kVelocity)
-        self.motorController2.setReference(0, rev.ControlType.kVelocity)
+        self.running = False
+
+    def start(self):
+        self.running = True
+
+    def toggleMotors(self):
+        self.running = not self.running
 
     # allows the speed the motor spins to be adjusted
     def adjustSpeed(self, change):

@@ -1,5 +1,6 @@
 import seamonsters as sea 
 from gear import DriveGear
+from motorNums import DRIVETRAIN_LEFT, DRIVETRAIN_RIGHT
 import math, rev
 
 ROBOT_LENGTH = 3
@@ -10,10 +11,12 @@ def initDrivetrain():
 
     superDrive.motors = [] # not a normal property of SuperHolonomicDrive
 
-    # 3 motors per wheel but wheels cannot have the same position so 
-    # add a small amount to it to make it work
-    _makeWheel(superDrive, 7, 8, 9, rev.MotorType.kBrushless, 1, 0)
-    _makeWheel(superDrive, 10, 11, 12, rev.MotorType.kBrushless, -1, 0, reverse=True)
+    _makeWheel(superDrive, DRIVETRAIN_LEFT[0], DRIVETRAIN_LEFT[1], DRIVETRAIN_LEFT[2],
+        rev.MotorType.kBrushless, 1, 0)
+        
+    _makeWheel(superDrive, DRIVETRAIN_RIGHT[0], DRIVETRAIN_RIGHT[1], DRIVETRAIN_RIGHT[2],
+        rev.MotorType.kBrushless, -1, 0, reverse=True)
+
     sea.setSimulatedDrivetrain(superDrive)
     return superDrive
 
