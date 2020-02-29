@@ -26,8 +26,8 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # subsystems
         self.intake = intake.Intake(13, 2, 3)
-        self.shooter = shooter.Shooter(14, 15)
-        self.indexer = indexer.Indexer(19, 20)
+        self.shooter = shooter.Shooter(14, 16)
+        self.indexer = indexer.Indexer(18, 20)
 
         self.superDrive = drivetrain.initDrivetrain()
         # multiDrive allows the robot to be driven multiple times in a loop and the values are averaged
@@ -164,6 +164,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         # reset button detection
         self.operatorController.getBButtonPressed()
         self.operatorController.getYButtonPressed()
+        self.operatorController.getAButtonPressed()
         
         while True:
 
@@ -228,6 +229,9 @@ class CompetitionBot2020(sea.GeneratorBot):
             # Shooter:
 
             self.shooter.spin()
+
+            if self.operatorController.getAButtonPressed():
+                self.shooter.toggleMotor()
 
             # need to add a way to adjust the shooter speed
 
