@@ -9,10 +9,19 @@ class Intake:
 
         self.piston = wpilib.DoubleSolenoid(pistonNum1, pistonNum2)
 
-        motor = rev.CANSparkMax(sparkNum, rev.CANSparkMax.MotorType.kBrushless)
-        motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
-        self.motorController = motor.getPIDController()
-        self.encoder = motor.getEncoder()
+        self.motor = rev.CANSparkMax(sparkNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
+        self.motorController = self.motor.getPIDController()
+
+        p = 0.00007
+        i = 0.0000007
+        d = 0
+        f = 0
+
+        self.motorController.setP(p)
+        self.motorController.setI(i)
+        self.motorController.setD(d)
+        self.motorController.setFF(f)
 
         self.running = False
         self.reversed = False
@@ -26,12 +35,12 @@ class Intake:
     # pushes out the pistons
     def deploy(self):
         self.deployed = True
-        self.piston.set(wpilib.DoubleSolenoid.Value.kForward)
+        self.piston.set(wpilib.DoubleSolenoid.Value.kReverse)
 
     # pulls in the pistons
     def retract(self):
         self.deployed = False
-        self.piston.set(wpilib.DoubleSolenoid.Value.kReverse)
+        self.piston.set(wpilib.DoubleSolenoid.Value.kForward)
 
     # switches between in and out
     def toggleIntake(self):
@@ -60,23 +69,18 @@ class Intake:
     def start(self):
         self.running = True
 
-    # this is a generator, should be called every iteration
+    # should be called 50 times a second
     def run(self):
 
-        while True:
-
-            if self.running:
-                if self.reversed:
-                    motorSpeed = -10_000
-                else:
-                    motorSpeed = 10_000
+        if self.running:
+            if self.reversed:
+                motorSpeed = -10_000
             else:
-                motorSpeed = 0
+                motorSpeed = 10_000
 
-            # drives the motor
             self.motorController.setReference(motorSpeed, rev.ControlType.kVelocity)
-
-            yield
+        else:
+            self.motor.set(0)
 
     # toggles between spinning and not spinning each time it is called
     def toggleMotor(self):

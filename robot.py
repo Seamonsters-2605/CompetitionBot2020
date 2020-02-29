@@ -231,13 +231,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # Shooter:
 
-            if self.operatorController.getBumperPressed(CONTROLLER_RIGHT):
+            if self.operatorController.getAButtonPressed():
                 self.shooter.toggleMotors()
 
             self.shooter.spin()
-
-            if self.operatorController.getAButtonPressed():
-                self.shooter.toggleMotor()
 
             # need to add a way to adjust the shooter speed
 
