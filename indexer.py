@@ -6,21 +6,36 @@ class Indexer:
         self.motor1 = rev.CANSparkMax(motorNum1, rev.CANSparkMax.MotorType.kBrushless)
         self.motor2 = rev.CANSparkMax(motorNum2, rev.CANSparkMax.MotorType.kBrushless)
 
+        self.running = False
+        self.goFast = False
+
     # Motor Functions:
 
-    # runs the motors to hold the balls inside
-    def spinSlow(self):
-        for motor in [self.motor1, self.motor2]:
-            # this needs to be adjusted
-            motor.set(0.5)
+    # should be called 50 times a second for speed adjustment
+    def run(self):
+        speed = 0
 
-    # runs the motors to get them into the shooter
-    def spinFast(self):
+        if self.running:
+            if self.goFast:
+                speed = 1
+            else:
+                speed = 0.5
+
         for motor in [self.motor1, self.motor2]:
             # this needs to be adjusted
-            motor.set(1)
+            motor.set(speed)
+
+
+    def fast(self):
+        self.goFast = True
+
+    def slow(self):
+        self.goFast = False
 
     # stops the motors
     def stop(self):
-        for motor in [self.motor1, self.motor2]:
-            motor.set(0)
+        self.running = False
+
+    # turns the motors on or off
+    def toggleMotors(self):
+        self.running = not self.running

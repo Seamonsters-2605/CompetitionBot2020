@@ -166,6 +166,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.operatorController.getBButtonPressed()
         self.operatorController.getYButtonPressed()
         self.operatorController.getAButtonPressed()
+        self.operatorController.getXButtonPressed()
         
         while True:
 
@@ -222,10 +223,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # Indexer:
 
-            if self.operatorController.getXButton():
-                self.indexer.spinFast()
-            else:
-                self.indexer.spinSlow()
+            if self.operatorController.getXButtonPressed():
+                self.indexer.toggleMotors()
+
+            self.indexer.run();
 
             # Shooter:
 
