@@ -7,7 +7,6 @@ class Indexer:
         self.motor2 = rev.CANSparkMax(motorNum2, rev.CANSparkMax.MotorType.kBrushless)
 
         self.running = False
-        self.goFast = False
 
     # Motor Functions:
 
@@ -16,21 +15,10 @@ class Indexer:
         speed = 0
 
         if self.running:
-            if self.goFast:
-                speed = 1
-            else:
-                speed = 0.5
+            speed = 1
 
         for motor in [self.motor1, self.motor2]:
-            # this needs to be adjusted
             motor.set(speed)
-
-
-    def fast(self):
-        self.goFast = True
-
-    def slow(self):
-        self.goFast = False
 
     # stops the motors
     def stop(self):
