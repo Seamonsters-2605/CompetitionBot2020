@@ -128,7 +128,8 @@ class CompetitionBot2020(sea.GeneratorBot):
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
             self.updateDashboardGenerator(),
-            self.updateMotorData())
+            self.updateMotorData(),
+            self.intake.run())
 
     # switches the robot into teleop
     def manualMode(self):
@@ -223,8 +224,6 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.driverController.getAButtonPressed():
                 self.intake.toggleMotor()
                 self.intake.toggleIntake()
-
-            self.intake.run()
 
             # Indexer:
 
