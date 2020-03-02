@@ -168,6 +168,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.operatorController.getBumperPressed(CONTROLLER_RIGHT)
         self.operatorController.getBumperPressed(CONTROLLER_LEFT)
         self.driverController.getBumperPressed(CONTROLLER_RIGHT)
+        self.driverController.getAButtonPressed()
         
         while True:
 
@@ -214,11 +215,9 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.driverController.getBumperPressed(CONTROLLER_RIGHT):
                 self.intake.toggleDirection()
 
-            # switches intake on and off
-            if self.operatorController.getBumperPressed(CONTROLLER_RIGHT):
+            # switches intake on/off as well as extending/retracting it
+            if self.driverController.getAButtonPressed():
                 self.intake.toggleMotor()
-
-            if self.operatorController.getYButtonPressed():
                 self.intake.toggleIntake()
 
             self.intake.run()
