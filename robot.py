@@ -38,6 +38,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.limelight = NetworkTables.getTable('limelight')
         self.limelight.putNumber('pipeline', vision.DUAL_PIPELINE)
+        self.limelight.putNumber('ledMode', 1) # turn off leds
 
         # for autonomous mode
         self.autoScheduler = autoScheduler.AutoScheduler()
@@ -213,7 +214,10 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # go backwards by default, forwards when the A button is held down
             if self.driverController.getBumperPressed(CONTROLLER_RIGHT):
+                self.limelight.putNumber('ledMode', 3) # turn on leds
                 self.intake.toggleDirection()
+            else:
+                self.limelight.putNumber('ledMode', 1) # turn off leds
 
             # switches intake on/off as well as extending/retracting it
             if self.driverController.getAButtonPressed():
