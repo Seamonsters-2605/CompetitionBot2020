@@ -7,6 +7,7 @@ class Indexer:
         self.motor2 = rev.CANSparkMax(motorNum2, rev.CANSparkMax.MotorType.kBrushless)
 
         self.running = False
+        self.run()
 
     # Motor Functions:
 
@@ -23,6 +24,12 @@ class Indexer:
     # stops the motors
     def stop(self):
         self.running = False
+        self.run()
+
+    # starts the motors
+    def start(self):
+        self.running = True
+        self.run()
 
     # turns the motors on or off
     def toggleMotors(self):

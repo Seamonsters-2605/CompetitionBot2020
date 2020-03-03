@@ -37,9 +37,11 @@ class Shooter:
     # stops the motors
     def stop(self):
         self.running = False
+        self.spin()
 
     def start(self):
         self.running = True
+        self.spin()
 
     def toggleMotors(self):
         self.running = not self.running

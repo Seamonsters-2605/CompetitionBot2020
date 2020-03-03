@@ -25,6 +25,10 @@ def createRotateInPlaceAction(pathFollower, coord):
     return Action("Rotate to " + newCoord.name,
         lambda: driveToPoint(pathFollower, newCoord, 0.5, True), "rotate", newCoord)
 
+def rotateTowardsPoint(robot, coord):
+    yield from sea.sequence(driveToPoint(robot.pathFollower, coord, 0.5, True), 
+        robot.faceVisionTarget())
+
 def createRotateTowardsPointAction(robot, coord):
     # calculates the angle to rotate to be
     # facing at the point coord
@@ -38,8 +42,19 @@ def createRotateTowardsPointAction(robot, coord):
     # rotates to where it thinks the location is
     # then uses the limelight to get very close
     return Action("Rotate towards " + newCoord.name,
-        lambda: sea.sequence(driveToPoint(robot.pathFollower, newCoord, 0.5, True), 
-        robot.faceVisionTarget()), "face", newCoord)
+        lambda: rotateTowardsPoint(robot, newCoord), "face", newCoord)
+
+# runs the indexer for 3 seconds to shoot balls
+# the shooter should already be running before this is called
+def shoot(robot):
+    robot.indexer.start()
+    yield from sea.wait(150)
+    robot.indexer.stop()
+
+def createShootAtPointAction(robot, coord):
+    # rotates towards the inputted coord, then shoots
+    return Action("Shoot at " + coord.name,
+        lambda: sea.sequence(rotateTowardsPoint(robot, coord), shoot(robot)), "shoot", coord)
 
 def waitOneSecond():
     yield from sea.wait(sea.ITERATIONS_PER_SECOND)

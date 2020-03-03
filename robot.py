@@ -150,6 +150,8 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
+
+        self.shooter.start()
         
         self.controlModeMachine.replace(self.autoState)
 

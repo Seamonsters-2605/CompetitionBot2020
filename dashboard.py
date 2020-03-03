@@ -295,6 +295,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.genericActionList.append("Drive to Point", "drive")
         self.genericActionList.append("Rotate in Place", "rotate")
         self.genericActionList.append("Rotate towards Point", "face")
+        self.genericActionList.append("Shoot at Point", "shoot")
         self.genericActionList.append("Set Starting Positon", "set")
         index = 0
         for action in robot.genericAutoActions:
@@ -474,6 +475,9 @@ class CompetitionDashboard(sea.Dashboard):
             pass
         elif key == "face":
             action = autoActions.createRotateTowardsPointAction(
+                self.robot, coord)
+        elif key == "shoot":
+            action = autoActions.createShootAtPointAction(
                 self.robot, coord)
         elif key == "set":
             action = autoActions.createSetRobotPositionAction(
