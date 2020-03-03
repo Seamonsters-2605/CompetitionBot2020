@@ -17,7 +17,7 @@ class Indexer:
         proximity = self.sensor.getProximity()
         color = self.sensor.getColor()
 
-        print(proximity, color)
+        print(color.red, color.green, color.blue)
 
         yield
 
