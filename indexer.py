@@ -55,6 +55,11 @@ class Indexer:
         self.indexerMotor.set(1)
         self.kickerWheel.set(1)
 
+    def reverse(self):
+        self.running = True
+        self.indexerMotor.set(-1)
+        self.kickerWheel.set(-1)
+
     # stops the motors
     def stop(self):
         self.running = False

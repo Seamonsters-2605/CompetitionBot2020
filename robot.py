@@ -142,6 +142,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         self.piston.set(SOLENOID_FORWARD)
 
         self.limelight.putNumber('ledMode', 1) # turn off leds
+        self.shooter.start()
 
         self.controlModeMachine.replace(self.manualState)
 
@@ -170,10 +171,7 @@ class CompetitionBot2020(sea.GeneratorBot):
     def driving(self):
 
         # reset button detection
-        self.operatorController.getYButtonPressed()
         self.operatorController.getXButtonPressed()
-        self.operatorController.getBumperPressed(CONTROLLER_RIGHT)
-        self.operatorController.getBumperPressed(CONTROLLER_LEFT)
         self.driverController.getBumperPressed(CONTROLLER_RIGHT)
         self.driverController.getAButtonPressed()
         
@@ -221,9 +219,8 @@ class CompetitionBot2020(sea.GeneratorBot):
             
             # Intake:
 
-            # go backwards by default, forwards when the A button is held down
-            if self.driverController.getBumperPressed(CONTROLLER_RIGHT):
-                self.intake.toggleDirection()                
+            # go forwards by default, backwards when the right bumper is held down
+            self.intake.reversed = self.driverController.getBumperPressed(CONTROLLER_RIGHT)               
 
             # switches intake on/off as well as extending/retracting it
             if self.driverController.getAButtonPressed():
@@ -232,8 +229,11 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             # Indexer:
 
-            if self.operatorController.getBumperPressed(CONTROLLER_LEFT):
-                self.indexer.toggleMotors()
+            if self.operatorController.getBumper(CONTROLLER_LEFT):
+                if not self.operatorController.getBButton():
+                    self.indexer.start()
+                else:
+                    self.indexer.reverse()
 
             # Shooter:
 
