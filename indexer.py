@@ -2,7 +2,7 @@ import wpilib, rev
 from rev.color import ColorSensorV3
 
 PROXIMITY_THRESH = 350
-ROTATIONS_PER_BALL = 10
+ROTATIONS_PER_BALL = 115
 
 class Indexer:
 
@@ -22,17 +22,18 @@ class Indexer:
 
         while True:
 
-            # color = self.sensor.getColor()
+            color = self.sensor.getColor()
             
-            # if color > PROXIMITY_THRESH:
+            if color > PROXIMITY_THRESH:
 
-            #     self.encoder.setPosition(0)
+                print("ball detected")
+                self.encoder.setPosition(0)
 
-            #     while self.encoder.getPosition() < ROTATIONS_PER_BALL:
+                while self.encoder.getPosition() < ROTATIONS_PER_BALL:
 
-            #         self.motor.set(0.05)
-
-            print(self.encoder.getPosition())
+                    self.motor.set(0.05)
+                
+                print("rotation complete")
 
             yield
 
