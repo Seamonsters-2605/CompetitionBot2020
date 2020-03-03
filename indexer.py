@@ -14,11 +14,11 @@ class Indexer:
     # generator to run the indexer when it detects a ball
     def runGenerator(self):
 
-        color = self.sensor.getColor()
-
         while True:
 
-            print(color.red, color.green, color.blue)
+            color = self.sensor.getColor()
+            proximity = self.sensor.getProximity()
+            print(proximity)
 
             yield
 
