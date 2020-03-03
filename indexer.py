@@ -54,7 +54,7 @@ class Indexer:
 
     # turns the motors on or off
     def toggleMotors(self):
-        if self.running:
+        if not self.running:
             self.start()
         else:
             self.stop()

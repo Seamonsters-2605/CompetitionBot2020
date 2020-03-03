@@ -235,8 +235,6 @@ class CompetitionBot2020(sea.GeneratorBot):
             if self.operatorController.getBumperPressed(CONTROLLER_LEFT):
                 self.indexer.toggleMotors()
 
-            self.indexer.run();
-
             # Shooter:
 
             if self.operatorController.getXButtonPressed():
