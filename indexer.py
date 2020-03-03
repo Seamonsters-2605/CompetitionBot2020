@@ -1,12 +1,16 @@
 import wpilib, rev
 from rev.color import ColorSensorV3
 
+PROXIMITY_THRESH = 350
+ROTATIONS_PER_BALL = 10
+
 class Indexer:
 
     def __init__(self, motorNum, placeHolderNum):
 
         self.motor = rev.CANSparkMax(motorNum, rev.CANSparkMax.MotorType.kBrushless)
         self.motorController = self.motor.getPIDController()
+        self.encoder = self.motor.getEncoder()
 
         # used for proximity sensing
         self.sensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
@@ -14,11 +18,21 @@ class Indexer:
     # generator to run the indexer when it detects a ball
     def runGenerator(self):
 
+        self.encoder.setPosition(0)
+
         while True:
 
-            color = self.sensor.getColor()
-            proximity = self.sensor.getProximity()
-            print(proximity)
+            # color = self.sensor.getColor()
+            
+            # if color > PROXIMITY_THRESH:
+
+            #     self.encoder.setPosition(0)
+
+            #     while self.encoder.getPosition() < ROTATIONS_PER_BALL:
+
+            #         self.motor.set(0.05)
+
+            print(self.encoder.getPosition())
 
             yield
 
