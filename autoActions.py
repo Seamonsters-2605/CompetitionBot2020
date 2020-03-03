@@ -26,10 +26,9 @@ def createRotateInPlaceAction(pathFollower, coord):
         lambda: driveToPoint(pathFollower, newCoord, 0.5, True), "rotate", newCoord)
 
 def rotateTowardsPoint(robot, coord):
-    yield from sea.sequence(driveToPoint(robot.pathFollower, coord, 0.5, True), 
-        robot.faceVisionTarget())
-
-def createRotateTowardsPointAction(robot, coord):
+    # rotates to where it thinks the location is
+    # then uses the limelight to get very close
+    
     # calculates the angle to rotate to be
     # facing at the point coord
     xDiff = coord.x - robot.pathFollower.robotX
@@ -39,10 +38,12 @@ def createRotateTowardsPointAction(robot, coord):
     newCoord = coordinates.FieldCoordinate("Rotated",
         robot.pathFollower.robotX, robot.pathFollower.robotY, angle)
 
-    # rotates to where it thinks the location is
-    # then uses the limelight to get very close
-    return Action("Rotate towards " + newCoord.name,
-        lambda: rotateTowardsPoint(robot, newCoord), "face", newCoord)
+    yield from sea.sequence(driveToPoint(robot.pathFollower, coord, 0.5, True), 
+        robot.faceVisionTarget())
+
+def createRotateTowardsPointAction(robot, coord):
+    return Action("Rotate towards " + coord.name,
+        lambda: rotateTowardsPoint(robot, coord), "face", coord)
 
 # runs the indexer for 3 seconds to shoot balls
 # the shooter should already be running before this is called
