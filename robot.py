@@ -38,6 +38,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.limelight = NetworkTables.getTable('limelight')
         self.limelight.putNumber('pipeline', vision.DUAL_PIPELINE)
+        self.limelight.putNumber('ledMode', 1)
 
         # for autonomous mode
         self.autoScheduler = autoScheduler.AutoScheduler()
@@ -234,6 +235,8 @@ class CompetitionBot2020(sea.GeneratorBot):
                     self.indexer.start()
                 else:
                     self.indexer.reverse()
+            else:
+                self.indexer.stop()
 
             # Shooter:
 
