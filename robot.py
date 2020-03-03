@@ -38,7 +38,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         self.limelight = NetworkTables.getTable('limelight')
         self.limelight.putNumber('pipeline', vision.DUAL_PIPELINE)
-        self.limelight.putNumber('ledMode', 1) # turn off leds
 
         # for autonomous mode
         self.autoScheduler = autoScheduler.AutoScheduler()
@@ -141,6 +140,8 @@ class CompetitionBot2020(sea.GeneratorBot):
          
         self.piston.set(SOLENOID_FORWARD)
 
+        self.limelight.putNumber('ledMode', 1) # turn off leds
+
         self.controlModeMachine.replace(self.manualState)
 
     # switches the robot into auto
@@ -151,6 +152,7 @@ class CompetitionBot2020(sea.GeneratorBot):
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
 
+        self.limelight.putNumber('ledMode', 3) # turn on leds
         self.shooter.start()
         
         self.controlModeMachine.replace(self.autoState)
