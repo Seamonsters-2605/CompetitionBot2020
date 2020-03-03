@@ -10,6 +10,7 @@ class Intake:
         self.piston = wpilib.DoubleSolenoid(pistonNum1, pistonNum2)
 
         self.motor = rev.CANSparkMax(sparkNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.encoder = self.motor.getEncoder()
         self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
         self.motorController = self.motor.getPIDController()
 
@@ -69,19 +70,46 @@ class Intake:
     def start(self):
         self.running = True
 
-    # should be called 50 times a second
+    # this is a generator, should be iterated 50 times a second
     def run(self):
 
-        if self.running:
-            if self.reversed:
-                motorSpeed = -10_000
-            else:
-                motorSpeed = 10_000
+        # for keeping track of motor stalling	
+        motorStallCount = 0	
+        motorSpeed = 5_000
 
-            self.motorController.setReference(motorSpeed, rev.ControlType.kVelocity)
-        else:
-            self.motor.set(0)
+        while True:
+
+            if self.running:
+                if self.reversed:
+                    speed = -motorSpeed
+                else:
+                    speed = motorSpeed
+
+                    # counts if the motor is stalling while going forwards	
+                    if abs(self.encoder.getVelocity()) <  50:	
+                        motorStallCount += 1
+                    else:	
+                        motorStallCount = 0	
+
+                    # rotate the motor backwards if it has stalled for too long
+                    if motorStallCount >= 10:
+                        motorStallCount = 0
+                        for _ in range(10):
+                            self.motorController.setReference(-motorSpeed, rev.ControlType.kVelocity)
+                            yield
+                
+                # actually run the motor
+                self.motorController.setReference(speed, rev.ControlType.kVelocity)
+            else:
+                # if it isn't running, set to zero voltage so it won't move
+                self.motor.set(0)
+
+            yield
 
     # toggles between spinning and not spinning each time it is called
     def toggleMotor(self):
         self.running = not self.running
+
+    # toggles between forwards and backwards
+    def toggleDirection(self):
+        self.reversed = not self.reversed

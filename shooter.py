@@ -28,8 +28,8 @@ class Shooter:
     def spin(self):
         
         if self.running:
-            self.motorController1.setReference(self.speed, rev.ControlType.kVelocity)
-            self.motorController2.setReference(-self.speed, rev.ControlType.kVelocity)
+            self.motorController1.setReference(-self.speed, rev.ControlType.kVelocity)
+            self.motorController2.setReference(self.speed, rev.ControlType.kVelocity)
         else:
             self.motor1.set(0)
             self.motor2.set(0)
@@ -37,9 +37,11 @@ class Shooter:
     # stops the motors
     def stop(self):
         self.running = False
+        self.spin()
 
     def start(self):
         self.running = True
+        self.spin()
 
     def toggleMotors(self):
         self.running = not self.running
