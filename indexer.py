@@ -6,11 +6,13 @@ ROTATIONS_PER_BALL = 100
 
 class Indexer:
 
-    def __init__(self, motorNum, placeHolderNum):
+    def __init__(self, indexerMotorNum, kickerWheelMotorNum):
 
-        self.motor = rev.CANSparkMax(motorNum, rev.CANSparkMax.MotorType.kBrushless)
-        self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
-        self.encoder = self.motor.getEncoder()
+        self.indexerMotor = rev.CANSparkMax(indexerMotorNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.indexerMotor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
+        self.indexerEncoder = self.indexerMotor.getEncoder()
+
+        self.kickerWheel = rev.CANSparkMax(kickerWheelMotorNum, rev.CANSparkMax.MotorType.kBrushless)
 
         # used for proximity sensing
         self.sensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
@@ -20,7 +22,7 @@ class Indexer:
     # generator to run the indexer when it detects a ball
     def runGenerator(self):
         
-        self.encoder.setPosition(0)
+        self.indexerEncoder.setPosition(0)
 
         while True:
 
@@ -31,9 +33,9 @@ class Indexer:
                 if proximity > PROXIMITY_THRESH:
 
                     print("ball detected")
-                    self.encoder.setPosition(0)
+                    self.indexerEncoder.setPosition(0)
 
-                    while self.encoder.getPosition() < ROTATIONS_PER_BALL:
+                    while self.indexerEncoder.getPosition() < ROTATIONS_PER_BALL:
 
                         self.start()
                     
@@ -45,12 +47,14 @@ class Indexer:
     # starts the motors to move the balls
     def start(self):
         self.running = True
-        self.motor.set(1)
+        self.indexerMotor.set(1)
+        self.kickerWheel.set(1)
 
     # stops the motors
     def stop(self):
         self.running = False
-        self.motor.set(0)
+        self.indexerMotor.set(0)
+        self.kickerWheel.set(0)
 
     # turns the motors on or off
     def toggleMotors(self):
