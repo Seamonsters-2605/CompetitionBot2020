@@ -32,15 +32,20 @@ class Indexer:
                 
                 if proximity > PROXIMITY_THRESH:
 
-                    print("ball detected")
+                    for _ in range(12):
+                        yield
+
+                    proximity = self.sensor.getProximity()
+
                     self.indexerEncoder.setPosition(0)
 
-                    while self.indexerEncoder.getPosition() < ROTATIONS_PER_BALL:
+                    if proximity > PROXIMITY_THRESH:
 
-                        self.start()
+                        while self.indexerEncoder.getPosition() < ROTATIONS_PER_BALL:
+
+                            self.start()
                     
                     self.stop()
-                    print("rotation complete")
 
             yield
 
