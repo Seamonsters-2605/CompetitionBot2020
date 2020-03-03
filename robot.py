@@ -211,18 +211,18 @@ class CompetitionBot2020(sea.GeneratorBot):
             # Vision Alignment:
 
             if self.driverController.getBumper(CONTROLLER_LEFT):
+                self.limelight.putNumber('ledMode', 3) # turn on leds
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
                 self._turnDegree(None, accuracy=0, multiplier=(20 / self.driveGear.turnScale), visionTarget=True)
+            else:
+                self.limelight.putNumber('ledMode', 1) # turn off leds
             
             # Intake:
 
             # go backwards by default, forwards when the A button is held down
             if self.driverController.getBumperPressed(CONTROLLER_RIGHT):
-                self.limelight.putNumber('ledMode', 3) # turn on leds
-                self.intake.toggleDirection()
-            else:
-                self.limelight.putNumber('ledMode', 1) # turn off leds
+                self.intake.toggleDirection()                
 
             # switches intake on/off as well as extending/retracting it
             if self.driverController.getAButtonPressed():

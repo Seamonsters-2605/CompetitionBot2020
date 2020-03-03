@@ -10,6 +10,7 @@ class Intake:
         self.piston = wpilib.DoubleSolenoid(pistonNum1, pistonNum2)
 
         self.motor = rev.CANSparkMax(sparkNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.encoder = self.motor.getEncoder()
         self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
         self.motorController = self.motor.getPIDController()
 
