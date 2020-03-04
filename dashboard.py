@@ -168,7 +168,10 @@ class CompetitionDashboard(sea.Dashboard):
         cameraBox = self.sectionBox()
 
         videoFeedBox = gui.HBox()
-        videoFeed = gui.Image('http://10.26.5.11:5800/')
+        limelightFeed = gui.Image('http://10.26.5.11:5800/')
+        videoFeedBox.append(limelightFeed)
+
+        videoFeed = gui.Image('http://10.26.5.6:5800/')
         videoFeedBox.append(videoFeed)
 
         cameraBox.append(videoFeedBox)
@@ -295,7 +298,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.genericActionList.append("Drive to Point", "drive")
         self.genericActionList.append("Rotate in Place", "rotate")
         self.genericActionList.append("Rotate towards Point", "face")
-        self.genericActionList.append("Shoot at Point", "shoot")
+        self.genericActionList.append("Shoot", "shoot")
         self.genericActionList.append("Set Starting Positon", "set")
         index = 0
         for action in robot.genericAutoActions:
@@ -477,8 +480,7 @@ class CompetitionDashboard(sea.Dashboard):
             action = autoActions.createRotateTowardsPointAction(
                 self.robot, coord)
         elif key == "shoot":
-            action = autoActions.createShootAtPointAction(
-                self.robot, coord)
+            action = autoActions.createShootAction(self.robot)
         elif key == "set":
             action = autoActions.createSetRobotPositionAction(
                 self.robot.pathFollower, coord)
