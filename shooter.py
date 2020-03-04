@@ -22,7 +22,7 @@ class Shooter:
                 motorController.setFF(f)
 
         self.running = False
-        self.speed = 5_500
+        self.speed = 5_500 # 5_000 for right in front of the port mode
 
     # drives the motors, should be called 50 times a second
     def spin(self):

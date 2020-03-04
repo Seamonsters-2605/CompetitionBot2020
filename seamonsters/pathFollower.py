@@ -15,7 +15,7 @@ class PathFollower:
     """
 
     NAVX_LAG = 7 # frames
-    NAVX_ERROR_CORRECTION = 1 # out of 1
+    NAVX_ERROR_CORRECTION = 0 # out of 1
 
     def __init__(self, drive, ahrs=None):
         """
@@ -74,7 +74,7 @@ class PathFollower:
             self.drive.getRobotPositionOffset(self._drivePositionState, target=False)
             # set the target to False because it is more accurate
 
-        self.robotAngle += moveTurn
+        self.robotAngle -= moveTurn
         self._robotAngleHistory.append(self.robotAngle)
         # pretty sure this isn't off by 1
         if len(self._robotAngleHistory) >= PathFollower.NAVX_LAG:

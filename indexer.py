@@ -32,7 +32,7 @@ class Indexer:
                 
                 if proximity > PROXIMITY_THRESH:
 
-                    for _ in range(12):
+                    for _ in range(8):
                         yield
 
                     proximity = self.sensor.getProximity()
@@ -52,13 +52,13 @@ class Indexer:
     # starts the motors to move the balls
     def start(self):
         self.running = True
-        self.indexerMotor.set(1)
-        self.kickerWheel.set(1)
+        self.indexerMotor.set(0.8)
+        self.kickerWheel.set(0.8)
 
     def reverse(self):
         self.running = True
-        self.indexerMotor.set(-1)
-        self.kickerWheel.set(-1)
+        self.indexerMotor.set(-0.8)
+        self.kickerWheel.set(-0.8)
 
     # stops the motors
     def stop(self):

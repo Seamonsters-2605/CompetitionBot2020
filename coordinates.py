@@ -16,11 +16,11 @@ class FieldCoordinate:
 
 targetPoints = [
     # Red
-    FieldCoordinate("Low Port", -24.5, 5.11, math.pi/2),
+    FieldCoordinate("Power Port", -24.5, 5.11, math.pi/2),
     FieldCoordinate("Control Panel", 0, 10.69, 3 * math.pi/2),
     FieldCoordinate("Loading Bay", 24.5, 4.625, 3 * math.pi/2),
     # Blue
-    FieldCoordinate("Low Port", 24.5, -5.11, 3 * math.pi/2),
+    FieldCoordinate("Power Port", 24.5, -5.11, 3 * math.pi/2),
     FieldCoordinate("Control Panel", 0, -10.69, math.pi/2),
     FieldCoordinate("Loading Bay", -24.5, -4.625, math.pi/2)
 ]
