@@ -62,6 +62,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.autoSpeedGroup.highlight("medium")
         rightSide.append(self.initTest(robot))
         rightSide.append(self.initSubsystemsInfo(robot))
+        rightSide.append(self.initIndexInfo())
 
         root.append(leftSide)
         root.append(middle)
@@ -74,6 +75,9 @@ class CompetitionDashboard(sea.Dashboard):
 
     # runs every time the dashboard is updated
     def idle(self):
+
+        self.indexerCountLabel.set_text(str(self.robot.indexer.balls))
+
         pf = self.robot.pathFollower
         self.updateRobotPosition(
             pf.robotX, pf.robotY, pf.robotAngle)
@@ -427,6 +431,14 @@ class CompetitionDashboard(sea.Dashboard):
 
         statsBox.append(motorDataBox)
         return statsBox
+
+    def initIndexInfo(self):
+
+        self.indexerCountLabel = gui.Label("3")
+
+        indexInfoBox = sea.hBoxWith(gui.Label("Balls in Indexer: "), self.indexerCountLabel)
+
+        return indexInfoBox
 
     def initSubsystemsInfo(self, robot):
         subsystemBox = self.sectionBox()
