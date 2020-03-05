@@ -78,6 +78,23 @@ def createSetRobotPositionAction(pathFollower, coord):
     return Action("Set Starting Position", 
         lambda: setRobotPosition(pathFollower, coord), "set", coord)
 
+def setRobotAngleToCursor(pathFollower, coord):
+    yield
+    xdif = coord.x - pathFollower.robotX
+    ydif = coord.y - pathFollower.robotY
+
+    angle = -math.atan2(xdif, ydif)
+
+    pathFollower.setPosition(
+        pathFollower.robotX, 
+        pathFollower.robotY, 
+        angle
+    )
+
+def createSetRobotAngleToCursorAction(pathFollower, coord):
+    return Action("Set Robot Starting Angle",
+        lambda: setRobotAngleToCursor(pathFollower, coord), "angle", coord)
+
 # generic actions have a key that is the same as the index in the list
 # so they can be recreated easily by the auto preset opener
 def createGenericAutoActions(robot):

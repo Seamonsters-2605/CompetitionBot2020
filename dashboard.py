@@ -329,6 +329,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.genericActionList.append("Rotate towards Point", "face")
         self.genericActionList.append("Shoot", "shoot")
         self.genericActionList.append("Set Starting Positon", "set")
+        self.genericActionList.append("Set Robot Starting Angle", "angle")
         index = 0
         for action in robot.genericAutoActions:
             self.genericActionList.append(gui.ListItem(action.name), str(index))
@@ -502,14 +503,14 @@ class CompetitionDashboard(sea.Dashboard):
     def c_pointAtCursor(self, button):
         coord = self.selectedCoord
 
-        xdif = coord.x - self.robot.pathFollower.robotx
-        ydif = coord.y - self.robot.pathFollower.roboty
+        xdif = coord.x - self.robot.pathFollower.robotX
+        ydif = coord.y - self.robot.pathFollower.robotY
 
-        angle = math.atan2(xdif, ydif)
+        angle = -math.atan2(xdif, ydif)
 
         self.robot.pathFollower.setPosition(
-            self.robot.pathFollower.robotx, 
-            self.robot.pathFollower.roboty, 
+            self.robot.pathFollower.robotX, 
+            self.robot.pathFollower.robotY, 
             angle
         )
 
@@ -540,6 +541,10 @@ class CompetitionDashboard(sea.Dashboard):
             action = autoActions.createShootAction(self.robot)
         elif key == "set":
             action = autoActions.createSetRobotPositionAction(
+                self.robot.pathFollower, coord)
+            pass
+        elif key == "angle":
+            action = autoActions.createSetRobotAngleToCursorAction(
                 self.robot.pathFollower, coord)
             pass
         else:
