@@ -23,8 +23,6 @@ class Indexer:
         self.running = False
         self.reversed = False
 
-        self.balls = 3
-
     # generator to run the indexer when it detects a ball
     def runGenerator(self):
         
@@ -54,7 +52,6 @@ class Indexer:
                             self.indexerMotor.set(0.8)
                             self.kickerWheel.set(0.8)
                             
-                    self.balls += 1
                     self.stop()
 
             yield
@@ -65,7 +62,6 @@ class Indexer:
         reversed = False
         self.indexerMotor.set(0.8)
         self.kickerWheel.set(1)
-        self.balls = 0
 
     def reverse(self):
         self.running = True
