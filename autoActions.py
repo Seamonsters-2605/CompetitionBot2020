@@ -56,10 +56,16 @@ def shoot(robot):
         break
 
 def createShootAction(robot):
-
-    # rotates towards the inputted coord, then shoots
     return Action("Shoot", lambda: shoot(robot), "shoot")
 
+def toggleIntake(robot):
+    robot.intake.toggleIntake()
+    robot.intake.toggleMotor()
+    robot.intake.run()
+
+def createToggleIntakeAction(robot):
+    return Action("Toggle Intake", lambda: toggleIntake(robot), "intake")
+    
 def waitOneSecond():
     yield from sea.wait(sea.ITERATIONS_PER_SECOND)
 

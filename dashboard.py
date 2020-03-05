@@ -329,6 +329,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.genericActionList.append("Rotate in Place", "rotate")
         self.genericActionList.append("Rotate towards Point", "face")
         self.genericActionList.append("Shoot", "shoot")
+        self.genericActionList.append("Toggle Intake", "intake")
         self.genericActionList.append("Set Starting Positon", "set")
         self.genericActionList.append("Set Robot Starting Angle", "angle")
         index = 0
@@ -547,6 +548,9 @@ class CompetitionDashboard(sea.Dashboard):
         elif key == "angle":
             action = autoActions.createSetRobotAngleToCursorAction(
                 self.robot.pathFollower, coord)
+            pass
+        elif key == "intake":
+            action = autoActions.createToggleIntakeAction(self.robot)
             pass
         else:
             action = self.robot.genericAutoActions[int(key)]
