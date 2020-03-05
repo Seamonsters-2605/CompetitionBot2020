@@ -38,7 +38,7 @@ class CompetitionDashboard(sea.Dashboard):
         middle = gui.VBox()
 
         rightSide = gui.VBox()
-        rightSide.style['align-items'] = 'flex-start'
+        rightSide.style['align-items'] = 'stretch'
 
         self.motorDataDict = { \
             "ampRow" : None,
@@ -62,6 +62,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.autoSpeedGroup.highlight("medium")
         rightSide.append(self.initTest(robot))
         rightSide.append(self.initSubsystemsInfo(robot))
+        rightSide.append(self.initIndexInfo(robot))
 
         root.append(leftSide)
         root.append(middle)
@@ -121,6 +122,9 @@ class CompetitionDashboard(sea.Dashboard):
         # shooter color adjustment
         color = GREEN if self.robot.shooter.running else GREY
         self.shooterIndicator.style["background"] = color
+
+        # keeps track of the number of balls indexed
+        self.indexerCount.set_text(str(self.robot.indexer.ballCount))
 
     def initManual(self, robot):
         manualBox = self.sectionBox()
@@ -444,6 +448,14 @@ class CompetitionDashboard(sea.Dashboard):
 
         subsystemBox.append(subsystemInfoBox)
         return subsystemBox
+
+    def initIndexInfo(self, robot):
+        indexerInfoBox = self.sectionBox()
+        self.indexerCount = gui.Label("3")
+        indexerBallCountBox = sea.hBoxWith(gui.Label("Indexer Ball Count: "), self.indexerCount)
+        indexerInfoBox.append(indexerBallCountBox)
+
+        return indexerInfoBox
 
     def updateRobotPosition(self, robotX, robotY, robotAngle):
         self.robotArrow.setPosition(robotX, robotY, robotAngle)
