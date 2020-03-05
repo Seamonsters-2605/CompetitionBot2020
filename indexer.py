@@ -49,6 +49,8 @@ class Indexer:
 
                         while self.indexerEncoder.getPosition() < ROTATIONS_PER_BALL:
 
+                            self.running = True
+                            reversed = False
                             self.indexerMotor.set(0.8)
                             self.kickerWheel.set(0.8)
                             
@@ -62,20 +64,20 @@ class Indexer:
         self.running = True
         reversed = False
         self.indexerMotor.set(0.8)
-        self.kickerWheel.set(0.8)
+        self.kickerWheel.set(1)
         self.balls = 0
 
     def reverse(self):
         self.running = True
         reversed = False
         self.indexerMotor.set(-0.8)
-        self.kickerWheel.set(-0.8)
+        self.kickerWheel.set(-1)
 
     # stops the motors
     def stop(self):
         self.running = False
         self.indexerMotor.set(0)
-        self.kickerWheel.set(0)
+        self.kickerWheel.set(1)
 
     # turns the motors on or off
     def toggleMotors(self):

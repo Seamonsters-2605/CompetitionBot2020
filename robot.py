@@ -214,7 +214,7 @@ class CompetitionBot2020(sea.GeneratorBot):
                 self.limelight.putNumber('ledMode', 3) # turn on leds
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
-                self._turnDegree(None, accuracy=0, multiplier=(20 / self.driveGear.turnScale), visionTarget=True)
+                self._turnDegree(None, accuracy=0, multiplier=(30 / self.driveGear.turnScale), visionTarget=True)
             else:
                 self.limelight.putNumber('ledMode', 1) # turn off leds
             
