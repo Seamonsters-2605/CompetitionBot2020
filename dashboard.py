@@ -6,6 +6,10 @@ FIELD_WIDTH = 520
 FIELD_HEIGHT = 260
 FIELD_PIXELS_PER_FOOT = 10
 
+GREEN = "rgb(21, 130, 21)"
+RED = "rgb(130, 21, 21)"
+GREY = "rgb(100, 100, 100)"
+
 class CompetitionDashboard(sea.Dashboard):
 
     def __init__(self, *args, **kwargs):
@@ -47,8 +51,6 @@ class CompetitionDashboard(sea.Dashboard):
             "maxTemp" : []
             }
 
-        self.updateSchedulerFlag = False
-
         leftSide.append(self.initStats(robot))
         leftSide.append(self.initLedControl(robot))
         leftSide.append(self.initScheduler(robot))
@@ -59,10 +61,13 @@ class CompetitionDashboard(sea.Dashboard):
         rightSide.append(self.initManual(robot))
         self.autoSpeedGroup.highlight("medium")
         rightSide.append(self.initTest(robot))
+        rightSide.append(self.initSubsystemsInfo(robot))
 
         root.append(leftSide)
         root.append(middle)
         root.append(rightSide)
+
+        self.updateSchedulerFlag = False
 
         appCallback(self)
         return root
@@ -95,6 +100,26 @@ class CompetitionDashboard(sea.Dashboard):
             maxTempRow = self.motorDataTable.children[self.motorDataDict["maxTempRow"]]
             maxTempItem = maxTempRow.children[self.motorDataDict["maxTemp"][motorNum]]
             maxTempItem.set_text(str(self.robot.motorData[motorNum]["maxTemp"]))
+
+        # updates the subsystem indicators
+
+        color = GREY
+
+        # intake color adjustment
+        if self.robot.intake.running:
+            color = RED if self.robot.intake.reversed else GREEN
+        self.intakeIndicator.style["background"] = color
+
+        color = GREY
+
+        # indexer color adjustment
+        if self.robot.indexer.running:
+            color = RED if self.robot.indexer.reversed else GREEN
+        self.indexerIndicator.style["background"] = color
+
+        # shooter color adjustment
+        color = GREEN if self.robot.shooter.running else GREY
+        self.shooterIndicator.style["background"] = color
 
     def initManual(self, robot):
         manualBox = self.sectionBox()
@@ -398,6 +423,20 @@ class CompetitionDashboard(sea.Dashboard):
 
         statsBox.append(motorDataBox)
         return statsBox
+
+    def initSubsystemsInfo(self, robot):
+        subsystemBox = self.sectionBox()
+
+        subsystemInfoBox = sea.hBoxWith(gui.Label("Subsystems:"))
+        self.intakeIndicator = gui.Button("Intake")
+        self.indexerIndicator = gui.Button("Indexer")
+        self.shooterIndicator = gui.Button("Shooter")
+
+        for indicator in [self.intakeIndicator, self.indexerIndicator, self.shooterIndicator]:
+            subsystemInfoBox.append(indicator)
+
+        subsystemBox.append(subsystemInfoBox)
+        return subsystemBox
 
     def updateRobotPosition(self, robotX, robotY, robotAngle):
         self.robotArrow.setPosition(robotX, robotY, robotAngle)

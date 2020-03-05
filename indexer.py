@@ -15,9 +15,13 @@ class Indexer:
         self.kickerWheel = rev.CANSparkMax(kickerWheelMotorNum, rev.CANSparkMax.MotorType.kBrushless)
 
         # used for proximity sensing
-        self.sensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
+        try:
+            self.sensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
+        except:
+            pass # crashes in the sim, don't worry about it
 
         self.running = False
+        self.reversed = False
 
     # generator to run the indexer when it detects a ball
     def runGenerator(self):
@@ -52,11 +56,13 @@ class Indexer:
     # starts the motors to move the balls
     def start(self):
         self.running = True
+        reversed = False
         self.indexerMotor.set(0.8)
         self.kickerWheel.set(0.8)
 
     def reverse(self):
         self.running = True
+        reversed = False
         self.indexerMotor.set(-0.8)
         self.kickerWheel.set(-0.8)
 
