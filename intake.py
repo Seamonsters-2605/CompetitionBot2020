@@ -73,8 +73,8 @@ class Intake:
     # this is a generator, should be iterated 50 times a second
     def run(self):
 
-        # for keeping track of motor stalling	
-        motorStallCount = 0	
+        # for keeping track of motor stalling
+        motorStallCount = 0
         motorSpeed = 5_000
 
         while True:
@@ -94,8 +94,8 @@ class Intake:
                     # rotate the motor backwards if it has stalled for too long
                     if motorStallCount >= 10:
                         motorStallCount = 0
-                        for _ in range(10):
-                            self.motorController.setReference(-motorSpeed, rev.ControlType.kVelocity)
+                        for _ in range(200):
+                            self.motor.set(0)
                             yield
                 
                 # actually run the motor
