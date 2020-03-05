@@ -250,6 +250,10 @@ class CompetitionDashboard(sea.Dashboard):
         setPositionBtn.set_on_click_listener(self.c_setRobotPosition)
         robotBox.append(setPositionBtn)
 
+        setRotationBtn = gui.Button("Point Robot at Cursor")
+        setRotationBtn.set_on_click_listener(self.c_pointAtCursor)
+        robotBox.append(setRotationBtn)
+
         def setCursorAngle(button, angle):
             self.selectedCoord.angle = angle
             self.updateCursorPosition()
@@ -494,6 +498,20 @@ class CompetitionDashboard(sea.Dashboard):
         coord = self.selectedCoord
         self.robot.pathFollower.setPosition(
             coord.x, coord.y, coord.angle)
+        
+    def c_pointAtCursor(self, button):
+        coord = self.selectedCoord
+
+        xdif = coord.x - self.robot.pathFollower.robotx
+        ydif = coord.y - self.robot.pathFollower.roboty
+
+        angle = math.atan2(xdif, ydif)
+
+        self.robot.pathFollower.setPosition(
+            self.robot.pathFollower.robotx, 
+            self.robot.pathFollower.roboty, 
+            angle
+        )
 
     def mouse_down_listener(self,widget,x,y):
         x, y = svgToFieldCoordinates(x, y)
