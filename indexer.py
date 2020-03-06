@@ -22,6 +22,7 @@ class Indexer:
 
         self.running = False
         self.reversed = False
+        self.autoIndexEnabled = True
 
     # generator to run the indexer when it detects a ball
     def runGenerator(self):
@@ -30,7 +31,7 @@ class Indexer:
 
         while True:
 
-            if not self.running:
+            if not self.running and self.autoIndexEnabled:
 
                 proximity = self.sensor.getProximity()
                 
@@ -80,3 +81,6 @@ class Indexer:
             self.start()
         else:
             self.stop()
+
+    def toggleAutoIntake(self):
+        self.autoIndexEnabled = not self.autoIndexEnabled

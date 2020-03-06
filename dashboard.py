@@ -118,6 +118,10 @@ class CompetitionDashboard(sea.Dashboard):
             color = RED if self.robot.indexer.reversed else GREEN
         self.indexerIndicator.style["background"] = color
 
+        # auto indexer color adjustment
+        color = GREEN if self.robot.indexer.autoIndexEnabled else RED
+        self.autoIndexIndicator.style["background"] = color
+
         # shooter color adjustment
         color = GREEN if self.robot.shooter.running else GREY
         self.shooterIndicator.style["background"] = color
@@ -437,9 +441,10 @@ class CompetitionDashboard(sea.Dashboard):
         subsystemInfoBox = sea.hBoxWith(gui.Label("Subsystems:"))
         self.intakeIndicator = gui.Button("Intake")
         self.indexerIndicator = gui.Button("Indexer")
+        self.autoIndexIndicator = gui.Button("Auto Indexer")
         self.shooterIndicator = gui.Button("Shooter")
 
-        for indicator in [self.intakeIndicator, self.indexerIndicator, self.shooterIndicator]:
+        for indicator in [self.intakeIndicator, self.indexerIndicator, self.autoIndexIndicator, self.shooterIndicator]:
             subsystemInfoBox.append(indicator)
 
         subsystemBox.append(subsystemInfoBox)

@@ -61,7 +61,11 @@ def createShootAction(robot):
 def toggleIntake(robot):
     robot.intake.toggleIntake()
     robot.intake.toggleMotor()
-    robot.intake.run()
+    
+    if robot.intake.running:
+        robot.intake.start()
+    else:
+        robot.intake.stop()
 
 def createToggleIntakeAction(robot):
     return Action("Toggle Intake", lambda: toggleIntake(robot), "intake")

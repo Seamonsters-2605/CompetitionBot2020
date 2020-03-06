@@ -173,6 +173,7 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # reset button detection
         self.operatorController.getXButtonPressed()
+        self.operatorController.getYButtonPressed()
         self.driverController.getAButtonPressed()
         
         while True:
@@ -241,6 +242,9 @@ class CompetitionBot2020(sea.GeneratorBot):
                     self.indexer.reverse()
             else:
                 self.indexer.stop()
+
+            if self.operatorController.getYButtonPressed():
+                self.indexer.toggleAutoIntake()
 
             # Shooter:
 

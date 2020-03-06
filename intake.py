@@ -1,7 +1,8 @@
 import wpilib, rev
 
-class Intake:
+MOTOR_SPEED = 5_000
 
+class Intake:
     # pistonNums should be a list of length 4
     # the first 2 values for one piston and the
     # other 2 values for the other piston
@@ -65,25 +66,29 @@ class Intake:
     # stops the motor
     def stop(self):
         self.running = False
+        self.motor.set(0)
 
     # starts the motor
     def start(self):
         self.running = True
+
+        speed = -MOTOR_SPEED if self.reversed else MOTOR_SPEEDf
+
+        self.motorController.setReference(speed, rev.ControlType.kVelocity)
 
     # this is a generator, should be iterated 50 times a second
     def run(self):
 
         # for keeping track of motor stalling
         motorStallCount = 0
-        motorSpeed = 5_000
 
         while True:
 
             if self.running:
                 if self.reversed:
-                    speed = -motorSpeed
+                    speed = -MOTOR_SPEED
                 else:
-                    speed = motorSpeed
+                    speed = MOTOR_SPEED
 
                     # counts if the motor is stalling while going forwards	
                     if abs(self.encoder.getVelocity()) <  50:	
