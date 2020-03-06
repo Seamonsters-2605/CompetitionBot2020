@@ -173,9 +173,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
         # reset button detection
         self.operatorController.getXButtonPressed()
-        self.operatorController.getAButtonPressed()
-        self.operatorController.getAButtonReleased()
-        self.driverController.getBumperPressed(CONTROLLER_RIGHT)
         self.driverController.getAButtonPressed()
         
         while True:
@@ -222,21 +219,18 @@ class CompetitionBot2020(sea.GeneratorBot):
             
             # Intake:
 
-            # go forwards by default when the bumper is being held down
-            if self.driverController.getBumperPressed(CONTROLLER_RIGHT):
+            # go forwards when bumper is being held down
+            if self.driverController.getBumper(CONTROLLER_RIGHT):
                 self.intake.spinForwards()           
+            elif self.operatorController.getAButton():
+                # the operater can make the intake go reversed by holding the A button
+                self.intake.spinReversed()
             else:
                 self.intake.stop()
 
             # extending/retracting the intake
             if self.driverController.getAButtonPressed():
                 self.intake.toggleIntake()
-
-            # the operater can make the intake go reversed by holding the A button
-            if self.operatorController.getAButtonPressed():
-                self.intake.spinReversed()
-            if self.operatorController.getAButtonReleased():
-                self.intake.stop()
 
             # Indexer:
 

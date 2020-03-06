@@ -23,8 +23,6 @@ class Indexer:
         self.running = False
         self.reversed = False
 
-        self.ballCount = 3
-
     # generator to run the indexer when it detects a ball
     def runGenerator(self):
         
@@ -36,7 +34,7 @@ class Indexer:
 
                 proximity = self.sensor.getProximity()
                 
-                if proximity > PROXIMITY_THRESH and self.ballCount <= 3:
+                if proximity > PROXIMITY_THRESH:
 
                     for _ in range(8):
                         yield
@@ -47,13 +45,10 @@ class Indexer:
 
                     if proximity > PROXIMITY_THRESH:
 
-                        self.ballCount += 1
                         while self.indexerEncoder.getPosition() < ROTATIONS_PER_BALL:
 
-                            self.running = True
-                            reversed = False
-                            self.indexerMotor.set(0.8)
-                            self.kickerWheel.set(1)
+                            self.start()
+                            yield
                             
                     self.stop()
 
@@ -61,7 +56,6 @@ class Indexer:
 
     # starts the motors to move the balls
     def start(self):
-        self.ballCount = 0
         self.running = True
         reversed = False
         self.indexerMotor.set(0.8)
@@ -69,15 +63,13 @@ class Indexer:
 
     # spits the balls out
     def reverse(self):
-        self.ballCount = 0
         self.running = True
-        reversed = False
+        reversed = True
         self.indexerMotor.set(-0.8)
         self.kickerWheel.set(-1)
 
     # stops the motors
     def stop(self):
-        self.ballCount = 0
         self.running = False
         self.indexerMotor.set(0)
         self.kickerWheel.set(1)
