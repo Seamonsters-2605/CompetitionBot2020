@@ -72,7 +72,7 @@ class Intake:
     def start(self):
         self.running = True
 
-        speed = -MOTOR_SPEED if self.reversed else MOTOR_SPEEDf
+        speed = -MOTOR_SPEED if self.reversed else MOTOR_SPEED
 
         self.motorController.setReference(speed, rev.ControlType.kVelocity)
 
