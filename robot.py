@@ -130,12 +130,17 @@ class CompetitionBot2020(sea.GeneratorBot):
             self.updateDashboardGenerator(),
             self.updateMotorData(),
             self.indexer.runGenerator(),
-            self.intake.run())
+            self.intake.run(),
+            self.shooter.spin())
 
     # switches the robot into teleop
     def manualMode(self):
         if self.app is not None:
             self.app.controlModeGroup.highlight("manual")
+
+        self.driveMode = "velocity"
+        self.driveSpeed = "medium"
+        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
@@ -151,6 +156,11 @@ class CompetitionBot2020(sea.GeneratorBot):
     def autoMode(self):
         if self.app is not None:
             self.app.controlModeGroup.highlight("auto")
+
+        self.driveMode = "voltage"
+        self.driveSpeed = "slow"
+        self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
+        self.piston.set(SOLENOID_REVERSE)
 
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
@@ -250,8 +260,6 @@ class CompetitionBot2020(sea.GeneratorBot):
 
             if self.operatorController.getXButtonPressed():
                 self.shooter.toggleMotors()
-
-            self.shooter.spin()
 
             # need to add a way to adjust the shooter speed
 

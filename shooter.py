@@ -22,26 +22,28 @@ class Shooter:
                 motorController.setFF(f)
 
         self.running = False
-        self.speed = 5_000 # 5_000 for right in front of the port mode
+        self.speed = 5_500 # 5_000 for right in front of the port mode
 
-    # drives the motors, should be called 50 times a second
+    # is a genrator to actually drive the motors, should be called 50 times a second
     def spin(self):
+
+        while True:
         
-        if self.running:
-            self.motorController1.setReference(-self.speed, rev.ControlType.kVelocity)
-            self.motorController2.setReference(self.speed, rev.ControlType.kVelocity)
-        else:
-            self.motor1.set(0)
-            self.motor2.set(0)
+            if self.running:
+                self.motorController1.setReference(-self.speed, rev.ControlType.kVelocity)
+                self.motorController2.setReference(self.speed, rev.ControlType.kVelocity)
+            else:
+                self.motor1.set(0)
+                self.motor2.set(0)
+
+            yield
 
     # stops the motors
     def stop(self):
         self.running = False
-        self.spin()
 
     def start(self):
         self.running = True
-        self.spin()
 
     def toggleMotors(self):
         self.running = not self.running

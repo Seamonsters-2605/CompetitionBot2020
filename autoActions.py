@@ -53,6 +53,7 @@ def shoot(robot):
         robot.indexer.start()
         yield from sea.wait(150)
         robot.indexer.stop()
+        robot.shooter.stop()
         break
 
 def createShootAction(robot):
