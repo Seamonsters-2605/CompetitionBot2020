@@ -29,7 +29,7 @@ class CompetitionDashboard(sea.Dashboard):
     def main(self, robot, appCallback):
         self.robot = robot
 
-        root = gui.HBox(width = 1200, margin = "0px auto")
+        root = gui.HBox()
         root.style['align-items'] = 'stretch'
 
         leftSide = gui.VBox()
@@ -277,7 +277,8 @@ class CompetitionDashboard(sea.Dashboard):
         robotBox.append(downBtn)
 
         self.fieldSvg = gui.Svg()
-        self.fieldSvg.set_viewbox(0,0,FIELD_WIDTH,FIELD_HEIGHT)
+        self.fieldSvg.set_viewbox(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
+        self.fieldSvg.set_size(FIELD_WIDTH, FIELD_HEIGHT)
         self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
         fieldBox.append(self.fieldSvg)
 
