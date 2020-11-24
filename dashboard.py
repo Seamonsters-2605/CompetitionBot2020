@@ -276,7 +276,8 @@ class CompetitionDashboard(sea.Dashboard):
         downBtn.set_on_click_listener(setCursorAngle, math.radians(180))
         robotBox.append(downBtn)
 
-        self.fieldSvg = gui.Svg(FIELD_WIDTH, FIELD_HEIGHT)
+        self.fieldSvg = gui.Svg()
+        self.fieldSvg.set_viewbox(0,0,FIELD_WIDTH,FIELD_HEIGHT)
         self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
         fieldBox.append(self.fieldSvg)
 
