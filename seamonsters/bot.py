@@ -1,10 +1,10 @@
 __author__ = "seamonsters"
 
 import traceback, hal, logging
-from wpilib import _wpilib
+from wpilib import RobotBase
 from wpilib import RobotController
 
-class GeneratorBot(_wpilib.RobotBaseUser):
+class GeneratorBot(RobotBase):
     """
     A robot which runs generators throughout the cycles of autonomous, teleop,
     and test mode. The generators are iterated 50 times per second, synchronized
@@ -15,7 +15,7 @@ class GeneratorBot(_wpilib.RobotBaseUser):
     logger = logging.getLogger("robot")
 
     def __init__(self):
-        _wpilib.RobotBaseUser.__init__(self)
+        RobotBase.__init__(self)
         self.iterator = None
         self.earlyStop = False
 
