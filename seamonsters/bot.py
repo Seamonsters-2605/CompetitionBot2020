@@ -3,6 +3,7 @@ __author__ = "seamonsters"
 import traceback, hal, logging
 from wpilib import RobotBase
 from wpilib import RobotController
+from wpilib import IterativeRobot
 
 class GeneratorBot(RobotBase):
     """
@@ -124,6 +125,57 @@ class GeneratorBot(RobotBase):
         """
         self.logger.info("No test!")
         yield
+
+class SimulationRobot(IterativeRobot):
+
+    logger = logging.getLogger("robot")
+
+    def robotInit(self):
+        """
+        Override this for robot initialization. This should NOT be a generator.
+        """
+        self.logger.info("No robotInit!")
+
+    def teleop(self):
+        """
+        Override this to make a generator for teleop
+        """
+        self.logger.info("No teleop!")
+        yield
+
+    def autonomous(self):
+        """
+        Override this to make a generator for autonomous
+        """
+        self.logger.info("No autonomous!")
+        yield
+
+    def test(self):
+        """
+        Override this to make a generator for test mode
+        """
+        self.logger.info("No test!")
+        yield
+
+    def autonomousInit(self):
+        self.autonomousGenerator = self.autonomous()
+
+    def autonomousPeriodic(self):
+        next(self.autonomousGenerator)
+
+    def teleopInit(self):
+        self.teleopGenerator = self.teleop()
+
+    def teleopPeriodic(self):
+        next(self.teleopGenerator)
+
+    def testInit(self):
+       
+        self.testGenerator = self.test()
+
+    def testPeriodic(self):
+        next(self.testGenerator)
+
 
 
 class IterativeRobotInstance:
