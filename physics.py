@@ -1,9 +1,11 @@
 __author__ = "seamonsters"
 import math
 import wpilib
+from wpilib.kinematics import ChassisSpeeds
 import inspect, os
 import configparser
 from pyfrc.physics import drivetrains
+from pyfrc.physics.core import PhysicsInterface
 from pyfrc.physics.visionsim import VisionSim
 import rev
 import navx
@@ -79,8 +81,8 @@ class AHRSSim:
 
 class PhysicsEngine:
 
-    def __init__(self, physicsController):
-        self.physicsController = physicsController
+    def __init__(self, physics_Controller : PhysicsInterface):
+        self.physicsController = physics_Controller
 
         # NavX simulation
         self.ahrs = None
@@ -89,7 +91,7 @@ class PhysicsEngine:
             return self.ahrs
         navx.AHRS.create_spi = createAHRSSim
 
-        self.physicsController.add_analog_gyro_channel(0)
+        # self.physicsController.add_analog_gyro_channel(0)
 
         config = configparser.ConfigParser()
         filename = os.path.dirname(os.path.abspath(
@@ -122,6 +124,8 @@ class PhysicsEngine:
         self.visionAngleStart = float(field.get('visionanglestart', '90'))
         self.visionAngleEnd = float(field.get('visionangleend', '270'))
 
+        self._drivePositionState = None
+
     # special function called by pyfrc when simulator starts
     def initialize(self, hal_data):
         self.visionTable = NetworkTables.getTable('limelight')
@@ -137,36 +141,38 @@ class PhysicsEngine:
         self.visionSim = VisionSim([visionTarget], 60, 2, 50)
         hal_data['alliance_station'] = self.allianceStation
 
-        self._drivePositionState = None
-
     # special function called by pyfrc to update the robot state
-    def update_sim(self, hal_data, time, elapsed):
+    def update_sim(self, now : float, tm_diff: float):
         global simulatedDrivetrain
-        for simSpark in self.simulatedSparks:
-            simSpark.update(hal_data)
+        # for simSpark in self.simulatedSparks:
+        #     simSpark.update(hal_data)
 
         if simulatedDrivetrain is not None:
             #robotMag, robotDir, robotTurn = simulatedDrivetrain.getRobotMovement()
             robotMag, robotDir, robotTurn, self._drivePositionState = \
-                simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState)
+                simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState, target=True)
 
             xVel = robotMag * math.cos(robotDir)
             yVel = robotMag * math.sin(robotDir)
+
+            speeds = ChassisSpeeds(xVel, yVel, robotTurn)
             #self.physicsController.vector_drive(xVel, yVel, -robotTurn, elapsed)
             # HACKS: set the time diff to 1 to move by absolute position
             # increments instead of velocities
-            self.physicsController.vector_drive(xVel, yVel, -robotTurn, 1)
+            self.physicsController.drive(speeds, tm_diff)
         
         if self.ahrs != None:
             self.ahrs.angle = math.degrees(self.physicsController.angle)
 
-        x, y, angle = self.physicsController.get_position()
-        visionData = self.visionSim.compute(time, x, y, angle)
-        if visionData is not None:
-            targetData = visionData[0]
-            self.visionTable.putNumber('tv', targetData[0])
-            if targetData[0] != 0:
-                self.visionTable.putNumber('tx', targetData[2])
-        else:
-            # DOESN'T mean no vision. vision just doesn't always update
-            pass
+        # Vision simulation not yet working
+
+        # x, y, angle = self.physicsController.get_position()
+        # visionData = self.visionSim.compute(time, x, y, angle)
+        # if visionData is not None:
+        #     targetData = visionData[0]
+        #     self.visionTable.putNumber('tv', targetData[0])
+        #     if targetData[0] != 0:
+        #         self.visionTable.putNumber('tx', targetData[2])
+        # else:
+        #     # DOESN'T mean no vision. vision just doesn't always update
+        #     pass
