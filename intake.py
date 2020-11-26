@@ -1,4 +1,5 @@
 import wpilib, rev
+from physics import getSpark
 
 MOTOR_SPEED = 5_000
 
@@ -10,7 +11,7 @@ class Intake:
 
         self.piston = wpilib.DoubleSolenoid(pistonNum1, pistonNum2)
 
-        self.motor = rev.CANSparkMax(sparkNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.motor = getSpark(sparkNum, rev.CANSparkMax.MotorType.kBrushless)
         self.encoder = self.motor.getEncoder()
         self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
         self.motorController = self.motor.getPIDController()

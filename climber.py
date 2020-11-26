@@ -1,12 +1,13 @@
 import rev
+from physics import getSpark
 
 # speeds for the motors need to be adjusted
 
 class Climber:
 
     def __init__(self, armMotorNum, winchMotorhNum):
-        self.armMotor = rev.CANSparkMax(armMotorNum, rev.CANSparkMax.MotorType.kBrushless)
-        self.winchMotor = rev.CANSparkMax(winchMotorhNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.armMotor = getSpark(armMotorNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.winchMotor = getSpark(winchMotorhNum, rev.CANSparkMax.MotorType.kBrushless)
 
     # Arm Functions:
 
