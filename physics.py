@@ -13,12 +13,6 @@ import rev
 import navx
 from networktables import NetworkTables
 
-# HAL keys
-
-HALK_SPARK_VALUE = 'value'
-HALK_SPARK_POSITION = 'position'
-HALK_SPARK_VELOCITY = 'velocity'
-
 simulatedDrivetrain = None
 
 simulatedSparks = []
@@ -205,8 +199,8 @@ class PhysicsEngine:
             robotMag, robotDir, robotTurn, self._drivePositionState = \
                 simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState, target=True)
 
-            xVel = robotMag * math.cos(robotDir)
-            yVel = robotMag * math.sin(robotDir)
+            xVel = robotMag * math.cos(robotDir - math.pi/2)
+            yVel = robotMag * math.sin(robotDir - math.pi/2)
 
             speeds = ChassisSpeeds(xVel, yVel, robotTurn)
             #self.physicsController.vector_drive(xVel, yVel, -robotTurn, elapsed)
