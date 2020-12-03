@@ -107,7 +107,7 @@ class SimulatedSpark:
 
     def update(self, tm_diff):
         self.encoder.velocity = self.PIDController.value
-        self.encoder.position += self.encoder.velocity * tm_diff
+        self.encoder.position += self.encoder.velocity * tm_diff / 60
 
 class AHRSSim:
 
