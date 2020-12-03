@@ -2,6 +2,7 @@ __author__ = "seamonsters"
 import math
 import wpilib
 from wpilib.kinematics import ChassisSpeeds
+from wpilib.geometry import Transform2d
 import inspect, os, sys
 import configparser
 from pyfrc.physics import drivetrains
@@ -12,6 +13,8 @@ from hal.simulation import EncoderSim
 import rev
 import navx
 from networktables import NetworkTables
+
+STARTING_POSITION = [-16, 10]
 
 simulatedDrivetrain = None
 
@@ -153,6 +156,10 @@ class PhysicsEngine:
         
         for i in range(len(self.simulatedSparkVelocities)):
             simulatedSparks[i].maxVelocity = self.simulatedSparkVelocities[i]
+            
+        x, y = self._fieldToSimulatorCoords(STARTING_POSITION[0], STARTING_POSITION[1])
+        transform = Transform2d.fromFeet(x, y, 0)
+        self.physicsController.move_robot(transform)
 
         if 'ds' in config:
             ds = config['ds']
@@ -205,7 +212,7 @@ class PhysicsEngine:
             xVel = robotMag * math.cos(robotDir - math.pi/2) * 0.3048 # 1 ft = 0.3048 m
             yVel = robotMag * math.sin(robotDir - math.pi/2) * 0.3048
 
-            speeds = ChassisSpeeds(xVel, yVel, robotTurn) # change to m/s
+            speeds = ChassisSpeeds(xVel, yVel, robotTurn)
             #self.physicsController.vector_drive(xVel, yVel, -robotTurn, elapsed)
             # HACKS: set the time diff to 1 to move by absolute position
             # increments instead of velocities
@@ -226,3 +233,6 @@ class PhysicsEngine:
         # else:
         #     # DOESN'T mean no vision. vision just doesn't always update
         #     pass
+
+    def _fieldToSimulatorCoords(self, x, y):
+        return x + 26, y + 13
