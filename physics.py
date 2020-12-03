@@ -197,7 +197,7 @@ class PhysicsEngine:
         if simulatedDrivetrain is not None:
             #robotMag, robotDir, robotTurn = simulatedDrivetrain.getRobotMovement()
             robotMag, robotDir, robotTurn, self._drivePositionState = \
-                simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState, target=True)
+                simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState, target=False)
 
             xVel = robotMag * math.cos(robotDir - math.pi/2)
             yVel = robotMag * math.sin(robotDir - math.pi/2)
