@@ -199,10 +199,13 @@ class PhysicsEngine:
             robotMag, robotDir, robotTurn, self._drivePositionState = \
                 simulatedDrivetrain.getRobotPositionOffset(self._drivePositionState, target=False)
 
-            xVel = robotMag * math.cos(robotDir - math.pi/2)
-            yVel = robotMag * math.sin(robotDir - math.pi/2)
+            robotMag /= tm_diff 
+            robotTurn /= tm_diff
 
-            speeds = ChassisSpeeds(xVel, yVel, robotTurn)
+            xVel = robotMag * math.cos(robotDir - math.pi/2) * 0.3048 # 1 ft = 0.3048 m
+            yVel = robotMag * math.sin(robotDir - math.pi/2) * 0.3048
+
+            speeds = ChassisSpeeds(xVel, yVel, robotTurn) # change to m/s
             #self.physicsController.vector_drive(xVel, yVel, -robotTurn, elapsed)
             # HACKS: set the time diff to 1 to move by absolute position
             # increments instead of velocities
