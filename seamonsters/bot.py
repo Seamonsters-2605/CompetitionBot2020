@@ -1,10 +1,11 @@
 __author__ = "seamonsters"
 
 import traceback, hal, logging
-from wpilib import _wpilib
+from wpilib import RobotBase
 from wpilib import RobotController
+from wpilib import IterativeRobot
 
-class GeneratorBot(_wpilib.RobotBaseUser):
+class GeneratorBot(RobotBase):
     """
     A robot which runs generators throughout the cycles of autonomous, teleop,
     and test mode. The generators are iterated 50 times per second, synchronized
@@ -15,7 +16,7 @@ class GeneratorBot(_wpilib.RobotBaseUser):
     logger = logging.getLogger("robot")
 
     def __init__(self):
-        _wpilib.RobotBaseUser.__init__(self)
+        RobotBase.__init__(self)
         self.iterator = None
         self.earlyStop = False
 
@@ -124,6 +125,57 @@ class GeneratorBot(_wpilib.RobotBaseUser):
         """
         self.logger.info("No test!")
         yield
+
+class SimulationRobot(IterativeRobot):
+
+    logger = logging.getLogger("robot")
+
+    def robotInit(self):
+        """
+        Override this for robot initialization. This should NOT be a generator.
+        """
+        self.logger.info("No robotInit!")
+
+    def teleop(self):
+        """
+        Override this to make a generator for teleop
+        """
+        self.logger.info("No teleop!")
+        yield
+
+    def autonomous(self):
+        """
+        Override this to make a generator for autonomous
+        """
+        self.logger.info("No autonomous!")
+        yield
+
+    def test(self):
+        """
+        Override this to make a generator for test mode
+        """
+        self.logger.info("No test!")
+        yield
+
+    def autonomousInit(self):
+        self.autonomousGenerator = self.autonomous()
+
+    def autonomousPeriodic(self):
+        next(self.autonomousGenerator)
+
+    def teleopInit(self):
+        self.teleopGenerator = self.teleop()
+
+    def teleopPeriodic(self):
+        next(self.teleopGenerator)
+
+    def testInit(self):
+       
+        self.testGenerator = self.test()
+
+    def testPeriodic(self):
+        next(self.testGenerator)
+
 
 
 class IterativeRobotInstance:

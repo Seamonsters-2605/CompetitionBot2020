@@ -1,3 +1,4 @@
+import sys
 import wpilib, rev, math, navx
 import drivetrain, dashboard, autoScheduler, vision, autoActions, intake, shooter, indexer
 import seamonsters as sea 
@@ -10,7 +11,12 @@ SOLENOID_FORWARD = wpilib.DoubleSolenoid.Value.kReverse
 CONTROLLER_RIGHT = wpilib.interfaces._interfaces.GenericHID.Hand.kRightHand
 CONTROLLER_LEFT = wpilib.interfaces._interfaces.GenericHID.Hand.kLeftHand
 
-class CompetitionBot2020(sea.GeneratorBot):
+if sys.argv[1] == "sim":
+    botType = sea.SimulationRobot
+else:
+    botType = sea.GeneratorBot
+
+class CompetitionBot2020(botType):
 
     def robotInit(self):
 
@@ -204,13 +210,11 @@ class CompetitionBot2020(sea.GeneratorBot):
             # Drivetrain:
 
             turn = sea.deadZone(self.driverController.getX(CONTROLLER_RIGHT), deadZone=0.05)
+            # turn = sea.deadZone(-self.driverController.getTriggerAxis(CONTROLLER_LEFT), deadZone=0.05) # uncomment for use with xbox controller
             turn *= self.driveGear.turnScale
             mag = -sea.deadZone(self.driverController.getY(CONTROLLER_LEFT), deadZone=0.05)
             mag *= self.driveGear.moveScale
             
-            if self.isSimulation():
-                mag *= -1
-
             self.multiDrive.drive(mag, math.pi/2, turn)
             self.multiDrive.update()
 

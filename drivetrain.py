@@ -1,7 +1,8 @@
 import seamonsters as sea 
 from gear import DriveGear
+from physics import getSpark
 from motorNums import DRIVETRAIN_LEFT, DRIVETRAIN_RIGHT
-import math, rev
+import math, rev, sys
 
 ROBOT_LENGTH = 3
 ROBOT_WIDTH = 3
@@ -21,9 +22,11 @@ def initDrivetrain():
     return superDrive
 
 def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, xPos, yPos, reverse=False):
-    sparkMax1 = rev.CANSparkMax(sparkMaxNum1, motorType)
-    sparkMax2 = rev.CANSparkMax(sparkMaxNum2, motorType)
-    sparkMax3 = rev.CANSparkMax(sparkMaxNum3, motorType)
+
+
+    sparkMax1 = getSpark(sparkMaxNum1, motorType)
+    sparkMax2 = getSpark(sparkMaxNum2, motorType)
+    sparkMax3 = getSpark(sparkMaxNum3, motorType)
     for sparkMax in [sparkMax1, sparkMax2, sparkMax3]:
         sparkMax.restoreFactoryDefaults()
         sparkMax.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)

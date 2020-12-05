@@ -74,7 +74,7 @@ class PathFollower:
             self.drive.getRobotPositionOffset(self._drivePositionState, target=False)
             # set the target to False because it is more accurate
 
-        self.robotAngle -= moveTurn
+        self.robotAngle += moveTurn
         self._robotAngleHistory.append(self.robotAngle)
         # pretty sure this isn't off by 1
         if len(self._robotAngleHistory) >= PathFollower.NAVX_LAG:

@@ -1,5 +1,6 @@
 import wpilib, rev
 from rev.color import ColorSensorV3
+from physics import getSpark
 
 PROXIMITY_THRESH = 350
 ROTATIONS_PER_BALL = 100
@@ -8,11 +9,11 @@ class Indexer:
 
     def __init__(self, indexerMotorNum, kickerWheelMotorNum):
 
-        self.indexerMotor = rev.CANSparkMax(indexerMotorNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.indexerMotor = getSpark(indexerMotorNum, rev.CANSparkMax.MotorType.kBrushless)
         self.indexerMotor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
         self.indexerEncoder = self.indexerMotor.getEncoder()
 
-        self.kickerWheel = rev.CANSparkMax(kickerWheelMotorNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.kickerWheel = getSpark(kickerWheelMotorNum, rev.CANSparkMax.MotorType.kBrushless)
 
         # used for proximity sensing
         try:
