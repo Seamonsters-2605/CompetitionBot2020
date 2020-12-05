@@ -20,14 +20,6 @@ simulatedDrivetrain = None
 
 simulatedSparks = []
 
-def getSpark(deviceID, motorType):
-    if sys.argv[1] == "sim":
-        spark = SimulatedSpark(deviceID, motorType)
-        simulatedSparks.append(spark)
-        return spark
-    else:
-        return rev.CANSparkMax(deviceID, motorType)
-
 class SimulatedEncoder:
 
     def __init__(self, deviceID):
