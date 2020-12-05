@@ -1,5 +1,5 @@
 import rev
-from physics import getSpark
+import seamonsters as sea
 
 class Shooter:
 
@@ -10,8 +10,8 @@ class Shooter:
         d = 0
         f = 0
         
-        self.motor1 = getSpark(motorNum1, rev.CANSparkMax.MotorType.kBrushless)
-        self.motor2 = getSpark(motorNum2, rev.CANSparkMax.MotorType.kBrushless)
+        self.motor1 = sea.createSpark(motorNum1, rev.CANSparkMax.MotorType.kBrushless)
+        self.motor2 = sea.createSpark(motorNum2, rev.CANSparkMax.MotorType.kBrushless)
 
         self.motorController1 = self.motor1.getPIDController()
         self.motorController2 = self.motor2.getPIDController()

@@ -1,6 +1,6 @@
 import wpilib, rev
 from rev.color import ColorSensorV3
-from physics import getSpark
+import seamonsters as sea
 
 PROXIMITY_THRESH = 350
 ROTATIONS_PER_BALL = 100
@@ -9,11 +9,11 @@ class Indexer:
 
     def __init__(self, indexerMotorNum, kickerWheelMotorNum):
 
-        self.indexerMotor = getSpark(indexerMotorNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.indexerMotor = sea.createSpark(indexerMotorNum, rev.CANSparkMax.MotorType.kBrushless)
         self.indexerMotor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
         self.indexerEncoder = self.indexerMotor.getEncoder()
 
-        self.kickerWheel = getSpark(kickerWheelMotorNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.kickerWheel = sea.createSpark(kickerWheelMotorNum, rev.CANSparkMax.MotorType.kBrushless)
 
         # used for proximity sensing
         try:

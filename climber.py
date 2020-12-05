@@ -1,13 +1,13 @@
 import rev
-from physics import getSpark
+import seamonsters as sea
 
 # speeds for the motors need to be adjusted
 
 class Climber:
 
     def __init__(self, armMotorNum, winchMotorhNum):
-        self.armMotor = getSpark(armMotorNum, rev.CANSparkMax.MotorType.kBrushless)
-        self.winchMotor = getSpark(winchMotorhNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.armMotor = sea.createSpark(armMotorNum, rev.CANSparkMax.MotorType.kBrushless)
+        self.winchMotor = sea.createSpark(winchMotorhNum, rev.CANSparkMax.MotorType.kBrushless)
 
     # Arm Functions:
 
