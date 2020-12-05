@@ -210,6 +210,7 @@ class CompetitionBot2020(botType):
             # Drivetrain:
 
             turn = sea.deadZone(self.driverController.getX(CONTROLLER_RIGHT), deadZone=0.05)
+            # turn = sea.deadZone(-self.driverController.getTriggerAxis(CONTROLLER_LEFT), deadZone=0.05) # uncomment for use with xbox controller
             turn *= self.driveGear.turnScale
             mag = -sea.deadZone(self.driverController.getY(CONTROLLER_LEFT), deadZone=0.05)
             mag *= self.driveGear.moveScale
