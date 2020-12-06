@@ -4,7 +4,7 @@ import seamonsters as sea
 
 """
 to use, create a subclass of ControlScheme and override all the functions
-the default ControlScheme is used for the competition
+the competition profile using logitech controllers is the default control scheme
 """
 
 class ControlScheme:
@@ -66,3 +66,15 @@ class ControlScheme:
     # get weather or not the robot should toggle the shooter
     def shouldToggleShooter(self) -> bool:
         return self.operatorController.getXButtonPressed()
+
+# comp control scheme but with xbox controllers instead of logitech
+class XboxCompScheme(ControlScheme):
+
+    def getTurn(self):
+        return -super().getTurn()
+
+# control scheme for a single joystick or just one on a controller
+class SingleJoystickScheme(ControlScheme):
+
+    def getTurn(self):
+        return sea.deadZone(self.driverController.getX(self.CONTROLLER_LEFT), deadZone=0.05)
