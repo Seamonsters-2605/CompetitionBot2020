@@ -1,6 +1,6 @@
 import sys
 import wpilib, rev, math, navx
-import drivetrain, dashboard, autoScheduler, vision, autoActions, intake, shooter, indexer
+import drivetrain, dashboard, autoScheduler, vision, autoActions, intake, shooter, indexer, controlScheme
 import seamonsters as sea 
 from networktables import NetworkTables
 from motorNums import *
@@ -21,8 +21,7 @@ class CompetitionBot2020(botType):
     def robotInit(self):
 
         # devices
-        self.driverController = wpilib.XboxController(0)
-        self.operatorController = wpilib.XboxController(1)
+        self.controls = controlScheme.ControlScheme(wpilib.XboxController(0), wpilib.XboxController(1))
 
         ahrs = navx.AHRS.create_spi()
 
@@ -188,9 +187,7 @@ class CompetitionBot2020(botType):
     def driving(self):
 
         # reset button detection
-        self.operatorController.getXButtonPressed()
-        self.operatorController.getYButtonPressed()
-        self.driverController.getAButtonPressed()
+        self.controls.resetButtons()
         
         while True:
 
@@ -209,13 +206,14 @@ class CompetitionBot2020(botType):
 
             # Drivetrain:
 
-            turn = sea.deadZone(self.driverController.getX(CONTROLLER_RIGHT), deadZone=0.05)
+            turn = self.controls.getTurn()
             #turn = -turn # uncomment for use with xbox controller and make sure the map gamepad box is checked
             turn *= self.driveGear.turnScale
-            mag = -sea.deadZone(self.driverController.getY(CONTROLLER_LEFT), deadZone=0.05)
+            mag = self.controls.getMagnitude()
             mag *= self.driveGear.moveScale
+            direction = self.controls.getDirection()
             
-            self.multiDrive.drive(mag, math.pi/2, turn)
+            self.multiDrive.drive(mag, direction, turn)
             self.multiDrive.update()
 
             # LED Strip:
@@ -224,7 +222,7 @@ class CompetitionBot2020(botType):
 
             # Vision Alignment:
 
-            if self.driverController.getBumper(CONTROLLER_LEFT):
+            if self.controls.shouldUseVision():
                 self.limelight.putNumber('ledMode', 3) # turn on leds
                 # the robot works towards aligning with a vision 
                 # target while the bumper is being held down
@@ -235,34 +233,34 @@ class CompetitionBot2020(botType):
             # Intake:
 
             # go forwards when bumper is being held down
-            if self.driverController.getBumper(CONTROLLER_RIGHT):
-                self.intake.spinForwards()           
-            elif self.operatorController.getAButton():
+            if self.controls.shouldSpinIntake():
+                self.intake.spinForwards()
+            elif self.controls.shouldReverseIntake():
                 # the operater can make the intake go reversed by holding the A button
                 self.intake.spinReversed()
             else:
                 self.intake.stop()
 
             # extending/retracting the intake
-            if self.driverController.getAButtonPressed():
+            if self.controls.shouldToggleIntake():
                 self.intake.toggleIntake()
 
             # Indexer:
 
-            if self.operatorController.getBumper(CONTROLLER_LEFT):
-                if not self.operatorController.getBButton():
+            if self.controls.shouldSpinIndexer():
+                if not self.controls.shouldReverseIndexer():
                     self.indexer.start()
                 else:
                     self.indexer.reverse()
             else:
                 self.indexer.stop()
 
-            if self.operatorController.getYButtonPressed():
-                self.indexer.toggleAutoIntake()
+            if self.controls.shouldToggleAutoIndex():
+                self.indexer.toggleAutoIndexer()
 
             # Shooter:
 
-            if self.operatorController.getXButtonPressed():
+            if self.controls.shouldToggleShooter():
                 self.shooter.toggleMotors()
 
             # need to add a way to adjust the shooter speed

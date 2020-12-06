@@ -83,5 +83,5 @@ class Indexer:
         else:
             self.stop()
 
-    def toggleAutoIntake(self):
+    def toggleAutoIndexer(self):
         self.autoIndexEnabled = not self.autoIndexEnabled
