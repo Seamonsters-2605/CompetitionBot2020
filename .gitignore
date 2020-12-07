@@ -149,7 +149,3 @@ pip-selfcheck.json
 .idea/
 
 .vscode/settings.json
-
-# simulator
-imgui.ini
-selectedControlScheme.py
