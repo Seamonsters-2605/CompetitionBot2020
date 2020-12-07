@@ -1,6 +1,6 @@
 import sys
 import wpilib, rev, math, navx
-import drivetrain, dashboard, autoScheduler, vision, autoActions, intake, shooter, indexer, controlScheme
+import drivetrain, dashboard, autoScheduler, vision, autoActions, intake, shooter, indexer, selectedControlScheme
 import seamonsters as sea 
 from networktables import NetworkTables
 from motorNums import *
@@ -21,7 +21,7 @@ class CompetitionBot2020(botType):
     def robotInit(self):
 
         # devices
-        self.controls = controlScheme.ControlScheme(wpilib.XboxController(0), wpilib.XboxController(1))
+        self.controls = selectedControlScheme.scheme(wpilib.XboxController(0), wpilib.XboxController(1))
 
         ahrs = navx.AHRS.create_spi()
 
