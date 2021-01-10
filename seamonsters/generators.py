@@ -1,6 +1,6 @@
 __author__ = "seamonsters"
 
-import itertools, logging
+import itertools, logging, time
 
 logger = logging.getLogger("seamonsters")
 
@@ -72,6 +72,14 @@ def wait(time):
     Wait for a certain number of iterations.
     """
     for _ in range(int(time)):
+        yield
+
+def waitSeconds(seconds):
+    """
+    Wait a certain number of seconds. Based on system time.
+    """
+    start = time.time()
+    while time.time() - start < seconds:
         yield
 
 def forever():

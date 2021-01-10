@@ -1,4 +1,4 @@
-import math, coordinates, drivetrain
+import math, coordinates, drivetrain, sys
 from autoScheduler import Action
 import seamonsters as sea
 
@@ -51,7 +51,10 @@ def createRotateTowardsPointAction(robot, coord):
 def shoot(robot):
     while True:
         robot.indexer.start()
-        yield from sea.wait(150)
+        if sys.argv[1] == "sim":
+            yield from sea.waitSeconds(3)
+        else:
+            yield from sea.wait(150)
         robot.indexer.stop()
         robot.shooter.stop()
         break
@@ -72,7 +75,10 @@ def createToggleIntakeAction(robot):
     return Action("Toggle Intake", lambda: toggleIntake(robot), "intake")
     
 def waitOneSecond():
-    yield from sea.wait(sea.ITERATIONS_PER_SECOND)
+    if sys.argv[1] == "sim":
+        yield from sea.waitSeconds(1)
+    else:
+        yield from sea.wait(sea.ITERATIONS_PER_SECOND)
 
 def endAuto(robot):
     yield
