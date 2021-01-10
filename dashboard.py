@@ -2,9 +2,9 @@ import remi.gui as gui
 import seamonsters as sea
 import json, os, autoActions, drivetrain, coordinates, math, glob
 
-FIELD_WIDTH = 520
-FIELD_HEIGHT = 260
-FIELD_PIXELS_PER_FOOT = 10
+fieldWidth = 520
+fieldHeight = 260
+fieldPixelsPerFoot = 10
 
 GREEN = "rgb(21, 130, 21)"
 RED = "rgb(130, 21, 21)"
@@ -57,6 +57,7 @@ class CompetitionDashboard(sea.Dashboard):
 
         middle.append(self.initCamera(robot))
         middle.append(self.initFieldMap(robot))
+        middle.append(self.initFieldSwitcher(robot))
 
         rightSide.append(self.initManual(robot))
         self.autoSpeedGroup.highlight("medium")
@@ -277,26 +278,8 @@ class CompetitionDashboard(sea.Dashboard):
         robotBox.append(downBtn)
 
         self.fieldSvg = gui.Svg()
-        self.fieldSvg.set_viewbox(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
-        self.fieldSvg.set_size(FIELD_WIDTH, FIELD_HEIGHT)
-        self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
+        self.makeField('/res:field.png', True)
         fieldBox.append(self.fieldSvg)
-
-        self.image = gui.SvgImage('/res:field.png', 0, 0, FIELD_WIDTH, FIELD_HEIGHT)
-        self.fieldSvg.append(self.image)
-
-        self.targetPoints = coordinates.targetPoints
-        for point in self.targetPoints:
-            point = fieldToSvgCoordinates(point.x,point.y)
-            wp_dot = gui.SvgCircle(point[0], point[1], 5)
-            wp_dot.attributes['fill'] = 'green'
-            self.fieldSvg.append(wp_dot)
-
-        self.cursorArrow = Arrow('red')
-        self.fieldSvg.append(self.cursorArrow)
-
-        self.robotArrow = Arrow('green')
-        self.fieldSvg.append(self.robotArrow)
 
         self.robotPathLines = []
 
@@ -304,6 +287,63 @@ class CompetitionDashboard(sea.Dashboard):
         self.updateCursorPosition()
 
         return fieldBox
+
+    def makeField(self, imageURL, drawPoints):
+        self.fieldSvg.set_viewbox(0, 0, fieldWidth, fieldHeight)
+        self.fieldSvg.set_size(fieldWidth, fieldHeight)
+        self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
+
+        self.image = gui.SvgImage(imageURL, 0, 0, fieldWidth, fieldHeight)
+        self.fieldSvg.append(self.image)
+
+        if drawPoints:
+            self.targetPoints = coordinates.targetPoints
+            for point in self.targetPoints:
+                point = fieldToSvgCoordinates(point.x,point.y)
+                wp_dot = gui.SvgCircle(point[0], point[1], 5)
+                wp_dot.attributes['fill'] = 'green'
+                self.fieldSvg.append(wp_dot)
+
+        self.cursorArrow = Arrow('red')
+        self.fieldSvg.append(self.cursorArrow)
+
+        self.robotArrow = Arrow('green')
+        self.fieldSvg.append(self.robotArrow)
+
+    def initFieldSwitcher(self, robot):
+
+        fieldSwitcherBox = self.sectionBox()
+        buttonsBox = gui.HBox()
+        fieldSwitcherBox.append(gui.Label("Field Switcher"))
+        fieldSwitcherBox.append(buttonsBox)
+
+        def changeFieldImage(button, imageURL, isNormalField):
+            
+            if isNormalField:
+                fieldWidth = 520
+                fieldHeight = 260
+                fieldPixelsPerFoot = 10
+            else:
+                fieldWidth = 1980
+                fieldHeight = 990
+                fieldPixelsPerFoot = 66
+
+            self.fieldSvg.empty()
+            self.makeField(imageURL, isNormalField)
+
+        fieldButton = gui.Button('Field')
+        fieldButton.set_on_click_listener(changeFieldImage, '/res:field.png', True)
+        autoNav1Button = gui.Button('Auto Nav 1')
+        autoNav1Button.set_on_click_listener(changeFieldImage, '/res:AutoNav1.png', False)
+        autoNav2Button = gui.Button('Auto Nav 2')
+        autoNav2Button.set_on_click_listener(changeFieldImage, '/res:AutoNav2.png', False)
+        autoNav3Button = gui.Button('Auto Nav 3')
+        autoNav3Button.set_on_click_listener(changeFieldImage, '/res:AutoNav3.png', False)
+
+        for button in [fieldButton, autoNav1Button, autoNav2Button, autoNav3Button]:
+            buttonsBox.append(button)
+
+        return fieldSwitcherBox
 
     def initScheduler(self, robot):
         schedulerBox = self.sectionBox()
@@ -620,20 +660,20 @@ class CompetitionDashboard(sea.Dashboard):
         self.updatePresetFileDropdown()
 
 def svgToFieldCoordinates(x, y):
-    return ( (float(x) - FIELD_WIDTH  / 2) / FIELD_PIXELS_PER_FOOT,
-            (-float(y) + FIELD_HEIGHT / 2) / FIELD_PIXELS_PER_FOOT)
+    return ((float(x) - fieldWidth  / 2) / fieldPixelsPerFoot,
+            (-float(y) + fieldHeight / 2) / fieldPixelsPerFoot)
 
 def fieldToSvgCoordinates(x, y):
-    return (FIELD_WIDTH  / 2 + x * FIELD_PIXELS_PER_FOOT,
-            FIELD_HEIGHT / 2 - y * FIELD_PIXELS_PER_FOOT)
+    return (fieldWidth  / 2 + x * fieldPixelsPerFoot,
+            fieldHeight / 2 - y * fieldPixelsPerFoot)
 
 # is used to represent the robot and cursor
 class Arrow(gui.SvgPolyline):
 
     def __init__(self, color):
         super().__init__()
-        halfWidth = drivetrain.ROBOT_WIDTH * FIELD_PIXELS_PER_FOOT / 2
-        halfLength = drivetrain.ROBOT_LENGTH * FIELD_PIXELS_PER_FOOT / 2
+        halfWidth = drivetrain.ROBOT_WIDTH * fieldPixelsPerFoot / 2
+        halfLength = drivetrain.ROBOT_LENGTH * fieldPixelsPerFoot / 2
         self.add_coord(0, -halfLength)
         self.add_coord(halfWidth, halfLength)
         self.add_coord(-halfWidth, halfLength)

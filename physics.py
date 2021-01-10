@@ -55,7 +55,7 @@ class SimulatedPIDController:
         if ctrl == rev.ControlType.kVelocity:
             self.value = value
         else:
-            print("[SIMULATION] Only velocity mode is supported in the simulation")
+            #print("[SIMULATION] Only velocity mode is supported in the simulation")
             self.value = 0
 
 class SimulatedSpark:
