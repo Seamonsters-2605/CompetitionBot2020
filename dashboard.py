@@ -213,7 +213,6 @@ class CompetitionDashboard(sea.Dashboard):
         pidControlsBox = self.sectionBox()
 
         # This changes pid values on the robot depending on the button pressed.
-        # (Please forgive the lack of a dashboard callback)
         def changePidValue(button):
             term = button.get_text()[-1]
             parentHbox = button.get_parent()
@@ -231,6 +230,8 @@ class CompetitionDashboard(sea.Dashboard):
                 robot.driveGear.i = newPidValue
             elif (term == "D"):
                 robot.driveGear.d = newPidValue
+
+            robot.driveGear.applyGear(robot.superDrive)
 
         # P, I, and D each have their own label, text area, and update button
         for term in ["P", "I", "D"]:
