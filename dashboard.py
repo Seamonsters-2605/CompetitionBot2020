@@ -212,18 +212,42 @@ class CompetitionDashboard(sea.Dashboard):
     def initPidControlsBox(self, robot):
         pidControlsBox = self.sectionBox()
 
-        # P, I, and D each have their own label, field (to enter a value in), and update button,
-        # inside its own hBox.
-        # This dictionary contains hBoxes corresponding to each letter.
-        pidEditorElements = { "p":None, "i":None, "d":None }
+        # This changes pid values on the robot depending on the button pressed.
+        # (Please forgive the lack of a dashboard callback)
+        def changePidValue(button):
+            term = button.get_text()[-1]
+            parentHbox = button.get_parent()
+            peerTextArea = parentHbox.children[term + "textarea"]
 
-        for term in pidEditorElements:
-            field = gui.Input()
-            updateButton = gui.Button("Update")
-            controlBox = sea.hBoxWith(gui.Label(term + ": "), field, updateButton)
-            pidEditorElements[term] = controlBox
-        
-        pidControlsBox.append(pidEditorElements.values())
+            try:
+                newPidValue = float(peerTextArea.get_value())
+            except:
+                print(term + " value incorrect")
+                return
+
+            if (term == "P"):
+                robot.driveGear.p = newPidValue
+            elif (term == "I"):
+                robot.driveGear.i = newPidValue
+            elif (term == "D"):
+                robot.driveGear.d = newPidValue
+
+        # P, I, and D each have their own label, text area, and update button
+        for term in ["P", "I", "D"]:
+            controlBox = gui.HBox()
+            # Adds a label to the hBox with the key <term>label
+            controlBox.append(gui.Label(term + ": "), term + "label")
+            # Adds a text area to the hBox with the key <term>textarea
+            controlBox.append(gui.Input(), term + "textarea")
+            # Adds an update button to the hBox with the key <term>updatebutton
+            button = gui.Button("Update " + term)
+            button.set_on_click_listener(changePidValue)
+            controlBox.append(button, term + "updatebutton")
+            # Adds the control box for this term to the pidControlsBox with the key <term>
+            pidControlsBox.append(controlBox, term)
+
+        return pidControlsBox
+
 
     def initTest(self, robot):
         testBox = self.sectionBox()
