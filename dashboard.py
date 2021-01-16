@@ -508,6 +508,8 @@ class CompetitionDashboard(sea.Dashboard):
             self.fieldSvg.remove_child(line)
         self.robotPathLines.clear()
         lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
+        lineX2, lineY2 = lineX, lineY
+        lineX3, lineY3 = lineX2, lineY2
 
         index = 0
         for action in scheduler.actionList:
@@ -516,7 +518,10 @@ class CompetitionDashboard(sea.Dashboard):
                 name = "* " + name
             listItem = gui.ListItem(name)
             self.schedulerList.append(listItem, str(index))
+            lineX3, lineY3 = lineX2, lineY2
+            lineX2, lineY2 = lineX, lineY
             lineX, lineY = self.actionLines(lineX, lineY, action)
+            self.bezierCurve(lineX, lineX2, lineX3, lineY, lineY2, lineY3)
             index += 1
 
     def actionLines(self, lineX, lineY, action):
@@ -528,6 +533,36 @@ class CompetitionDashboard(sea.Dashboard):
             self.fieldSvg.append(line)
             lineX, lineY = x1, y1
         return lineX, lineY
+
+    # stuff for displaying a bezier curve of the action lines
+
+    def bezierCurve(self, lineX1, lineX2, lineX3, lineY1, lineY2, lineY3):
+        curve = self._curve(10, (lineX1, lineY1), (lineX2, lineY2), (lineX3, lineY3))
+        x1, y1 = curve[0]
+        for point in curve:
+            x2, y2 = point
+            line = gui.SvgLine(x1, y1, x2, y2)
+            line.set_stroke(width=3, color='red')
+            self.robotPathLines.append(line)
+            self.fieldSvg.append(line)
+            x1, y1 = x2, y2
+
+    def _bezier(self, incriment, point1, point2, point3):
+        x = (1 - incriment) * ((1 - incriment) * point1[0] + incriment * point2[0]) + incriment * ((1 - incriment) * point2[0] + incriment * point3[0])
+        y = (1 - incriment) * ((1 - incriment) * point1[1] + incriment * point2[1]) + incriment * ((1 - incriment) * point2[1] + incriment * point3[1])
+        return (x, y)
+
+    def _midpoint(self, point1, point2):
+        return ((point1[0] + point2[0]) / 2,  (point1[1] + point2[1]) / 2)
+
+    def _curve(self, incriments, point0, point1, point2):
+        midpoint1 = self._midpoint(point0, point1)
+        midpoint3 = self._midpoint(point1, point2)
+        out = []
+        for inc in range(incriments):
+            out.append(self._bezier(inc / incriments, midpoint1, point1, midpoint3))
+        out.append(self._bezier(1, midpoint1, point1, midpoint3))
+        return out
 
     def updatePresetFileDropdown(self):
         self.presetDropdown.empty()
