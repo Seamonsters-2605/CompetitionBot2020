@@ -61,6 +61,7 @@ class CompetitionDashboard(sea.Dashboard):
 
         rightSide.append(self.initManual(robot))
         self.autoSpeedGroup.highlight("medium")
+        rightSide.append(self.initPidControlsBox(robot))
         rightSide.append(self.initTest(robot))
         rightSide.append(self.initSubsystemsInfo(robot))
 
@@ -207,6 +208,22 @@ class CompetitionDashboard(sea.Dashboard):
 
         cameraBox.append(videoFeedBox)
         return cameraBox
+
+    def initPidControlsBox(self, robot):
+        pidControlsBox = self.sectionBox()
+
+        # P, I, and D each have their own label, field (to enter a value in), and update button,
+        # inside its own hBox.
+        # This dictionary contains hBoxes corresponding to each letter.
+        pidEditorElements = { "p":None, "i":None, "d":None }
+
+        for term in pidEditorElements:
+            field = gui.Input()
+            updateButton = gui.Button("Update")
+            controlBox = sea.hBoxWith(gui.Label(term + ": "), field, updateButton)
+            pidEditorElements[term] = controlBox
+        
+        pidControlsBox.append(pidEditorElements.values())
 
     def initTest(self, robot):
         testBox = self.sectionBox()
