@@ -372,6 +372,7 @@ class CompetitionDashboard(sea.Dashboard):
 
             self.fieldSvg.empty()
             self.makeField(imageURL, isNormalField)
+            self.updateScheduler()
 
         fieldButton = gui.Button('Field')
         fieldButton.set_on_click_listener(changeFieldImage, '/res:field.png', True)
@@ -579,10 +580,10 @@ class CompetitionDashboard(sea.Dashboard):
     # stuff for displaying a bezier curve of the action lines
 
     def bezierCurve(self, lineX1, lineX2, lineX3, lineY1, lineY2, lineY3):
-        curve = self._curve(10, (lineX1, lineY1), (lineX2, lineY2), (lineX3, lineY3))
+        curve = self._curve(5, (lineX1, lineY1), (lineX2, lineY2), (lineX3, lineY3))
         x1, y1 = curve[0]
-        for point in curve:
-            x2, y2 = point
+        for index in range(1, len(curve)):
+            x2, y2 = curve[index]
             line = gui.SvgLine(x1, y1, x2, y2)
             line.set_stroke(width=3, color='red')
             self.robotPathLines.append(line)
