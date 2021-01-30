@@ -1,15 +1,11 @@
 __author__ = "seamonsters"
 import math
-import wpilib
 from wpilib.kinematics import ChassisSpeeds
 from wpilib.geometry import Transform2d
-import inspect, os, sys
+import inspect, os
 import configparser
-from pyfrc.physics import drivetrains
 from pyfrc.physics.core import PhysicsInterface
 from pyfrc.physics.visionsim import VisionSim
-from hal.simulation import PWMSim
-from hal.simulation import EncoderSim
 import rev
 import navx
 from networktables import NetworkTables
