@@ -224,6 +224,10 @@ class PathFollower:
 
                 self.drive.drive(mag, math.pi/2, turn)
 
+                yield False
+            
+        yield True
+
     # return magnitude, angle
     def _robotVectorToPoint(self, x, y):
         xDiff = x - self.robotX
