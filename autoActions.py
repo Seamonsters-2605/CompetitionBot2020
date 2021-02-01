@@ -18,6 +18,12 @@ def createDriveToPointAction(pathFollower, coord, speed):
     return Action("Drive to " + coord.name,
         lambda: driveToPoint(pathFollower, coord, speed), "drive", coord)
 
+def driveBezierPath(pathFollower, coordList, speed):
+    yield from sea.ensureTrue(pathFollower.driveBezierPathGenerator(coordList, speed), 25)
+
+def createBezierAction(pathFollower, coordList, speed):
+    return Action("Bezier Curve", lambda: driveBezierPath(pathFollower, coordList, speed), "bezier", coordList)
+
 def createRotateInPlaceAction(pathFollower, coord):
     newCoord = coordinates.FieldCoordinate("Rotated",
         pathFollower.robotX, pathFollower.robotY, coord.angle)

@@ -14,6 +14,9 @@ class FieldCoordinate:
         return "%s (%f, %f, %f deg)" \
             % (self.name, self.x, self.y, math.degrees(self.angle))
 
+    def getCoords(self):
+        return self.x, self.y
+
 targetPoints = [
     # Red
     FieldCoordinate("Power Port", -24.5, 5.11, math.pi/2),

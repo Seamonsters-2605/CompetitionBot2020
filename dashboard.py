@@ -1,4 +1,5 @@
 import remi.gui as gui
+from remi.server import start
 import seamonsters as sea
 import json, os, autoActions, drivetrain, coordinates, math, glob
 
@@ -54,6 +55,7 @@ class CompetitionDashboard(sea.Dashboard):
         leftSide.append(self.initStats(robot))
         leftSide.append(self.initLedControl(robot))
         leftSide.append(self.initScheduler(robot))
+        leftSide.append(self.initBezier(robot))
 
         middle.append(self.initCamera(robot))
         middle.append(self.initFieldMap(robot))
@@ -471,6 +473,45 @@ class CompetitionDashboard(sea.Dashboard):
         
         return schedulerBox
 
+    def initBezier(self, robot):
+        bezierBox = self.sectionBox()
+        bezierBox.append(gui.Label("Bezier Path Following"))
+
+        bezierButtons = gui.HBox()
+        bezierBox.append(bezierButtons)
+
+        self.bezierPathLines = []
+
+        bezierButtonGroup = sea.ToggleButtonGroup()
+
+        def addPoint(button):
+            self.bezierPathLines.append(self.selectedCoord)
+            bezierButtonGroup.highlight(button)
+
+        startBtn = gui.Button("Start Path")
+        bezierButtonGroup.addButton(startBtn)
+        bezierButtons.append(startBtn)
+        startBtn.set_on_click_listener(addPoint)
+
+        addBtn = gui.Button("Add Point")
+        bezierButtonGroup.addButton(addBtn)
+        bezierButtons.append(addBtn)
+        addBtn.set_on_click_listener(addPoint)
+
+        def endPath(button, pathFollower):
+            self.bezierPathLines.append(self.selectedCoord)
+            action = autoActions.createBezierAction(pathFollower, self.bezierPathLines, self.autoSpeed)
+            self.robot.autoScheduler.actionList.append(action)
+            self.updateScheduler()
+            self.bezierPathLines = []
+            bezierButtonGroup.highlight(button)
+
+        endBtn = gui.Button("End Path")
+        bezierButtonGroup.addButton(endBtn)
+        bezierButtons.append(endBtn)
+        endBtn.set_on_click_listener(endPath, self.robot.pathFollower)
+
+        return bezierBox
 
     def initLedControl(self, robot):
         ledBox = self.sectionBox()
@@ -656,11 +697,9 @@ class CompetitionDashboard(sea.Dashboard):
         if key == "drive":
             action = autoActions.createDriveToPointAction(
                 self.robot.pathFollower, coord, self.autoSpeed)
-            pass
         elif key == "rotate":
             action = autoActions.createRotateInPlaceAction(
                 self.robot.pathFollower, coord)
-            pass
         elif key == "face":
             action = autoActions.createRotateTowardsPointAction(
                 self.robot, coord)
@@ -669,14 +708,11 @@ class CompetitionDashboard(sea.Dashboard):
         elif key == "set":
             action = autoActions.createSetRobotPositionAction(
                 self.robot.pathFollower, coord)
-            pass
         elif key == "angle":
             action = autoActions.createSetRobotAngleToCursorAction(
                 self.robot.pathFollower, coord)
-            pass
         elif key == "intake":
             action = autoActions.createToggleIntakeAction(self.robot)
-            pass
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)
