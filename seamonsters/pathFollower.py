@@ -168,6 +168,62 @@ class PathFollower:
 
             yield hasReachedPosition and hasReachedFinalAngle
 
+    def driveBezierPathGenerator(self, pointList, speed=4):
+
+        curves = []
+        l = len(pointList)
+
+        def midpoint(p0, p1):
+            return ((p0[0] + p1[0])/2, (p0[1] + p1[1])/2)
+
+        curves.append((
+            pointList[0],
+            midpoint(pointList[0], midpoint(pointList[0], pointList[1])),
+            midpoint(pointList[0], pointList[1])
+        ))
+
+        for curve in range(1, l-1):
+            curves.append((
+                midpoint(pointList[curve-1], pointList[curve]),
+                pointList[curve],
+                midpoint(pointList[curve], pointList[curve+1])
+            ))
+        
+        curves.append((
+            midpoint(pointList[l-1],pointList[l]),
+            midpoint(midpoint(pointList[l-1],pointList[l]),pointList[l]),
+            pointList[l]
+        ))
+
+        for curve in curves:
+
+            distance_estimate = \
+                math.hypot(curve[0,0] - curve[1,0], curve[0,1] - curve[1,1]) + \
+                math.hypot(curve[1,0] - curve[2,0], curve[1,1] - curve[2,1])
+            
+            total_time = speed / distance_estimate
+
+            def gx(t):
+                return 2 * (curve[0,0] * (t - 1) - curve[1,0] * (2 * t - 1) + t * curve[2,0])
+
+            def gy(t):
+                return 2 * (curve[0,1] * (t - 1) - curve[1,1] * (2 * t - 1) + t * curve[2,1])
+            
+            def gpx(t):
+                return 2 * (curve[2,0] - 2 * curve[1,0] + curve[0,0])
+
+            def gpy(t):
+                return 2 * (curve[2,1] - 2 * curve[1,1] + curve[0,1])
+
+            for time in range(int(total_time * 50)):
+
+                t = time / total_time / 50
+
+                mag = math.sqrt(gx(t)*gx(t), gy(t)*gy(t)) / total_time
+                turn = -(gpx(t) * gy(t) - gpy(t) * gx(t)) / (gx(t)*gx(t) + gy(t)*gy(t))
+
+                self.drive.drive(mag, math.pi/2, turn)
+
     # return magnitude, angle
     def _robotVectorToPoint(self, x, y):
         xDiff = x - self.robotX
