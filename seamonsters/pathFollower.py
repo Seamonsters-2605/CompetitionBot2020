@@ -1,5 +1,6 @@
 import math, sys
 import seamonsters as sea
+import drivetrain
 
 class PathFollower:
     """
@@ -168,7 +169,12 @@ class PathFollower:
 
             yield hasReachedPosition and hasReachedFinalAngle
 
-    def driveBezierPathGenerator(self, pointList, speed=4):
+    def driveBezierPathGenerator(self, coordList, speed=4):
+
+        pointList = []
+
+        for coord in coordList:
+            pointList.append(coord.getCoords())
 
         curves = []
         l = len(pointList)
@@ -176,51 +182,67 @@ class PathFollower:
         def midpoint(p0, p1):
             return ((p0[0] + p1[0])/2, (p0[1] + p1[1])/2)
 
-        curves.append((
+        if l < 3:
+            print("Bezier curve must have at least 3 points")
+        
+        elif l == 3:
+            curves.append((pointList[0],pointList[1],pointList[2]))
+
+        else:
+            curves.append((
             pointList[0],
             midpoint(pointList[0], midpoint(pointList[0], pointList[1])),
             midpoint(pointList[0], pointList[1])
-        ))
-
-        for curve in range(1, l-1):
-            curves.append((
-                midpoint(pointList[curve-1], pointList[curve]),
-                pointList[curve],
-                midpoint(pointList[curve], pointList[curve+1])
             ))
-        
-        curves.append((
-            midpoint(pointList[l-1],pointList[l]),
-            midpoint(midpoint(pointList[l-1],pointList[l]),pointList[l]),
-            pointList[l]
-        ))
+
+            for curve in range(1, l-1):
+                curves.append((
+                    midpoint(pointList[curve-1], pointList[curve]),
+                    pointList[curve],
+                    midpoint(pointList[curve], pointList[curve+1])
+                ))
+
+            curves.append((
+                midpoint(pointList[l-2],pointList[l-1]),
+                midpoint(midpoint(pointList[l-2],pointList[l-1]),pointList[l-1]),
+                pointList[l-1]
+            ))
 
         for curve in curves:
 
             distance_estimate = \
-                math.hypot(curve[0,0] - curve[1,0], curve[0,1] - curve[1,1]) + \
-                math.hypot(curve[1,0] - curve[2,0], curve[1,1] - curve[2,1])
+                math.hypot(curve[0][0] - curve[1][0], curve[0][1] - curve[1][1]) + \
+                math.hypot(curve[1][0] - curve[2][0], curve[1][1] - curve[2][1])
             
-            total_time = speed / distance_estimate
+            total_time = distance_estimate / speed / 5
 
             def gx(t):
-                return 2 * (curve[0,0] * (t - 1) - curve[1,0] * (2 * t - 1) + t * curve[2,0])
+                return 2 * (curve[0][0] * (t - 1) - curve[1][0] * (2 * t - 1) + t * curve[2][0])
 
             def gy(t):
-                return 2 * (curve[0,1] * (t - 1) - curve[1,1] * (2 * t - 1) + t * curve[2,1])
+                return 2 * (curve[0][1] * (t - 1) - curve[1][1] * (2 * t - 1) + t * curve[2][1])
             
             def gpx(t):
-                return 2 * (curve[2,0] - 2 * curve[1,0] + curve[0,0])
+                return 2 * (curve[2][0] - 2 * curve[1][0] + curve[0][0])
 
             def gpy(t):
-                return 2 * (curve[2,1] - 2 * curve[1,1] + curve[0,1])
+                return 2 * (curve[2][1] - 2 * curve[1][1] + curve[0][1])
+
+            drivetrain.mediumVelocityGear.applyGear(self.drive)
 
             for time in range(int(total_time * 50)):
 
+                self.updateRobotPosition()
+
                 t = time / total_time / 50
 
-                mag = math.sqrt(gx(t)*gx(t), gy(t)*gy(t)) / total_time
-                turn = -(gpx(t) * gy(t) - gpy(t) * gx(t)) / (gx(t)*gx(t) + gy(t)*gy(t))
+                gxt = gx(t)
+                gyt = gy(t)
+                gpxt = gpx(t)
+                gpyt = gpy(t)
+
+                mag = math.sqrt(gx(t)*gx(t) + gy(t)*gy(t)) / total_time
+                turn = -(gpx(t) * gy(t) - gpy(t) * gx(t)) / (gx(t)*gx(t) + gy(t)*gy(t)) / total_time
 
                 self.drive.drive(mag, math.pi/2, turn)
 
