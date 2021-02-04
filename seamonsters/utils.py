@@ -1,6 +1,5 @@
 import math, sys, os, time
 import rev
-import physics
 
 ITERATIONS_PER_SECOND = 50.0
 
@@ -50,8 +49,9 @@ def readDataFile(filename):
 
 def createSpark(deviceID, motorType):
     if sys.argv[1] == "sim":
-        spark = physics.SimulatedSpark(deviceID, motorType)
-        physics.simulatedSparks.append(spark)
+        from physics import SimulatedSpark, simulatedSparks
+        spark = SimulatedSpark(deviceID, motorType)
+        simulatedSparks.append(spark)
         return spark
     else:
         return rev.CANSparkMax(deviceID, motorType)
