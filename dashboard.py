@@ -484,6 +484,9 @@ class CompetitionDashboard(sea.Dashboard):
 
         def addPoint(button):
             self.bezierPathLines.append(self.selectedCoord)
+            lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
+            for coord in self.bezierPathLines:
+                lineX, lineY = self.actionLines(lineX, lineY, coord)
 
         addBtn = gui.Button("Add Point")
         bezierButtons.append(addBtn)
@@ -499,6 +502,14 @@ class CompetitionDashboard(sea.Dashboard):
         endBtn = gui.Button("End Path")
         bezierButtons.append(endBtn)
         endBtn.set_on_click_listener(endPath, self.robot.pathFollower)
+
+        def resetPath(button):
+            self.bezierPathLines = []
+            self.updateScheduler()
+
+        resetBtn = gui.Button("Reset Path")
+        bezierButtons.append(resetBtn)
+        resetBtn.set_on_click_listener(resetPath)
 
         return bezierBox
 
@@ -580,6 +591,7 @@ class CompetitionDashboard(sea.Dashboard):
         for line in self.robotPathLines:
             self.fieldSvg.remove_child(line)
         self.robotPathLines.clear()
+        # the higher the line number, the older it is
         lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
         lineX2, lineY2 = lineX, lineY
         lineX3, lineY3 = lineX2, lineY2
@@ -592,7 +604,7 @@ class CompetitionDashboard(sea.Dashboard):
             listItem = gui.ListItem(name)
             self.schedulerList.append(listItem, str(index))
 
-            if (action.coord is not None):
+            if action.coord is not None:
 
                 if action.key == "drive":
                     lineX3, lineY3 = lineX2, lineY2
@@ -605,6 +617,8 @@ class CompetitionDashboard(sea.Dashboard):
                         lineX2, lineY2 = lineX, lineY
                         lineX, lineY = self.actionLines(lineX, lineY, coord)
                         self.bezierCurve(lineX, lineX2, lineX3, lineY, lineY2, lineY3)
+                    # finishes the last point on the curve
+                    self.bezierCurve(lineX, lineX, lineX2, lineY, lineY, lineY2)
             index += 1
 
     def actionLines(self, lineX, lineY, coord):
