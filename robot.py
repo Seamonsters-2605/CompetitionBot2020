@@ -295,7 +295,7 @@ class CompetitionBot2020(botType):
         if degrees is None and not visionTarget:
             raise ValueError("visionTarget must be True if degrees is None")
 
-        hOffset, offset = 0
+        hOffset, offset = 0, 0
 
         self.pathFollower.updateRobotPosition()
 
