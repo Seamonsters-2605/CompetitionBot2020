@@ -482,19 +482,10 @@ class CompetitionDashboard(sea.Dashboard):
 
         self.bezierPathLines = []
 
-        bezierButtonGroup = sea.ToggleButtonGroup()
-
         def addPoint(button):
             self.bezierPathLines.append(self.selectedCoord)
-            bezierButtonGroup.highlight(button)
-
-        startBtn = gui.Button("Start Path")
-        bezierButtonGroup.addButton(startBtn)
-        bezierButtons.append(startBtn)
-        startBtn.set_on_click_listener(addPoint)
 
         addBtn = gui.Button("Add Point")
-        bezierButtonGroup.addButton(addBtn)
         bezierButtons.append(addBtn)
         addBtn.set_on_click_listener(addPoint)
 
@@ -504,10 +495,8 @@ class CompetitionDashboard(sea.Dashboard):
             self.robot.autoScheduler.actionList.append(action)
             self.updateScheduler()
             self.bezierPathLines = []
-            bezierButtonGroup.highlight(button)
 
         endBtn = gui.Button("End Path")
-        bezierButtonGroup.addButton(endBtn)
         bezierButtons.append(endBtn)
         endBtn.set_on_click_listener(endPath, self.robot.pathFollower)
 
@@ -602,20 +591,29 @@ class CompetitionDashboard(sea.Dashboard):
                 name = "* " + name
             listItem = gui.ListItem(name)
             self.schedulerList.append(listItem, str(index))
-            lineX3, lineY3 = lineX2, lineY2
-            lineX2, lineY2 = lineX, lineY
-            lineX, lineY = self.actionLines(lineX, lineY, action)
-            self.bezierCurve(lineX, lineX2, lineX3, lineY, lineY2, lineY3)
+
+            if (action.coord is not None):
+
+                if action.key == "drive":
+                    lineX3, lineY3 = lineX2, lineY2
+                    lineX2, lineY2 = lineX, lineY
+                    lineX, lineY = self.actionLines(lineX, lineY, action.coord)
+
+                elif action.key == "bezier":
+                    for coord in action.coord:
+                        lineX3, lineY3 = lineX2, lineY2
+                        lineX2, lineY2 = lineX, lineY
+                        lineX, lineY = self.actionLines(lineX, lineY, coord)
+                        self.bezierCurve(lineX, lineX2, lineX3, lineY, lineY2, lineY3)
             index += 1
 
-    def actionLines(self, lineX, lineY, action):
-        if action.coord is not None and action.key == "drive":
-            x1, y1 = fieldToSvgCoordinates(action.coord.x, action.coord.y)
-            line = gui.SvgLine(lineX, lineY, x1, y1)
-            line.set_stroke(width=3)
-            self.robotPathLines.append(line)
-            self.fieldSvg.append(line)
-            lineX, lineY = x1, y1
+    def actionLines(self, lineX, lineY, coord):
+        x1, y1 = fieldToSvgCoordinates(coord.x, coord.y)
+        line = gui.SvgLine(lineX, lineY, x1, y1)
+        line.set_stroke(width=3)
+        self.robotPathLines.append(line)
+        self.fieldSvg.append(line)
+        lineX, lineY = x1, y1
         return lineX, lineY
 
     # stuff for displaying a bezier curve of the action lines
