@@ -29,7 +29,7 @@ class ControlScheme:
 
     # get the speed the robot should turn
     def getTurn(self) -> float:
-        return sea.deadZone(self.driverController.getX(self.CONTROLLER_RIGHT), deadZone=0.05)
+        return -sea.deadZone(self.driverController.getX(self.CONTROLLER_RIGHT), deadZone=0.05)
     
     # get the speed the robot should drive
     def getMagnitude(self) -> float:
@@ -67,8 +67,8 @@ class ControlScheme:
     def shouldToggleShooter(self) -> bool:
         return self.operatorController.getXButtonPressed()
 
-# comp control scheme but with xbox controllers instead of logitech
-class XboxCompScheme(ControlScheme):
+# comp control scheme but with an inverted x axis for anyone with a different controller
+class InvertedX(ControlScheme):
 
     def getTurn(self):
         return -super().getTurn()
