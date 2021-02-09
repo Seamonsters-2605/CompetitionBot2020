@@ -569,6 +569,10 @@ class CompetitionDashboard(sea.Dashboard):
         for indicator in [self.intakeIndicator, self.indexerIndicator, self.autoIndexIndicator, self.shooterIndicator]:
             subsystemInfoBox.append(indicator)
 
+        # buttons only work for the togglable indicators
+        self.autoIndexIndicator.set_on_click_listener(robot.c_toggleAutoIndexer)
+        self.shooterIndicator.set_on_click_listener(robot.c_toggleShooter)
+
         subsystemBox.append(subsystemInfoBox)
         return subsystemBox
 
@@ -580,6 +584,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.cursorArrow.setPosition(
             coord.x, coord.y, coord.angle)
 
+    # redraws robot path lines and updates the autoScheduler list
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
         self.schedulerList.empty()
