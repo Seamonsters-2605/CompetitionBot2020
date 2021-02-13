@@ -64,6 +64,7 @@ class CompetitionDashboard(sea.Dashboard):
         rightSide.append(self.initManual(robot))
         self.autoSpeedGroup.highlight("medium")
         rightSide.append(self.initPidControlsBox(robot))
+        rightSide.append(self.initVisionControl(robot))
         rightSide.append(self.initTest(robot))
         rightSide.append(self.initHumanControls(robot))
         rightSide.append(self.initSubsystemsInfo(robot))
@@ -553,6 +554,32 @@ class CompetitionDashboard(sea.Dashboard):
         ledBox.append(ledInputBox)
 
         return ledBox
+
+    def initVisionControl(self, robot):
+        visionBox = self.sectionBox()
+        # this does not actually disable the limelight, it just turns off the LEDs
+        # and sets it to driver mode
+        enableButton = gui.Button("Enable Limelight")
+        disableButton = gui.Button("Disable Limelight")
+
+        def enableLimelight(self):
+            # Sets the limelight's config to what it was configured in the Limelight app
+            robot.limelight.putNumber("ledMode", 0)
+            robot.limelight.putNumber("camMode", 0)
+            print("Limelight enabled")
+
+        def disableLimelight(self):
+            # Turns off LEDs and sets cam mode to driver mode
+            robot.limelight.putNumber("ledMode", 1)
+            robot.limelight.putNumber("camMode", 1)
+            print("Limelight disabled")
+
+        enableButton.set_on_click_listener(enableLimelight)
+        disableButton.set_on_click_listener(disableLimelight)
+        visionBox.append(gui.Label("Vision controls"))
+        visionBox.append(sea.hBoxWith(enableButton, disableButton))
+
+        return visionBox
 
     def initStats(self, robot):
         statsBox = self.sectionBox()
