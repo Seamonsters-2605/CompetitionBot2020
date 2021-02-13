@@ -43,7 +43,12 @@ class AutoScheduler:
                     "key" : action.key,
                     "coord" : []
                 }
-            if action.coord is not None:
+            if action.key == "bezier":
+                coordsList = []
+                for coord in action.coord:
+                    coordsList.append([action.name, coord.x, coord.y, coord.angle])
+                    newAction["coord"] = coordsList
+            elif action.coord is not None:
                 newAction["coord"] = [action.name, action.coord.x, action.coord.y, action.coord.angle]
             schedulePresets.append(newAction)
         return schedulePresets

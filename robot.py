@@ -417,6 +417,14 @@ class CompetitionBot2020(botType):
         self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
 
     @sea.queuedDashboardEvent
+    def c_toggleShooter(self, button):
+        self.shooter.toggleMotors()
+
+    @sea.queuedDashboardEvent
+    def c_toggleAutoIndexer(self, button):
+        self.indexer.toggleAutoIndexer()
+
+    @sea.queuedDashboardEvent
     def c_stop(self, button):
         self.superDrive.disable()
 

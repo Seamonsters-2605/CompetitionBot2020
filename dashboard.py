@@ -397,7 +397,7 @@ class CompetitionDashboard(sea.Dashboard):
 
             self.fieldSvg.empty()
             self.makeField(imageURL, isNormalField)
-            self.updateScheduler()
+            self.updateSchedulerFlag = True
 
         fieldButton = gui.Button('Field')
         fieldButton.set_on_click_listener(changeFieldImage, '/res:field.png', True)
@@ -507,28 +507,24 @@ class CompetitionDashboard(sea.Dashboard):
 
         def addPoint(button):
             self.bezierPathLines.append(self.selectedCoord)
-            lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
-            for coord in self.bezierPathLines:
-                lineX, lineY = self.actionLines(lineX, lineY, coord)
+            self.updateSchedulerFlag = True
 
         addBtn = gui.Button("Add Point")
         bezierButtons.append(addBtn)
         addBtn.set_on_click_listener(addPoint)
 
-        def endPath(button, pathFollower):
+        def endPath(button):
             self.bezierPathLines.append(self.selectedCoord)
-            action = autoActions.createBezierAction(pathFollower, self.bezierPathLines, self.autoSpeed)
-            self.robot.autoScheduler.actionList.append(action)
-            self.updateScheduler()
+            self.c_addGenericAction(None, "bezier", self.bezierPathLines)
             self.bezierPathLines = []
 
         endBtn = gui.Button("End Path")
         bezierButtons.append(endBtn)
-        endBtn.set_on_click_listener(endPath, self.robot.pathFollower)
+        endBtn.set_on_click_listener(endPath)
 
         def resetPath(button):
             self.bezierPathLines = []
-            self.updateScheduler()
+            self.updateSchedulerFlag = True
 
         resetBtn = gui.Button("Reset Path")
         bezierButtons.append(resetBtn)
@@ -622,6 +618,10 @@ class CompetitionDashboard(sea.Dashboard):
         for indicator in [self.intakeIndicator, self.indexerIndicator, self.autoIndexIndicator, self.shooterIndicator]:
             subsystemInfoBox.append(indicator)
 
+        # buttons only work for the togglable indicators
+        self.autoIndexIndicator.set_on_click_listener(robot.c_toggleAutoIndexer)
+        self.shooterIndicator.set_on_click_listener(robot.c_toggleShooter)
+
         subsystemBox.append(subsystemInfoBox)
         return subsystemBox
 
@@ -633,6 +633,7 @@ class CompetitionDashboard(sea.Dashboard):
         self.cursorArrow.setPosition(
             coord.x, coord.y, coord.angle)
 
+    # redraws robot path lines and updates the autoScheduler list
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
         self.schedulerList.empty()
@@ -669,6 +670,9 @@ class CompetitionDashboard(sea.Dashboard):
                     # finishes the last point on the curve
                     self.bezierCurve(lineX, lineX, lineX2, lineY, lineY, lineY2)
             index += 1
+
+        for coord in self.bezierPathLines:
+            lineX, lineY = self.actionLines(lineX, lineY, coord)
 
     def actionLines(self, lineX, lineY, coord):
         x1, y1 = fieldToSvgCoordinates(coord.x, coord.y)
@@ -719,7 +723,7 @@ class CompetitionDashboard(sea.Dashboard):
         autoPreset = self.robot.autoScheduler.saveSchedule()
         with open(fileLocation,"w") as presetFile:
             json.dump(autoPreset, presetFile)
-        print("Preset saved")
+        print("Preset saved at " + fileLocation)
         self.updatePresetFileDropdown()
 
     # Callbacks
@@ -758,6 +762,9 @@ class CompetitionDashboard(sea.Dashboard):
         if key == "drive":
             action = autoActions.createDriveToPointAction(
                 self.robot.pathFollower, coord, self.autoSpeed)
+        elif key == "bezier":
+            action = autoActions.createBezierAction(
+                self.robot.pathFollower, coord, self.autoSpeed)
         elif key == "rotate":
             action = autoActions.createRotateInPlaceAction(
                 self.robot.pathFollower, coord)
@@ -777,18 +784,19 @@ class CompetitionDashboard(sea.Dashboard):
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)
-        self.updateScheduler()
+        self.updateSchedulerFlag = True
 
     def c_clearSchedule(self, button):
+        self.bezierPathLines = []
         self.robot.autoScheduler.actionList.clear()
-        self.updateScheduler()
+        self.updateSchedulerFlag = True
 
     def c_removeAction(self, listview, key):
         index = int(key)
         actionList = self.robot.autoScheduler.actionList
         if index < len(actionList):
             del actionList[index]
-        self.updateScheduler()
+        self.updateSchedulerFlag = True
 
     # Auto Presets:
 
@@ -796,7 +804,7 @@ class CompetitionDashboard(sea.Dashboard):
         if file.get_key() is None:
             print("No file selected")
             return
-        # file should be blank because it will delete everything in it
+        # file should be blank because it will delete everything in it when it is opened
         self.robot.autoScheduler.actionList.clear()
         with open(file.get_key(),"r") as presetFile:
             try:
@@ -807,13 +815,20 @@ class CompetitionDashboard(sea.Dashboard):
             for action in preset:
                 coord = None
                 if action["coord"] != []:
-                    # creates a field coordinate
-                    coord = coordinates.FieldCoordinate(action["coord"][0], 
-                        action["coord"][1], action["coord"][2], action["coord"][3])
+                    if action["key"] != "bezier":
+                        # creates a field coordinate
+                        coord = coordinates.FieldCoordinate(action["coord"][0], 
+                            action["coord"][1], action["coord"][2], action["coord"][3])
+                    else:
+                        # loops through and makes a list of coordinates
+                        coord = []
+                        for point in action["coord"]:
+                            coord.append(coordinates.FieldCoordinate(point[0], 
+                                point[1], point[2], point[3]))
 
                 self.c_addGenericAction(self.genericActionList, action["key"], coord)
         
-        self.updateScheduler()
+        self.updateSchedulerFlag = True
         self.updatePresetFileDropdown()
 
     def c_saveAutoPresetFromText(self, button, textInput):

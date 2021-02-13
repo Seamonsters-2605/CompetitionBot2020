@@ -578,7 +578,7 @@ class SuperHolonomicDrive:
             wheel.disable()
 
     def _calcWheelVector(self, wheel, moveX, moveY, turn):
-        return moveX - wheel.y * turn, moveY + wheel.x * turn
+        return moveX + wheel.y * turn, moveY - wheel.x * turn
 
     def resetWheelPositions(self):
         for i in range(len(self.wheels)):
@@ -655,7 +655,7 @@ class SuperHolonomicDrive:
 
             totalX += (aDx + bDx) / 2
             totalY += (aDy + bDy) / 2
-            totalA += relVelMag * math.sin(relVelDir - relPosDir) / relPosMag
+            totalA -= relVelMag * math.sin(relVelDir - relPosDir) / relPosMag
             pairCount += 1
         totalX /= pairCount
         totalY /= pairCount
