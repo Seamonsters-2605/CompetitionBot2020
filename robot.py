@@ -108,10 +108,6 @@ class CompetitionBot2020(botType):
         self.app = None 
         sea.startDashboard(self, dashboard.CompetitionDashboard)
 
-        # If this variable is true, the robot will invert turning in teleop mode.
-        # For when you're using an Xbox controller.
-        self.invertTurns = False
-
     # Different Driving Modes
 
     # robot is controlled by the driver
@@ -211,7 +207,7 @@ class CompetitionBot2020(botType):
             # Drivetrain:
 
             turn = self.controls.getTurn()
-            turn = -turn if self.invertTurns else turn # Can invert turning
+            # turn = -turn # Un-comment this out to invert turns
             turn *= self.driveGear.turnScale
             mag = self.controls.getMagnitude()
             mag *= self.driveGear.moveScale

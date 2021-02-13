@@ -66,7 +66,6 @@ class CompetitionDashboard(sea.Dashboard):
         rightSide.append(self.initPidControlsBox(robot))
         rightSide.append(self.initVisionControl(robot))
         rightSide.append(self.initTest(robot))
-        rightSide.append(self.initHumanControls(robot))
         rightSide.append(self.initSubsystemsInfo(robot))
 
         root.append(leftSide)
@@ -293,25 +292,6 @@ class CompetitionDashboard(sea.Dashboard):
         testBox.append(motorSelectionBox)
         testBox.append(motorSpeedBox)
         return testBox
-
-    def initHumanControls(self, robot) -> gui.VBox:
-        humanControlsBox = self.sectionBox()
-        humanControlsBox.style['font-family'] = 'Comic Sans MS'
-
-        # A box for inverting teleop turns
-        def invertRobotTurns(ticked, robot):
-            robot.invertTurns = ticked
-            print("invert controls: " + str(robot.invertTurns))
-        invertControlsBox = gui.HBox()
-        invertControlsCheckBox = gui.CheckBoxLabel("Invert teleop turns (for XBox controller): ")
-        # Used a lambda here because I wanted to pretend I was in Java
-        # also, checkboxes pass themselves AND whether or not they were ticked (bool), so a good function header
-        # might look like doAction(checkBox, ticked)
-        invertControlsCheckBox.set_on_change_listener(lambda self, ticked: invertRobotTurns(ticked, robot))
-        invertControlsBox.append(invertControlsCheckBox)
-        humanControlsBox.append(invertControlsBox)
-
-        return humanControlsBox
 
     def initFieldMap(self, robot):
         fieldBox = self.sectionBox()
