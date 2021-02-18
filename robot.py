@@ -153,7 +153,7 @@ class CompetitionBot2020(botType):
         self.piston.set(SOLENOID_FORWARD)
 
         self.limelight.putNumber('ledMode', 1) # turn off leds
-        self.shooter.start()
+        self.shooter.stop()
 
         self.controlModeMachine.replace(self.manualState)
 
@@ -171,7 +171,7 @@ class CompetitionBot2020(botType):
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
 
         self.limelight.putNumber('ledMode', 3) # turn on leds
-        self.shooter.start()
+        self.shooter.stop()
         
         self.controlModeMachine.replace(self.autoState)
 

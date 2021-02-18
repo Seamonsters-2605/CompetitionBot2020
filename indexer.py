@@ -74,7 +74,7 @@ class Indexer:
     def stop(self):
         self.running = False
         self.indexerMotor.set(0)
-        self.kickerWheel.set(1)
+        self.kickerWheel.set(0)
 
     # turns the motors on or off
     def toggleMotors(self):
