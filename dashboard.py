@@ -66,7 +66,6 @@ class CompetitionDashboard(sea.Dashboard):
         rightSide.append(self.initPidControlsBox(robot))
         rightSide.append(self.initVisionControl(robot))
         rightSide.append(self.initTest(robot))
-        rightSide.append(self.initSubsystemsInfo(robot))
 
         root.append(leftSide)
         root.append(middle)
@@ -108,28 +107,6 @@ class CompetitionDashboard(sea.Dashboard):
             maxTempItem.set_text(str(self.robot.motorData[motorNum]["maxTemp"]))
 
         # updates the subsystem indicators
-
-        color = GREY
-
-        # intake color adjustment
-        if self.robot.intake.running:
-            color = RED if self.robot.intake.reversed else GREEN
-        self.intakeIndicator.style["background"] = color
-
-        color = GREY
-
-        # indexer color adjustment
-        if self.robot.indexer.running:
-            color = RED if self.robot.indexer.reversed else GREEN
-        self.indexerIndicator.style["background"] = color
-
-        # auto indexer color adjustment
-        color = GREEN if self.robot.indexer.autoIndexEnabled else RED
-        self.autoIndexIndicator.style["background"] = color
-
-        # shooter color adjustment
-        color = GREEN if self.robot.shooter.running else GREY
-        self.shooterIndicator.style["background"] = color
 
     def initManual(self, robot):
         manualBox = self.sectionBox()
@@ -586,25 +563,6 @@ class CompetitionDashboard(sea.Dashboard):
         statsBox.append(motorDataBox)
         return statsBox
 
-    def initSubsystemsInfo(self, robot):
-        subsystemBox = self.sectionBox()
-
-        subsystemInfoBox = sea.hBoxWith(gui.Label("Subsystems:"))
-        self.intakeIndicator = gui.Button("Intake")
-        self.indexerIndicator = gui.Button("Indexer")
-        self.autoIndexIndicator = gui.Button("Auto Indexer")
-        self.shooterIndicator = gui.Button("Shooter")
-
-        for indicator in [self.intakeIndicator, self.indexerIndicator, self.autoIndexIndicator, self.shooterIndicator]:
-            subsystemInfoBox.append(indicator)
-
-        # buttons only work for the togglable indicators
-        self.autoIndexIndicator.set_on_click_listener(robot.c_toggleAutoIndexer)
-        self.shooterIndicator.set_on_click_listener(robot.c_toggleShooter)
-
-        subsystemBox.append(subsystemInfoBox)
-        return subsystemBox
-
     def updateRobotPosition(self, robotX, robotY, robotAngle):
         self.robotArrow.setPosition(robotX, robotY, robotAngle)
 
@@ -751,16 +709,12 @@ class CompetitionDashboard(sea.Dashboard):
         elif key == "face":
             action = autoActions.createRotateTowardsPointAction(
                 self.robot, coord)
-        elif key == "shoot":
-            action = autoActions.createShootAction(self.robot)
         elif key == "set":
             action = autoActions.createSetRobotPositionAction(
                 self.robot.pathFollower, coord)
         elif key == "angle":
             action = autoActions.createSetRobotAngleToCursorAction(
                 self.robot.pathFollower, coord)
-        elif key == "intake":
-            action = autoActions.createToggleIntakeAction(self.robot)
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)

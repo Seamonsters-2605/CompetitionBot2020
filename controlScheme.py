@@ -39,34 +39,6 @@ class ControlScheme:
     def shouldUseVision(self) -> bool:
         return self.driverController.getBumper(self.CONTROLLER_LEFT)
 
-    # get weather or not the robot should spin the intake
-    def shouldSpinIntake(self) -> bool:
-        return self.driverController.getBumper(self.CONTROLLER_RIGHT)
-
-    # get weather or not the robot should reverse the intake
-    def shouldReverseIntake(self) -> bool:
-        return self.operatorController.getAButton()
-
-    # get weather or not the robot should retract/extend the intake
-    def shouldToggleIntake(self) -> bool:
-        return self.driverController.getAButtonPressed()
-
-    # get weather or not the robot should spin the indexer
-    def shouldSpinIndexer(self) -> bool:
-        return self.operatorController.getBumper(self.CONTROLLER_LEFT)
-
-    # get weather or not the robot should spin the indexer in reverse
-    def shouldReverseIndexer(self) -> bool:
-        return self.operatorController.getBButton()
-
-    # get weather or not the robot should toggle auto index
-    def shouldToggleAutoIndex(self) -> bool:
-        return self.operatorController.getYButtonPressed()
-
-    # get weather or not the robot should toggle the shooter
-    def shouldToggleShooter(self) -> bool:
-        return self.operatorController.getXButtonPressed()
-
 # comp control scheme but with an inverted x axis for anyone with a different controller
 class InvertedX(ControlScheme):
 

@@ -1,6 +1,6 @@
 import sys
 import wpilib, rev, math, navx
-import drivetrain, dashboard, autoScheduler, vision, autoActions, intake, shooter, indexer, selectedControlScheme
+import drivetrain, dashboard, autoScheduler, vision, autoActions, selectedControlScheme
 import seamonsters as sea 
 from networktables import NetworkTables
 from motorNums import *
@@ -29,11 +29,6 @@ class CompetitionBot2020(botType):
 
         self.ledStrip = wpilib.PWM(0)
         self.ledInput = -0.99
-
-        # subsystems
-        self.intake = intake.Intake(INTAKE, 2, 3)
-        self.shooter = shooter.Shooter(SHOOTER[0], SHOOTER[1])
-        self.indexer = indexer.Indexer(INDEXER, KICKER_WHEEL)
 
         self.superDrive = drivetrain.initDrivetrain()
         # multiDrive allows the robot to be driven multiple times in a loop and the values are averaged
@@ -133,10 +128,7 @@ class CompetitionBot2020(botType):
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(), 
             self.updateDashboardGenerator(),
-            self.updateMotorData(),
-            self.indexer.runGenerator(),
-            self.intake.run(),
-            self.shooter.spin())
+            self.updateMotorData())
 
     # switches the robot into teleop
     def manualMode(self):
@@ -153,7 +145,6 @@ class CompetitionBot2020(botType):
         self.piston.set(SOLENOID_FORWARD)
 
         self.limelight.putNumber('ledMode', 1) # turn off leds
-        self.shooter.start()
 
         self.controlModeMachine.replace(self.manualState)
 
@@ -171,7 +162,6 @@ class CompetitionBot2020(botType):
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
 
         self.limelight.putNumber('ledMode', 3) # turn on leds
-        self.shooter.start()
         
         self.controlModeMachine.replace(self.autoState)
 
@@ -207,7 +197,6 @@ class CompetitionBot2020(botType):
             # Drivetrain:
 
             turn = self.controls.getTurn()
-            # turn = -turn # Un-comment this out to invert turns
             turn *= self.driveGear.turnScale
             mag = self.controls.getMagnitude()
             mag *= self.driveGear.moveScale
@@ -230,41 +219,6 @@ class CompetitionBot2020(botType):
             else:
                 self.limelight.putNumber('ledMode', 1) # turn off leds
             
-            # Intake:
-
-            # go forwards when bumper is being held down
-            if self.controls.shouldSpinIntake():
-                self.intake.spinForwards()
-            elif self.controls.shouldReverseIntake():
-                # the operater can make the intake go reversed by holding the A button
-                self.intake.spinReversed()
-            else:
-                self.intake.stop()
-
-            # extending/retracting the intake
-            if self.controls.shouldToggleIntake():
-                self.intake.toggleIntake()
-
-            # Indexer:
-
-            if self.controls.shouldSpinIndexer():
-                if not self.controls.shouldReverseIndexer():
-                    self.indexer.start()
-                else:
-                    self.indexer.reverse()
-            else:
-                self.indexer.stop()
-
-            if self.controls.shouldToggleAutoIndex():
-                self.indexer.toggleAutoIndexer()
-
-            # Shooter:
-
-            if self.controls.shouldToggleShooter():
-                self.shooter.toggleMotors()
-
-            # need to add a way to adjust the shooter speed
-
             yield
 
     # switches to use the dashboard for testing purposes
@@ -411,14 +365,6 @@ class CompetitionBot2020(botType):
     def c_changeSpeed(self, button):
         self.driveSpeed = button.get_text()
         self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
-
-    @sea.queuedDashboardEvent
-    def c_toggleShooter(self, button):
-        self.shooter.toggleMotors()
-
-    @sea.queuedDashboardEvent
-    def c_toggleAutoIndexer(self, button):
-        self.indexer.toggleAutoIndexer()
 
     @sea.queuedDashboardEvent
     def c_stop(self, button):
