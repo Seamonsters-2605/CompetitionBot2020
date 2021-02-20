@@ -54,7 +54,8 @@ class CompetitionBot2020(botType):
         # for shifting gear box
         self.compressor = wpilib.Compressor(0)
         self.compressor.stop()
-        self.piston = wpilib.DoubleSolenoid(0, 1)
+        self.pistonF = wpilib.Solenoid(0, 1)
+        self.pistonB = wpilib.Solenoid(0, 1)
 
         # drive gears
         self.superDrive.gear = None
@@ -142,7 +143,8 @@ class CompetitionBot2020(botType):
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
          
-        self.piston.set(SOLENOID_FORWARD)
+        self.pistonF.set(1)
+        self.pistonB.set(0)
 
         self.limelight.putNumber('ledMode', 1) # turn off leds
 
@@ -156,7 +158,8 @@ class CompetitionBot2020(botType):
         self.driveMode = "voltage"
         self.driveSpeed = "slow"
         self.driveGear = self.driveGears[self.driveMode][self.driveSpeed]
-        self.piston.set(SOLENOID_REVERSE)
+        self.pistonF.set(0)
+        self.pistonB.set(1)
 
         for wheel in self.superDrive.wheels:
             wheel.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
@@ -189,10 +192,10 @@ class CompetitionBot2020(botType):
                     self.app.gearGroup.highlight(self.driveMode)
                     self.app.speedGroup.highlight(self.driveSpeed)
 
-            if self.piston.get() == SOLENOID_REVERSE and self.driveSpeed != "slow":
-                self.piston.set(SOLENOID_FORWARD)
-            elif self.piston.get() == SOLENOID_FORWARD and self.driveSpeed == "slow":
-                self.piston.set(SOLENOID_REVERSE)
+            if self.pistonF.get() == 0 and self.driveSpeed != "slow":
+                self.pistonF.set(1)
+            elif self.pistonB.get() == 1 and self.driveSpeed == "slow":
+                self.pistonB.set(0)
 
             # Drivetrain:
 
