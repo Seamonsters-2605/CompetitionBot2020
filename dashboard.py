@@ -3,10 +3,6 @@ from remi.server import start
 import seamonsters as sea
 import json, os, autoActions, drivetrain, coordinates, math, glob
 
-fieldWidth = 520
-fieldHeight = 260
-fieldPixelsPerFoot = 10
-
 GREEN = "rgb(21, 130, 21)"
 RED = "rgb(130, 21, 21)"
 GREY = "rgb(100, 100, 100)"
@@ -29,6 +25,10 @@ class CompetitionDashboard(sea.Dashboard):
 
     def main(self, robot, appCallback):
         self.robot = robot
+
+        self.fieldWidth = 520
+        self.fieldHeight = 260
+        self.fieldPixelsPerFoot = 10
 
         root = gui.HBox()
         root.style['align-items'] = 'stretch'
@@ -336,25 +336,25 @@ class CompetitionDashboard(sea.Dashboard):
         return fieldBox
 
     def makeField(self, imageURL, drawPoints):
-        self.fieldSvg.set_viewbox(0, 0, fieldWidth, fieldHeight)
-        self.fieldSvg.set_size(fieldWidth, fieldHeight)
+        self.fieldSvg.set_viewbox(0, 0, self.fieldWidth, self.fieldHeight)
+        self.fieldSvg.set_size(self.fieldWidth, self.fieldHeight)
         self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
 
-        self.image = gui.SvgImage(imageURL, 0, 0, fieldWidth, fieldHeight)
+        self.image = gui.SvgImage(imageURL, 0, 0, self.fieldWidth, self.fieldHeight)
         self.fieldSvg.append(self.image)
 
         if drawPoints:
             self.targetPoints = coordinates.targetPoints
             for point in self.targetPoints:
-                point = fieldToSvgCoordinates(point.x,point.y)
+                point = fieldToSvgCoordinates(point.x,point.y, self.fieldWidth, self.fieldHeight, self.fieldPixelsPerFoot)
                 wp_dot = gui.SvgCircle(point[0], point[1], 5)
                 wp_dot.attributes['fill'] = 'green'
                 self.fieldSvg.append(wp_dot)
 
-        self.cursorArrow = Arrow('red')
+        self.cursorArrow = Arrow('red', self.fieldWidth, self.fieldHeight, self.fieldPixelsPerFoot)
         self.fieldSvg.append(self.cursorArrow)
 
-        self.robotArrow = Arrow('green')
+        self.robotArrow = Arrow('green', self.fieldWidth, self.fieldHeight, self.fieldPixelsPerFoot)
         self.fieldSvg.append(self.robotArrow)
 
     def initFieldSwitcher(self, robot):
@@ -367,13 +367,11 @@ class CompetitionDashboard(sea.Dashboard):
         def changeFieldImage(button, imageURL, isNormalField):
             
             if isNormalField:
-                fieldWidth = 520
-                fieldHeight = 260
-                fieldPixelsPerFoot = 10
+                self.fieldWidth = 520
+                self.fieldHeight = 260
             else:
-                fieldWidth = 1980
-                fieldHeight = 990
-                fieldPixelsPerFoot = 66
+                self.fieldWidth = 300
+                self.fieldHeight = 150
 
             self.fieldSvg.empty()
             self.makeField(imageURL, isNormalField)
@@ -622,7 +620,7 @@ class CompetitionDashboard(sea.Dashboard):
             self.fieldSvg.remove_child(line)
         self.robotPathLines.clear()
         # the higher the line number, the older it is
-        lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
+        lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y, self.fieldWidth, self.fieldHeight, self.fieldPixelsPerFoot)
         lineX2, lineY2 = lineX, lineY
         lineX3, lineY3 = lineX2, lineY2
 
@@ -655,7 +653,7 @@ class CompetitionDashboard(sea.Dashboard):
             lineX, lineY = self.actionLines(lineX, lineY, coord)
 
     def actionLines(self, lineX, lineY, coord):
-        x1, y1 = fieldToSvgCoordinates(coord.x, coord.y)
+        x1, y1 = fieldToSvgCoordinates(coord.x, coord.y, self.fieldWidth, self.fieldHeight, self.fieldPixelsPerFoot)
         line = gui.SvgLine(lineX, lineY, x1, y1)
         line.set_stroke(width=3)
         self.robotPathLines.append(line)
@@ -728,7 +726,7 @@ class CompetitionDashboard(sea.Dashboard):
         )
 
     def mouse_down_listener(self,widget,x,y):
-        x, y = svgToFieldCoordinates(x, y)
+        x, y = svgToFieldCoordinates(x, y, self.fieldWidth, self.fieldHeight, self.fieldPixelsPerFoot)
         self.selectedCoord = coordinates.FieldCoordinate("Selected",
             x, y, self.selectedCoord.angle)
         for point in self.targetPoints:
@@ -829,21 +827,26 @@ class CompetitionDashboard(sea.Dashboard):
         os.unlink(file.get_key())
         self.updatePresetFileDropdown()
 
-def svgToFieldCoordinates(x, y):
+def svgToFieldCoordinates(x, y, fieldWidth, fieldHeight, fieldPixelsPerFoot):
     return ((float(x) - fieldWidth  / 2) / fieldPixelsPerFoot,
             (-float(y) + fieldHeight / 2) / fieldPixelsPerFoot)
 
-def fieldToSvgCoordinates(x, y):
+def fieldToSvgCoordinates(x, y, fieldWidth, fieldHeight, fieldPixelsPerFoot):
     return (fieldWidth  / 2 + x * fieldPixelsPerFoot,
             fieldHeight / 2 - y * fieldPixelsPerFoot)
 
 # is used to represent the robot and cursor
 class Arrow(gui.SvgPolyline):
 
-    def __init__(self, color):
+    def __init__(self, color, fieldWidth, fieldHeight, fieldPixelsPerFoot):
         super().__init__()
-        halfWidth = drivetrain.ROBOT_WIDTH * fieldPixelsPerFoot / 2
-        halfLength = drivetrain.ROBOT_LENGTH * fieldPixelsPerFoot / 2
+
+        self.fieldPixelsPerFoot = fieldPixelsPerFoot
+        self.fieldWidth = fieldWidth
+        self.fieldHeight = fieldHeight
+
+        halfWidth = drivetrain.ROBOT_WIDTH * self.fieldPixelsPerFoot / 2
+        halfLength = drivetrain.ROBOT_LENGTH * self.fieldPixelsPerFoot / 2
         self.add_coord(0, -halfLength)
         self.add_coord(halfWidth, halfLength)
         self.add_coord(-halfWidth, halfLength)
@@ -858,7 +861,7 @@ class Arrow(gui.SvgPolyline):
         else:
             angle = self.angle
 
-        svgX, svgY = fieldToSvgCoordinates(x, y)
+        svgX, svgY = fieldToSvgCoordinates(x, y, self.fieldWidth, self.fieldHeight, self.fieldPixelsPerFoot)
         svgAngle = -math.degrees(angle)
         self.attributes['transform'] = "translate(%s,%s) rotate(%s)" \
             % (svgX, svgY, svgAngle)

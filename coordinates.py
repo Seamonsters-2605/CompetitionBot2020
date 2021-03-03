@@ -1,6 +1,7 @@
 import math
 
 # field: 52, 26
+# new 2021 field: 30, 15
 
 class FieldCoordinate:
 
