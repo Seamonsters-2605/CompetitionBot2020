@@ -12,6 +12,10 @@ RED = "rgb(130, 21, 21)"
 GREY = "rgb(100, 100, 100)"
 
 class CompetitionDashboard(sea.Dashboard):
+    """
+    A class representing the dashboard that can be used to control the robot.
+    (You know, that webpage with all the buttons that opens up when you start the robot.)
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, css=True, **kwargs)
