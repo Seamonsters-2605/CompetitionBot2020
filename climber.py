@@ -5,8 +5,9 @@ import seamonsters as sea
 
 class Climber:
     """
-    This class represents the subsystem on the robot that is used to grab on to the 
-    "generator switch" bar and hold itself above the ground.
+    This class represents the arm and winch the robot uses to hook itself on to the bar
+    and pull itself up.
+    (It is a subsystem of the robot.)
     """
     def __init__(self, armMotorNum: int, winchMotorhNum: int):
         """
