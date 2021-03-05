@@ -3,8 +3,24 @@ import math
 # field: 52, 26
 
 class FieldCoordinate:
+    """
+    A point (vector?) representing a position on the game field.
+    (0, 0) is the middle of the field (I think).
+    Attributes:
+        name - the name of the point.
+        x - the x position of the point (in feet).
+        y - the y position of the point (in feet).
+        angle - an angle (in radians).
+    """
 
     def __init__(self, name, x, y, angle):
+        """
+        Constructor.
+        :param name: the name of this point.
+        :param x: the x position of this point (in feet).
+        :param y: the y position of this point (in feet).
+        :param angle: an angle (in radians).
+        """
         self.name = name
         self.x = x
         self.y = y
