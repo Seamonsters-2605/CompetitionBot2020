@@ -169,9 +169,51 @@ class PathFollower:
 
             yield hasReachedPosition and hasReachedFinalAngle
 
+    def _driveBezierCurveGenerator(self, p0, p1, p2, speed):
+
+        distance_estimate = \
+                math.hypot(p0[0] - p1[0], p0[1] - p1[1]) + \
+                math.hypot(p1[0] - p2[0], p1[1] - p2[1])
+            
+        total_time = distance_estimate / speed / 5
+
+        def gx(t):
+            return 2 * (p0[0] * (t - 1) - p1[0] * (2 * t - 1) + t * p2[0])
+
+        def gy(t):
+            return 2 * (p0[1] * (t - 1) - p1[1] * (2 * t - 1) + t * p2[1])
+            
+        def gpx(t):
+            return 2 * (p2[0] - 2 * p1[0] + p0[0])
+
+        def gpy(t):
+            return 2 * (p2[1] - 2 * p1[1] + p0[1])
+
+        drivetrain.mediumVelocityGear.applyGear(self.drive)
+
+        for time in range(int(total_time * 50)):
+
+            self.updateRobotPosition()
+
+            t = time / total_time / 50
+
+            gxt = gx(t)
+            gyt = gy(t)
+            gpxt = gpx(t)
+            gpyt = gpy(t)
+
+            mag = math.sqrt(gx(t)*gx(t) + gy(t)*gy(t)) / total_time
+            turn = -(gpx(t) * gy(t) - gpy(t) * gx(t)) / (gx(t)*gx(t) + gy(t)*gy(t)) / total_time
+
+            self.drive.drive(mag, math.pi/2, turn)
+
+            yield False
+        
+        print("Target: {}   Actual: {}".format(str(p2), str((self.robotX, self.robotY))))
+
     def driveBezierPathGenerator(self, coordList, speed=4):
 
-        pointList = []
+        pointList = [(self.robotX, self.robotY)]
 
         for coord in coordList:
             pointList.append(coord.getCoords())
@@ -210,44 +252,8 @@ class PathFollower:
 
         for curve in curves:
 
-            distance_estimate = \
-                math.hypot(curve[0][0] - curve[1][0], curve[0][1] - curve[1][1]) + \
-                math.hypot(curve[1][0] - curve[2][0], curve[1][1] - curve[2][1])
-            
-            total_time = distance_estimate / speed / 5
+            yield from self._driveBezierCurveGenerator(curve[0], curve[1], curve[2], speed)
 
-            def gx(t):
-                return 2 * (curve[0][0] * (t - 1) - curve[1][0] * (2 * t - 1) + t * curve[2][0])
-
-            def gy(t):
-                return 2 * (curve[0][1] * (t - 1) - curve[1][1] * (2 * t - 1) + t * curve[2][1])
-            
-            def gpx(t):
-                return 2 * (curve[2][0] - 2 * curve[1][0] + curve[0][0])
-
-            def gpy(t):
-                return 2 * (curve[2][1] - 2 * curve[1][1] + curve[0][1])
-
-            drivetrain.mediumVelocityGear.applyGear(self.drive)
-
-            for time in range(int(total_time * 50)):
-
-                self.updateRobotPosition()
-
-                t = time / total_time / 50
-
-                gxt = gx(t)
-                gyt = gy(t)
-                gpxt = gpx(t)
-                gpyt = gpy(t)
-
-                mag = math.sqrt(gx(t)*gx(t) + gy(t)*gy(t)) / total_time
-                turn = -(gpx(t) * gy(t) - gpy(t) * gx(t)) / (gx(t)*gx(t) + gy(t)*gy(t)) / total_time
-
-                self.drive.drive(mag, math.pi/2, turn)
-
-                yield False
-            
         yield True
 
     # return magnitude, angle
