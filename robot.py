@@ -155,6 +155,7 @@ class CompetitionBot2020(botType):
         self.limelight.putNumber('ledMode', 1) # turn off leds
         self.shooter.stop()
 
+        self.superDrive.disable()
         self.controlModeMachine.replace(self.manualState)
 
     # switches the robot into auto
