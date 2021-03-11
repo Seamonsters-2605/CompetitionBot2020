@@ -9,6 +9,8 @@ class PathFollower:
 
     NAVX_LAG = 7 # frames
     NAVX_ERROR_CORRECTION = 0 # out of 1
+    AUTO_CORRECT_BEZIER = True
+    TRAPEZOIDAL_BEZIER_CALC = True
 
     def __init__(self, drive, ahrs=None):
         """
@@ -169,6 +171,24 @@ class PathFollower:
 
             yield hasReachedPosition and hasReachedFinalAngle
 
+    def _calcBezierMidpoint(self, point, angle):
+
+        rAngle = self.robotAngle + math.pi/2
+
+        d = (math.cos(rAngle) * math.sin(angle) - math.sin(rAngle) * math.cos(angle))
+
+        if d < 0.1:
+            return None
+
+        t = -(math.cos(rAngle) * (self.robotY - point[1]) - math.sin(rAngle) * (self.robotX - point[0])) / d
+
+        midpoint = (
+            math.cos(rAngle) * t + self.robotX,
+            math.sin(rAngle) * t + self.robotY
+        )
+
+        return midpoint
+
     def _driveBezierCurveGenerator(self, p0, p1, p2, speed):
 
         distance_estimate = \
@@ -195,21 +215,23 @@ class PathFollower:
 
             self.updateRobotPosition()
 
-            t = time / total_time / 50
+            t1 = time / total_time / 50
+            if PathFollower.TRAPEZOIDAL_BEZIER_CALC:
+                t2 = (time + 1) / total_time / 50
+            else:
+                t2 = t1
 
-            gxt = gx(t)
-            gyt = gy(t)
-            gpxt = gpx(t)
-            gpyt = gpy(t)
+            gxt = (gx(t1) + gx(t2)) / 2
+            gyt = (gy(t1) + gy(t2)) / 2
+            gpxt = (gpx(t1) + gpx(t2)) / 2
+            gpyt = (gpy(t1) + gpy(t2)) / 2
 
-            mag = math.sqrt(gx(t)*gx(t) + gy(t)*gy(t)) / total_time
-            turn = -(gpx(t) * gy(t) - gpy(t) * gx(t)) / (gx(t)*gx(t) + gy(t)*gy(t)) / total_time
+            mag = math.sqrt(gxt*gxt + gyt*gyt) / total_time
+            turn = -(gpxt * gyt - gpyt * gxt) / (gxt*gxt + gyt*gyt) / total_time
 
             self.drive.drive(mag, math.pi/2, turn)
 
             yield False
-        
-        print("Target: {}   Actual: {}".format(str(p2), str((self.robotX, self.robotY))))
 
     def driveBezierPathGenerator(self, coordList, speed=4):
 
@@ -250,9 +272,24 @@ class PathFollower:
                 pointList[l-1]
             ))
 
-        for curve in curves:
+        for curve in range(len(curves)):
 
-            yield from self._driveBezierCurveGenerator(curve[0], curve[1], curve[2], speed)
+            p1 = None
+            if curve != 0 and PathFollower.AUTO_CORRECT_BEZIER:
+                p1 = self._calcBezierMidpoint(curves[curve][2], math.atan2(
+                    curves[curve][2][1] - curves[curve][1][1],
+                    curves[curve][2][0] - curves[curve][1][0]
+                ))
+
+
+            if p1 is None:
+                p0 = curves[curve][0]
+                p1 = curves[curve][1]
+            else:
+                p0 = (self.robotX, self.robotY)
+
+            p2 = curves[curve][2]
+            yield from self._driveBezierCurveGenerator(p0, p1, p2, speed)
 
         yield True
 
