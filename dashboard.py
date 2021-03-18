@@ -56,6 +56,7 @@ class CompetitionDashboard(sea.Dashboard):
         leftSide.append(self.initLedControl(robot))
         leftSide.append(self.initScheduler(robot))
         leftSide.append(self.initBezier(robot))
+        leftSide.append(self.initPathRecording(robot))
 
         middle.append(self.initCamera(robot))
         middle.append(self.initFieldMap(robot))
@@ -509,6 +510,38 @@ class CompetitionDashboard(sea.Dashboard):
         resetBtn.set_on_click_listener(resetPath)
 
         return bezierBox
+
+    def initPathRecording(self, robot):
+        recordingBox = self.sectionBox()
+        recordingBox.append(gui.Label("Path Recording"))
+
+        recordingButtons = gui.HBox()
+        recordingBox.append(recordingButtons)
+
+        fileIn = gui.Input(default_value = "file name")
+        recordingBox.append(fileIn)
+
+        startBtn = gui.Button("Start")
+        stopBtn = gui.Button("Stop")
+        saveBtn = gui.Button("Save")
+
+        for btn in [startBtn, stopBtn, saveBtn]:
+            recordingButtons.append(btn)
+
+        def startRecording(button, robot):
+            autoActions.startRecording(robot)
+
+        def stopRecording(button, robot):
+            autoActions.stopRecording(robot)
+
+        def saveRecording(button, robot, textIn):
+            autoActions.saveRecording(robot, fileIn.get_value())
+
+        startBtn.set_on_click_listener(startRecording, robot)
+        stopBtn.set_on_click_listener(stopRecording, robot)
+        saveBtn.set_on_click_listener(saveRecording, robot, fileIn)
+
+        return recordingBox
 
     def initLedControl(self, robot):
         ledBox = self.sectionBox()
