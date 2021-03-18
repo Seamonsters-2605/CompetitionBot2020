@@ -1,4 +1,4 @@
-import math, coordinates, drivetrain, sys
+import math, coordinates, sys, pickle, os
 from autoScheduler import Action
 import seamonsters as sea
 
@@ -125,3 +125,34 @@ def createGenericAutoActions(robot):
         createEndAction(robot),
         Action("Wait 1 sec", waitOneSecond, 1)
     ]
+
+def startRecording(robot):
+
+    if robot.isRecording:
+        print("Already recording robot data")
+        return
+    
+    robot.recordedData = ([], [])
+    robot.isRecording = True
+
+def stopRecording(robot):
+
+    if not robot.isRecording:
+        print("Robot not recording")
+        return
+
+    robot.isRecording = False
+
+def saveRecording(robot, filename):
+
+    # Saves the file as an:
+    # Autonomous Numeric Kinematic Library file (.ankl)
+
+    with open(os.path.join(sea.getRobotPath('autoPresets'), filename + ".ankl"), "wb") as outFile:
+        pickle.dump(robot.recordedData, outFile)
+
+def driveRecordedPath(pathFollower, filename):
+    yield from sea.ensureTrue(pathFollower.driveRecordedPathGenerator(filename), 1)
+
+def createDriveRecordedPathAction(pathFollower, filename):
+    return Action("Recorded Path", lambda: driveRecordedPath(pathFollower, filename), "recorded")

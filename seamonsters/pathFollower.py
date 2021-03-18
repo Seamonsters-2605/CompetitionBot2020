@@ -1,4 +1,4 @@
-import math, sys
+import math, sys, pickle, os
 import seamonsters as sea
 import drivetrain
 
@@ -9,6 +9,8 @@ class PathFollower:
 
     NAVX_LAG = 7 # frames
     NAVX_ERROR_CORRECTION = 0 # out of 1
+    AUTO_CORRECT_BEZIER = True
+    TRAPEZOIDAL_BEZIER_CALC = True
 
     def __init__(self, drive, ahrs=None):
         """
@@ -169,9 +171,71 @@ class PathFollower:
 
             yield hasReachedPosition and hasReachedFinalAngle
 
+    def _calcBezierMidpoint(self, point, angle):
+
+        rAngle = self.robotAngle + math.pi/2
+
+        d = (math.cos(rAngle) * math.sin(angle) - math.sin(rAngle) * math.cos(angle))
+
+        if d < 0.1:
+            return None
+
+        t = -(math.cos(rAngle) * (self.robotY - point[1]) - math.sin(rAngle) * (self.robotX - point[0])) / d
+
+        midpoint = (
+            math.cos(rAngle) * t + self.robotX,
+            math.sin(rAngle) * t + self.robotY
+        )
+
+        return midpoint
+
+    def _driveBezierCurveGenerator(self, p0, p1, p2, speed):
+
+        distance_estimate = \
+                math.hypot(p0[0] - p1[0], p0[1] - p1[1]) + \
+                math.hypot(p1[0] - p2[0], p1[1] - p2[1])
+            
+        total_time = distance_estimate / speed / 5
+
+        def gx(t):
+            return 2 * (p0[0] * (t - 1) - p1[0] * (2 * t - 1) + t * p2[0])
+
+        def gy(t):
+            return 2 * (p0[1] * (t - 1) - p1[1] * (2 * t - 1) + t * p2[1])
+            
+        def gpx(t):
+            return 2 * (p2[0] - 2 * p1[0] + p0[0])
+
+        def gpy(t):
+            return 2 * (p2[1] - 2 * p1[1] + p0[1])
+
+        drivetrain.mediumVelocityGear.applyGear(self.drive)
+
+        for time in range(int(total_time * 50)):
+
+            self.updateRobotPosition()
+
+            t1 = time / total_time / 50
+            if PathFollower.TRAPEZOIDAL_BEZIER_CALC:
+                t2 = (time + 1) / total_time / 50
+            else:
+                t2 = t1
+
+            gxt = (gx(t1) + gx(t2)) / 2
+            gyt = (gy(t1) + gy(t2)) / 2
+            gpxt = (gpx(t1) + gpx(t2)) / 2
+            gpyt = (gpy(t1) + gpy(t2)) / 2
+
+            mag = math.sqrt(gxt*gxt + gyt*gyt) / total_time
+            turn = -(gpxt * gyt - gpyt * gxt) / (gxt*gxt + gyt*gyt) / total_time
+
+            self.drive.drive(mag, math.pi/2, turn)
+
+            yield False
+
     def driveBezierPathGenerator(self, coordList, speed=4):
 
-        pointList = []
+        pointList = [(self.robotX, self.robotY)]
 
         for coord in coordList:
             pointList.append(coord.getCoords())
@@ -208,46 +272,39 @@ class PathFollower:
                 pointList[l-1]
             ))
 
-        for curve in curves:
+        for curve in range(len(curves)):
 
-            distance_estimate = \
-                math.hypot(curve[0][0] - curve[1][0], curve[0][1] - curve[1][1]) + \
-                math.hypot(curve[1][0] - curve[2][0], curve[1][1] - curve[2][1])
-            
-            total_time = distance_estimate / speed / 5
+            p1 = None
+            if curve != 0 and PathFollower.AUTO_CORRECT_BEZIER:
+                p1 = self._calcBezierMidpoint(curves[curve][2], math.atan2(
+                    curves[curve][2][1] - curves[curve][1][1],
+                    curves[curve][2][0] - curves[curve][1][0]
+                ))
 
-            def gx(t):
-                return 2 * (curve[0][0] * (t - 1) - curve[1][0] * (2 * t - 1) + t * curve[2][0])
 
-            def gy(t):
-                return 2 * (curve[0][1] * (t - 1) - curve[1][1] * (2 * t - 1) + t * curve[2][1])
-            
-            def gpx(t):
-                return 2 * (curve[2][0] - 2 * curve[1][0] + curve[0][0])
+            if p1 is None:
+                p0 = curves[curve][0]
+                p1 = curves[curve][1]
+            else:
+                p0 = (self.robotX, self.robotY)
 
-            def gpy(t):
-                return 2 * (curve[2][1] - 2 * curve[1][1] + curve[0][1])
+            p2 = curves[curve][2]
+            yield from self._driveBezierCurveGenerator(p0, p1, p2, speed)
 
-            drivetrain.mediumVelocityGear.applyGear(self.drive)
+        yield True
 
-            for time in range(int(total_time * 50)):
+    def driveRecordedPathGenerator(self, filename):
 
-                self.updateRobotPosition()
+        data = None
+        with open(os.path.join(sea.getRobotPath('autoPresets'), filename + ".ankl"), "rb") as inFile:
+            data = pickle.load(inFile)
+        
+        for mag, turn in zip(*data):
+            self.updateRobotPosition()
+            self.drive.drive(mag, math.pi/2, turn)
 
-                t = time / total_time / 50
-
-                gxt = gx(t)
-                gyt = gy(t)
-                gpxt = gpx(t)
-                gpyt = gpy(t)
-
-                mag = math.sqrt(gx(t)*gx(t) + gy(t)*gy(t)) / total_time
-                turn = -(gpx(t) * gy(t) - gpy(t) * gx(t)) / (gx(t)*gx(t) + gy(t)*gy(t)) / total_time
-
-                self.drive.drive(mag, math.pi/2, turn)
-
-                yield False
-            
+            yield False
+        
         yield True
 
     # return magnitude, angle
