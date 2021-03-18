@@ -148,7 +148,7 @@ def saveRecording(robot, filename):
     # Saves the file as an:
     # Autonomous Numeric Kinematic Library file (.ankl)
 
-    with open(os.path.join(sea.getRobotPath('autoPresets'), filename + ".ankl")) as outFile:
+    with open(os.path.join(sea.getRobotPath('autoPresets'), filename + ".ankl"), "wb") as outFile:
         pickle.dump(robot.recordedData, outFile)
 
 def driveRecordedPath(pathFollower, filename):
