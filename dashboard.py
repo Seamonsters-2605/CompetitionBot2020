@@ -512,14 +512,19 @@ class CompetitionDashboard(sea.Dashboard):
         return bezierBox
 
     def initPathRecording(self, robot):
+        # the text input box is for saving and the dropdown is for loading
+
         recordingBox = self.sectionBox()
         recordingBox.append(gui.Label("Path Recording"))
+
+        fileIn = gui.Input(default_value = "file name")
+        recordingBox.append(fileIn)
 
         recordingButtons = gui.HBox()
         recordingBox.append(recordingButtons)
 
-        fileIn = gui.Input(default_value = "file name")
-        recordingBox.append(fileIn)
+        fileDropdown = gui.DropDown()
+        recordingBox.append(fileDropdown)
 
         startBtn = gui.Button("Start")
         stopBtn = gui.Button("Stop")
@@ -529,6 +534,13 @@ class CompetitionDashboard(sea.Dashboard):
         for btn in [startBtn, stopBtn, saveBtn, loadBtn]:
             recordingButtons.append(btn)
 
+        def updateDropDown():
+            fileDropdown.empty()
+            for file in glob.glob(os.path.join(self.presetPath(), "*.ankl")):
+                fileName = os.path.basename(file)
+                fileDropdown.append(fileName, file)
+
+        
         def startRecording(button, robot):
             autoActions.startRecording(robot)
 
@@ -537,16 +549,27 @@ class CompetitionDashboard(sea.Dashboard):
 
         def saveRecording(button, robot, textIn):
             autoActions.saveRecording(robot, fileIn.get_value())
+            updateDropDown()
 
-        def loadRecording(button, robot, textIn):
-            action = autoActions.createDriveRecordedPathAction(robot.pathFollower, fileIn.get_value())
+        # def loadRecording(button, robot, textIn):
+        #     action = autoActions.createDriveRecordedPathAction(robot.pathFollower, fileIn.get_value())
+        #     self.robot.autoScheduler.actionList.append(action)
+        #     self.updateSchedulerFlag = True
+
+        def loadRecording(dropDownItem, file):
+            if file.get_key() is None:
+                print("No file selected")
+                return
+            action = autoActions.createDriveRecordedPathAction(robot.pathFollower, file.get_key()[:-5])
             self.robot.autoScheduler.actionList.append(action)
             self.updateSchedulerFlag = True
+
+        updateDropDown()
 
         startBtn.set_on_click_listener(startRecording, robot)
         stopBtn.set_on_click_listener(stopRecording, robot)
         saveBtn.set_on_click_listener(saveRecording, robot, fileIn)
-        loadBtn.set_on_click_listener(loadRecording, robot, fileIn)
+        loadBtn.set_on_click_listener(loadRecording, fileDropdown)
 
         return recordingBox
 
