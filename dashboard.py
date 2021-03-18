@@ -551,11 +551,6 @@ class CompetitionDashboard(sea.Dashboard):
             autoActions.saveRecording(robot, fileIn.get_value())
             updateDropDown()
 
-        # def loadRecording(button, robot, textIn):
-        #     action = autoActions.createDriveRecordedPathAction(robot.pathFollower, fileIn.get_value())
-        #     self.robot.autoScheduler.actionList.append(action)
-        #     self.updateSchedulerFlag = True
-
         def loadRecording(dropDownItem, file):
             if file.get_key() is None:
                 print("No file selected")
