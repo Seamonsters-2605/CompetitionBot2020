@@ -293,7 +293,7 @@ class PathFollower:
 
         yield True
 
-    def driveRecordedPath(self, filename):
+    def driveRecordedPathGenerator(self, filename):
 
         data = None
         with open(filename, "rb") as inFile:
@@ -306,7 +306,6 @@ class PathFollower:
             yield False
         
         yield True
-            
 
     # return magnitude, angle
     def _robotVectorToPoint(self, x, y):

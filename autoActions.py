@@ -151,3 +151,8 @@ def saveRecording(robot, filename):
     with open(sea.getRobotPath('autoPresets') + filename + ".ankl") as outFile:
         pickle.dump(robot.recordedData, outFile)
 
+def driveRecordedPath(pathFollower, filename):
+    yield from sea.ensureTrue(pathFollower.driveRecordedPathGenerator(filename))
+
+def createDriveRecordedPathAction(pathFollower, filename):
+    return Action("Recorded Path", lambda: driveRecordedPath(pathFollower, filename), "recorded")
