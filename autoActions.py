@@ -152,7 +152,7 @@ def saveRecording(robot, filename):
         pickle.dump(robot.recordedData, outFile)
 
 def driveRecordedPath(pathFollower, filename):
-    yield from sea.ensureTrue(pathFollower.driveRecordedPathGenerator(filename))
+    yield from sea.ensureTrue(pathFollower.driveRecordedPathGenerator(filename), 1)
 
 def createDriveRecordedPathAction(pathFollower, filename):
     return Action("Recorded Path", lambda: driveRecordedPath(pathFollower, filename), "recorded")

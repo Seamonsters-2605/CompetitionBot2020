@@ -215,7 +215,7 @@ class CompetitionBot2020(botType):
             mag *= self.driveGear.moveScale
             direction = self.controls.getDirection()
             
-            if self.recording:
+            if self.isRecording:
                 self.recordedData[0].append(mag)
                 self.recordedData[1].append(turn)
 

@@ -524,8 +524,9 @@ class CompetitionDashboard(sea.Dashboard):
         startBtn = gui.Button("Start")
         stopBtn = gui.Button("Stop")
         saveBtn = gui.Button("Save")
+        loadBtn = gui.Button("Load")
 
-        for btn in [startBtn, stopBtn, saveBtn]:
+        for btn in [startBtn, stopBtn, saveBtn, loadBtn]:
             recordingButtons.append(btn)
 
         def startRecording(button, robot):
@@ -537,9 +538,15 @@ class CompetitionDashboard(sea.Dashboard):
         def saveRecording(button, robot, textIn):
             autoActions.saveRecording(robot, fileIn.get_value())
 
+        def loadRecording(button, robot, textIn):
+            action = autoActions.createDriveRecordedPathAction(robot.pathFollower, fileIn.get_value())
+            self.robot.autoScheduler.actionList.append(action)
+            self.updateSchedulerFlag = True
+
         startBtn.set_on_click_listener(startRecording, robot)
         stopBtn.set_on_click_listener(stopRecording, robot)
         saveBtn.set_on_click_listener(saveRecording, robot, fileIn)
+        loadBtn.set_on_click_listener(loadRecording, robot, fileIn)
 
         return recordingBox
 
