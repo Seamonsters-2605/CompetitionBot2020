@@ -1,4 +1,4 @@
-import math, sys
+import math, sys, pickle
 import seamonsters as sea
 import drivetrain
 
@@ -292,6 +292,21 @@ class PathFollower:
             yield from self._driveBezierCurveGenerator(p0, p1, p2, speed)
 
         yield True
+
+    def driveRecordedPath(self, filename):
+
+        data = None
+        with open(filename, "rb") as inFile:
+            data = pickle.load(sea.getRobotPath('autoPresets') + filename + ".ankl")
+        
+        for mag, turn in zip(*data):
+            self.updateRobotPosition()
+            self.drive.drive(mag, math.pi/2, turn)
+
+            yield False
+        
+        yield True
+            
 
     # return magnitude, angle
     def _robotVectorToPoint(self, x, y):

@@ -145,5 +145,9 @@ def stopRecording(robot):
 
 def saveRecording(robot, filename):
 
-    with open(sea.getRobotPath('autoPresets') + filename) as outFile:
+    # Saves the file as an:
+    # Autonomous Numeric Kinematic Library file (.ankl)
+
+    with open(sea.getRobotPath('autoPresets') + filename + ".ankl") as outFile:
         pickle.dump(robot.recordedData, outFile)
+
