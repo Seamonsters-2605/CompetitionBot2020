@@ -1,4 +1,4 @@
-import math, sys, pickle
+import math, sys, pickle, os
 import seamonsters as sea
 import drivetrain
 
@@ -296,8 +296,8 @@ class PathFollower:
     def driveRecordedPathGenerator(self, filename):
 
         data = None
-        with open(filename, "rb") as inFile:
-            data = pickle.load(sea.getRobotPath('autoPresets') + filename + ".ankl")
+        with open(os.path.join(sea.getRobotPath('autoPresets'), filename + ".ankl"), "rb") as inFile:
+            data = pickle.load(inFile)
         
         for mag, turn in zip(*data):
             self.updateRobotPosition()
