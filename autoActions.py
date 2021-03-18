@@ -1,4 +1,4 @@
-import math, coordinates, drivetrain, sys
+import math, coordinates, drivetrain, sys, pickle
 from autoScheduler import Action
 import seamonsters as sea
 
@@ -125,3 +125,25 @@ def createGenericAutoActions(robot):
         createEndAction(robot),
         Action("Wait 1 sec", waitOneSecond, 1)
     ]
+
+def startRecording(robot):
+
+    if robot.recording:
+        print("Already recording robot data")
+        return
+    
+    robot.recordedData = ([], [])
+    robot.recording = True
+
+def stopRecording(robot):
+
+    if not robot.recording:
+        print("Robot not recording")
+        return
+
+    robot.recording = False
+
+def saveRecording(robot, filename):
+
+    with open(sea.getRobotPath('autoPresets') + filename) as outFile:
+        pickle.dump(robot.recordedData, outFile)

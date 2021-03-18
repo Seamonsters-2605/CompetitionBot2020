@@ -49,6 +49,8 @@ class CompetitionBot2020(botType):
         self.autoScheduler = autoScheduler.AutoScheduler()
         self.autoScheduler.idleFunction = self.autoIdle
         self.autoScheduler.updateCallback = self.updateScheduler
+        self.isRecording = False
+        self.recordedData = ([], [])
 
         # controls the state of the robot
         self.controlModeMachine = sea.StateMachine()
@@ -213,6 +215,10 @@ class CompetitionBot2020(botType):
             mag *= self.driveGear.moveScale
             direction = self.controls.getDirection()
             
+            if self.recording:
+                self.recordedData[0].append(mag)
+                self.recordedData[1].append(turn)
+
             self.multiDrive.drive(mag, direction, turn)
             self.multiDrive.update()
 
