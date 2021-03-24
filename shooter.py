@@ -2,8 +2,16 @@ import rev
 import seamonsters as sea
 
 class Shooter:
-
-    def __init__(self, motorNum1, motorNum2):
+    """
+    This class is used to control the motor/pistons on the robot that shoot the balls.
+    (It is a subsystem of the robot.)
+    """
+    def __init__(self, motorNum1: int, motorNum2: int):
+        """
+        Constructor. Not sure what motorNum corresponds with what.
+        :param motorNum1: The number of a motor on the shooter.
+        :param motorNum2: The number of another motor on the shooter.
+        """
 
         p = 0.00007
         i = 0.0000007

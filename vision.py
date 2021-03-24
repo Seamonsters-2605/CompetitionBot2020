@@ -2,6 +2,11 @@ import seamonsters as sea
 from networktables import NetworkTables
 import math
 
+"""
+This file has some functions for locating vision targets,
+as well as storing information about the limelight (e.g., where it is on the robot).
+"""
+
 LIMELIGHT_HEIGHT = 1.33 # feet
 TARGET_HEIGHT = 7.48 # feet
 LIMELIGHT_ANGLE = math.radians(0) # angle in radians, needs to changed fixed later

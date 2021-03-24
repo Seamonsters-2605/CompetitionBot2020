@@ -4,6 +4,11 @@ import seamonsters as sea
 MOTOR_SPEED = 5_000
 
 class Intake:
+    """
+    This class is used to control the pistons and motors on the robot that
+    pick up balls off the field.
+    (It is a subsystem of the robot.)
+    """
     # pistonNums should be a list of length 4
     # the first 2 values for one piston and the
     # other 2 values for the other piston
