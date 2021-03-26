@@ -50,14 +50,14 @@ def _makeWheel(superDrive, sparkMaxNum1, sparkMaxNum2, sparkMaxNum3, motorType, 
 slowVoltageGear = DriveGear("Slow Voltage", rev.ControlType.kVoltage, gearRatio=1/21.55, 
 moveScale=0.55, turnScale=0.8)
 mediumVoltageGear = DriveGear("Medium Voltage", rev.ControlType.kVoltage, gearRatio=1/7.33,
-moveScale=0.35, turnScale=0.5)
+moveScale=0.35, turnScale=0.15)
 fastVoltageGear = DriveGear("Fast Voltage", rev.ControlType.kVoltage, gearRatio=1/7.33, 
 moveScale=0.55, turnScale=0.8) 
 
 slowVelocityGear = DriveGear("Slow Velocity", rev.ControlType.kVelocity,
     gearRatio=1/21.55, moveScale=5, turnScale=2.1, p=0.0000688, i=0.0000007, d=0.00001, f=0.0)
 mediumVelocityGear = DriveGear("Medium Velocity", rev.ControlType.kVelocity,
-    gearRatio=1/7.33, moveScale=6, turnScale=3, p=0.00007, i=0.0000007, d=0.00001, f=0.0)
+    gearRatio=1/7.33, moveScale=6, turnScale=2, p=0.00007, i=0.0000007, d=0.00001, f=0.0)
 fastVelocityGear = DriveGear("Fast Velocity", rev.ControlType.kVelocity,
     gearRatio=1/7.33, moveScale=10, turnScale=5.5, p=0.00007, i=0.0000007, d=0.0001, f=0.0)
 
