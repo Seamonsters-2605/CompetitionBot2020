@@ -17,6 +17,14 @@ else:
     botType = sea.GeneratorBot
 
 class CompetitionBot2020(botType):
+    """
+    A class representing the robot used in 2020's competition.
+    This class:
+        Has methods for initiating the robot, controlling the drivetrain,
+        Keeps track of subsystems (climber, intake, shooter, etc.),
+        Interacts with the dashboard and controllers (like XBox controllers),
+        Has methods for switching between autonomous and teleop mode.
+    """
 
     def robotInit(self):
 

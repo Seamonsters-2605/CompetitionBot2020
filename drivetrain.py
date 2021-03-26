@@ -3,6 +3,12 @@ from gear import DriveGear
 from motorNums import DRIVETRAIN_LEFT, DRIVETRAIN_RIGHT
 import math, rev, sys
 
+"""
+This file contains information and functions for controlling the robot's drivetrain.
+These functions being: adding wheels and initializing the drivetrain.
+It also has configuration of the different drive gears (fast/slow, in voltage/position mode)
+"""
+
 ROBOT_LENGTH = 3
 ROBOT_WIDTH = 3
 
